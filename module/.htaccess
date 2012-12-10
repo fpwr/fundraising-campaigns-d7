@@ -1,0 +1,11 @@
+<files dirty_log.txt>
+ order allow,deny
+ deny from all
+</files>
+
+<files ipn_sent.log>
+ order allow,deny
+ deny from all
+</files>
+
+AddType application/octet-stream csv

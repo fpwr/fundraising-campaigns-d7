@@ -1,0 +1,32 @@
+core = 7.x
+name = DW Campaigns Derby
+description = DW Campaigns Derby Theme.
+base theme = tao
+version = "7.x-0.2"
+engine = phptemplate
+
+
+
+regions[header] = Header
+regions[left] = Left Sidebar
+regions[right] = Right Sidebar
+regions[content] = Content (not used)
+
+regions[contentInnerTop] = Content Inner Top
+regions[contentInnerBottom] = Content Inner Bottom
+
+regions[contentTop] = Content Top
+regions[contentBottom] = Content Bottom
+
+regions[footer] = Footer
+
+
+#stylesheets[screen][]   = js/jqtransformplugin/jqtransform.css
+stylesheets[screen][]   = dw_campaigns_derby.css
+stylesheets[all][]      = css/jquery.fancybox-1.3.1.css
+
+#scripts[]               = js/jqtransformplugin/jquery.jqtransform.js
+scripts[]               = dw_campaigns_derby.js
+scripts[]               = js/jquery.fancybox-1.3.1.js
+scripts[]               = js/jquery.iframe-auto-height.plugin.1.6.0.min.js
+

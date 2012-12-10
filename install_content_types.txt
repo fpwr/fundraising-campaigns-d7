@@ -1,0 +1,6 @@
+To install the content types please install and enable
+
+http://drupal.org/project/ctools
+http://drupal.org/project/bundle_copy 
+
+import content_types_import.txt @ /admin/structure/types

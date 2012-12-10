@@ -1,0 +1,27 @@
+#navigation {
+	display: none;
+}
+
+#navBanner,
+#main {
+	width:100%;
+}
+
+#main .bg {
+	width:980px;
+}
+
+
+.derby-navigation .nav-bar li.search {
+	padding-top:10px;
+}
+
+.users-pcp-page-right .progress-pcp {
+	margin-top:10px;
+}
+
+
+#dw-campaigns-users-donate-page-form #edit-cancel {
+	margin-left:300px;
+	float:left;
+}
