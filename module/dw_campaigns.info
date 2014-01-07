@@ -2,7 +2,7 @@
 name = DW Campaigns Module
 description = Allow users to create Derby & Walk Campaigns (contributions)
 core = 7.x
-version = 7.x-0.0.1
+version = 7.x-0.0.2
 ; 0.0.3 + 
 
 package = dw_campaigns

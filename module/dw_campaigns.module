@@ -1679,6 +1679,16 @@ function dw_campaigns_form_alter(&$form, &$form_state, $form_id) {
         }
     }
 
+    // workaround
+    if($form_id=='dw_campaigns_settings') {
+        $a = variable_get('dw_campaign_host_panel_message', '');
+
+        if(isset($a['value'])) {
+            $a = $a['value'];
+        }
+
+        $form['walking_specific']['dw_campaign_host_panel_message']['#default_value']       = $a;
+    }
 }
 
 function dw_campaigns_rdf_namespaces() {
@@ -2661,7 +2671,7 @@ function _dw_campaigns_thumb($src, $params) {
         }
         
         if(isset($params['h']) && $params['h'] > 0) {
-            $phpThumb->setParameter('w', $params['h']);
+            $phpThumb->setParameter('h', $params['h']);
         }
           
             
@@ -3195,8 +3205,9 @@ function dw_campaigns_user_create_pcp_page_form_submit(&$form, &$form_state) {
         $contribution_page_id = $cpage->id;
         $pcp        = NULL;
 
-      
-        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' fundraiser ' . date('Y'); 
+     
+        $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y')); 
+        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' fundraiser ' . $suffix;
         $tag_id = dw_campaigns_get_tag_id_by_name($name);
         dw_campaigns_tag_contact($tag_id, array($contactId));
 
@@ -4207,6 +4218,18 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         );
     }
 
+    // FIXME - do this better - having this hardcoded in a donation form is bad
+    $currency_symbol = '$';
+    switch($currency) {
+        case ' (GBP)':
+            $currency_symbol = '£';
+            break;
+        case ' (EUR)':
+        case ' (EURO)':
+            $currency_symbol = '';
+            break;
+    }
+
     if(isset($pcp->id)) {
         drupal_add_js('
           (function($) {
@@ -4504,7 +4527,9 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
     }
 
     $title          = htmlentities($campaign->title, ENT_QUOTES);
-    
+   
+
+ 
     if($include_donation_conf) {
     drupal_add_js('
         (function($) {
@@ -4518,7 +4543,7 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
                   return false;
               }
 
-              res = confirm("Please confirm your donation of $" + amount + " to the " + title + ".");
+              res = confirm("Please confirm your donation of ' . $currency_symbol . '" + amount + " to the " + title + ".");
 
               if(res) {
                 $("#show-words").fancybox().trigger("click"); 
@@ -4955,6 +4980,11 @@ d name or expiry date.',
             $errmsg = isset($IATS_errors[$error_code]) ? $IATS_errors[$error_code] : '';
 
             switch($error_code) {
+                case 12:
+                    form_set_error('exp-month', t('Incorrect Expiration Date or CVV2 code'));
+                    form_set_error('exp-year', t('Incorrect Expiration Date or CVV2 code'));
+                    form_set_error($errmsg);
+                    break;
 		case 3:
 		case 4:
                     form_set_error('exp-month', t('Expiration Date'));
@@ -5153,7 +5183,8 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
         drupal_mail('dw_campaigns_receipt', 'donate-pcp-owner', $pcp_contact->email,    user_preferred_language($user), $mergeObjects_cleaned, $from);
     } 
 
-    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' donor ' . date('Y');
+    $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
+    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' donor ' . $suffix;
     $tag_id = dw_campaigns_get_tag_id_by_name($name);
     dw_campaigns_tag_contact($tag_id, array($values['contact_id']));
 

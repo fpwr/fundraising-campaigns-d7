@@ -338,7 +338,12 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
     $host_record    = dw_campaigns_lookup_host_record($user->uid);
 
     $year   = date("Y"); 
-    $year   = '2013';
+	/*
+	 FIXME our host registration window does not necessarily reflect the real year (in the fall you may sign
+	 up hosts for the next year - this should be an admin form value
+	 */
+	
+    $year   = '2014';
     
     // if we dont have a record for that host, create one and populate it with the values we have
     // EDIT - actually this has been changed in the spec - an admin could manually assign "old" host records to multiple walks, but for now each walk would have its own host record.  So   User ->> many host records
@@ -443,7 +448,8 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
 
     }
 
-    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' host ' . $year; 
+    $suffix = variable_get('dw_campaigns_cfg_tag_suffix', $year);
+    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' host ' . $suffix;
     $tag_id = dw_campaigns_get_tag_id_by_name($name);
     dw_campaigns_tag_contact($tag_id, array($contact->contact_id));
 
@@ -498,8 +504,9 @@ function dw_campaigns_host_event_set_variables($node, $values) {
 
     $node->field_dw_fundraising_goal['und']['0']['value']   = $fund_goal;
 
-    $node->field_dw_date_range['und']['0']['value']         = isset($values['date']) ? $values['date'] . 'T00:00:00' : '2012-12-31T23:59:59'; 
-    $node->field_dw_date_range['und']['0']['value2']        = isset($values['date']) ? $values['date'] . 'T00:00:00' : '2012-12-31T23:59:59'; 
+// FIXME - this should be on an admin form
+    $node->field_dw_date_range['und']['0']['value']         = isset($values['date']) ? $values['date'] . 'T00:00:00' : '2014-12-31T23:59:59'; 
+    $node->field_dw_date_range['und']['0']['value2']        = isset($values['date']) ? $values['date'] . 'T00:00:00' : '2014-12-31T23:59:59'; 
 
     $node->field_dw_therm_currency['und']['0']['value']     = isset($values['thermometer'])    ? $values['thermometer']                : 'USD';
     $node->field_dw_event_date['und']['0']['value']         = isset($values['event-date'])     ? $values['event-date']                 : '';
@@ -649,6 +656,12 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
         '#type'             => 'checkbox',
         '#title'            => t('Show First and Last name on donation list (will show anonymous otherwise)'),
         '#default_value'    => 1,
+    )
+;
+    $form['non_deductible'] = array(
+        '#type'             => 'checkbox',
+        '#title'            => t('Non-deductible'),
+        '#default_value'    => 0,
     );
 
     global $user;
@@ -848,6 +861,7 @@ function dw_campaigns_user_donations_add_form_new_submit(&$form, &$form_state) {
         'payment_check_number'  => $values['payment_check_number'],
         'trxn_id'               => $values['trxn_id'],
         'receive_date'          => $values['receive_date'],
+        'non_deductible'        => $values['non_deductible'],
     ))->execute();
 
     drupal_set_message("Offline Contribution Added");
@@ -999,6 +1013,7 @@ function dw_campaigns_offline_edit_form(&$form, &$form_state, $pcp, $offline_don
     $form['payment_check_number']['#default_value']     = $offline_donation->payment_check_number;
     $form['trxn_id']['#default_value']                  = $offline_donation->trxn_id;
     $form['receive_date']['#default_value']             = $offline_donation->receive_date;
+    $form['non_deductible']['#default_value']           = $offline_donation->non_deductible;
 
     $form['offline_id'] = array(
         '#type'             => 'hidden',
@@ -1045,6 +1060,7 @@ function dw_campaigns_offline_edit_form_submit(&$form, &$form_state) {
         'payment_check_number'  => $values['payment_check_number'],
         'trxn_id'               => $values['trxn_id'],
         'receive_date'          => $values['receive_date'],
+        'non_deductible'        => $values['non_deductible'],
     ))->condition('offline_id', $values['offline_id'], '=')->execute();
 }
 
@@ -1367,7 +1383,7 @@ function dw_campaigns_user_host_fundraisers_form(&$form, &$form_state, $event_id
     $form['event_fundraisers'] = array(
         '#type'                 => 'fieldset',
         '#title'                => 'Event Fundraisers',
-        '#collapsible'          => TRUE,
+        '#collapsible'          => FALSE,
         '#collapsed'            => FALSE
     );
 
@@ -1502,7 +1518,7 @@ function dw_campaigns_user_host_manage_page_form(&$form, &$form_state, $event_id
         $form['event_details'] = array(
             '#type'             => 'fieldset',
             '#title'            => t('Event Details'),
-            '#collapsible'      => TRUE,
+            '#collapsible'      => FALSE,
             '#collapsed'        => FALSE
         );
 
@@ -1838,7 +1854,7 @@ function dw_campaigns_user_host_request_services_form($form, &$form_state, $even
     $form['request_services'] = array(
         '#type'             => 'fieldset',
         '#title'            => t('Request Services'),
-        '#collapsible'      => TRUE,
+        '#collapsible'      => FALSE,
         '#collapsed'        => FALSE,
     );
 
@@ -2847,7 +2863,8 @@ function dw_campaigns_donor_participation_form_submit(&$form, &$form_state) {
     dw_campaigns_set_event_participants_count($values['campaign_id'], 0, $values['children'], $values['adults'], 0, 'donator', $values['contact_id']);
 
     if($values['children'] > 0 || $values['adults'] > 0) {
-        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' participant ' . date('Y');
+        $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
+        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' participant ' . $suffix;
         $tag_id = dw_campaigns_get_tag_id_by_name($name);
         dw_campaigns_tag_contact($tag_id, array($values['contact_id']));
     }
@@ -3882,8 +3899,9 @@ function dw_campaigns_report_show_clean_urls() {
 
 function dw_campaigns_checkout_pp_ipncatch() {
 
+    global $dw_campaign_module_path;
+
     $other = $_POST;
-    file_put_contents("/tmp/other", print_r($other, TRUE));
     
     $other['cmd'] = '_notify-validate';
     $req = html_entity_decode(http_build_query($other));
@@ -3916,21 +3934,22 @@ function dw_campaigns_checkout_pp_ipncatch() {
     curl_close($curl);
     
     
-    file_put_contents("/tmp/ipn_sent.log", $req . "\n", FILE_APPEND);
     
-    if (strncmp($results, "VERIFIED", 8) == 0) {
+    if (strncmp($results, "VERIFIED", 8) == 0 || strpos($results, "An error occurred") !== FALSE) {
     
         $hash   = $_POST['custom'];
         $result = db_query("select * from {dw_campaigns_checkout_swap} where hash = :hash", array(':hash' => $hash));
         
         if($result->rowCount() == 0) {
+			// FIXME - these should be saved somewhere better than
             file_put_contents($dw_campaign_module_path . "/failed_ipn/" . microtime(true), print_r($other, TRUE) . "\n\n" . serialize($other));
-            mail("ryan@refreshdigital.com", "bad ipn", print_r($other, TRUE));
+            // FIXME - this needs to be defined on an admin form
+			mail("root@", "bad ipn", print_r($other, TRUE));
         } else {
             $row = $result->fetchObject();
     
             $values = unserialize($row->data);
-            file_put_contents("/tmp/zz12dd", print_r($values, TRUE));
+
             $table = 'dw_campaigns_offline_donation';
             if(!db_table_exists($table)) {
                 dw_campaigns_create_offline_donation_table();
@@ -3964,7 +3983,12 @@ function dw_campaigns_checkout_pp_ipncatch() {
     
         }
     } else {
+		// FIXME - these should be saved somewhere better than /tmp, and having it write to two places is odd
         file_put_contents("/tmp/ipn_fraud.log", serialize($_POST) . "\n", FILE_APPEND);
+        file_put_contents($dw_campaign_module_path . "/ipn_fraud.log", serialize($_POST) . "\n", FILE_APPEND);
+        
+		// FIXME - this needs to be defined on an admin form
+		mail("root@", "failed ipn verification", print_r($_POST, TRUE) . "\n\n" . $results );
         break;
     }
 

@@ -190,7 +190,8 @@ function dw_campaigns_create_contribution_page_for_campaign($node) {
 
     $temp_status            = isset($node->field_dw_campaign_status['und']['0']['value']) ? $node->field_dw_campaign_status['und']['0']['value'] : NULL;
 
-    $node_enabled           = ($temp_status == 'enabled' || $temp_status == 'completed') ? '1' : '0'; 
+    //$node_enabled           = ($temp_status == 'enabled' || $temp_status == 'completed') ? '1' : '0'; 
+    $node_enabled           = ($temp_status == 'enabled') ? '1' : '0'; 
     
     $params['title']                    = $node->title;
     $params['contribution_type_id']     = $contributionType->id;
@@ -236,8 +237,10 @@ function dw_campaigns_create_contribution_page_for_campaign($node) {
     $page = _dw_civicrm_contributionpage_create($params);
 
     // this saves a record so we can relate node ids to civi ids (from both sides)    
-    _dw_save_node_to_civi_campaign_glue($node->nid, $page->id, $node_enabled);
 
+    if($temp_status != 'completed') {
+        _dw_save_node_to_civi_campaign_glue($node->nid, $page->id, $node_enabled);
+    }
     
     // if this is updating an existing contribution page we need to update the titles in all the pcps (not the pcpblock) that are tied to that contribution page
     if($hasPage) {
@@ -614,6 +617,11 @@ function dw_campaigns_user_get_historical_pcps($user) {
     static $found      = array();
     
     $campaigns       = dw_campaigns_get_active_campaigns(TRUE);
+
+    if(is_null($campaigns) || count($campaigns) == 0) {
+        return $found[$user->uid];
+    }
+
     $campaign_values = array_keys($campaigns);
 
     $all_campaigns   = dw_campaigns_get_all_campaigns(TRUE);
@@ -1602,7 +1610,7 @@ function  _dw_campaigns_campaigns_total() {
     $total_usd    = 0;
     $total_pcps   = 0;
     $total_pcps_withd = 0;
-   
+  
     $cache = cache_get('dw_campaigns_campaigns_total');
     if(!$cache) {
     $campaigns  = dw_campaigns_get_active_campaigns();
@@ -2875,9 +2883,14 @@ function dw_campaign_get_event_participants_by_campaign($campaignId) {
         );
         $contact = _dw_civicrm_contact_get($params);
 
-        $data[$contactId] = array('contact' => $contact, 'row' => $row);
+        $seed = isset($row->participant_type) ? $row->participant_type : null;
+
+        $data[$contactId . '-' . $seed] = array('contact' => $contact, 'row' => $row);
     }
 
+    return $data;
+
+// 07/02/2012 - we might not need this anymore, I think this was a work around for 2011
 // we were missing a lot of data, so lets look up some more people
 
     $pcps = _dw_campaigns_get_pcps_for_campaign($campaignId);
@@ -3089,9 +3102,12 @@ function dw_campaign_create_receipt_pdf($merge_data, $force_generate = FALSE) {
    
     try {  
         $mailMerge = new Zend_Service_LiveDocx_MailMerge();
-        
-        $mailMerge->setUsername('fpwr_doc_convert')
-                  ->setPassword('d.oxdox');
+       
+        $login      = variable_get('dw_campaigns_livedocx_login', '');
+        $password   = variable_get('dw_campaigns_livedocx_password', '');
+ 
+        $mailMerge->setUsername($login)
+                  ->setPassword($password);
         
         include($dw_campaign_module_path . 'dw_campaigns.receipts_mapping.inc');
         

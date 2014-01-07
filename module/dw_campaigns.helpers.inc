@@ -23,7 +23,8 @@ function civicrm_rest_login($login, $pass) {
             $data['sessionId']	= (string) $loginData->PHPSESSID;
         } else {
             dw_campaigns_cache_dirty('login_');
-            throw new Exception('Unable to login with these credentials');
+            $error_message = isset($loginData->error_message) ? $loginData->error_message : '(unknown)';
+            throw new Exception('Unable to login with these credentials - ' . $error_message);
         }
     }
     
@@ -242,6 +243,7 @@ function do_post_request($baseUrl, $queryString) {
     curl_setopt($curl, CURLOPT_POST, 1);  
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); 
     curl_setopt($curl, CURLOPT_POSTFIELDS, $queryString); 
+
     $data = curl_exec($curl); 
 
     if(!curl_errno($curl)) { 
@@ -872,10 +874,20 @@ function _dw_civicrm_pseudoconstant_country() {
         $others[1039] = $return[1039];
         unset($return[1039]);
     }
-
+    // france
     if(isset($return[1076])) {
         $others[1076] = $return[1076];
         unset($return[1076]);
+    }
+    // begium
+    if(isset($return[1020])) {
+        $others[1020] = $return[1020];
+        unset($return[1020]);
+    }
+    // New Zealand
+    if(isset($return[1154])) {
+        $others[1154] = $return[1154];
+        unset($return[1154]);
     }
 
     return $others + $return;
@@ -1034,7 +1046,8 @@ function _dw_save_user_to_contact_glue($user, $contact) {
     if($contact->contact_id == 1) {
         drupal_set_message(t('A system error has occured, please contact ossbug@fpwr.org with details about what you were doing when this error occured - if you were signing up please try again later'), 'error');
 
-        mail('ryan@refreshdigital.com', 'failure - contact_id = 1', date("Y-m-d H:i:s"));
+		// FIXME - this should be configured on an admin form
+        mail('root@', 'failure - contact_id = 1', date("Y-m-d H:i:s"));
 
         drupal_goto('dw');
     }

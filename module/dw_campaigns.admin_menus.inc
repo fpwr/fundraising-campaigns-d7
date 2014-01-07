@@ -68,6 +68,14 @@ function dw_campaigns_civicrm_config() {
         '#default_value'    => variable_get('dw_campaigns_cfg_tag_prefix', 'OSS')
     );
 
+    $form['civi_settings']['dw_campaigns_cfg_tag_suffix'] =  array(
+        '#title'            => 'Civicrm Tag Suffix',
+        '#type'             => 'textfield',
+        '#description'      => t('Prefix to use when generating tags - eg: "2013" would create "OSS fundraiser 2013"'),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_cfg_tag_suffix', '2013')
+    );
+
     $form['elasticemail_settings']['dw_campaigns_cfg_ee_username']  = array(
         '#title'            => 'Elastic Email Username',
         '#type'             => 'textfield',
@@ -323,7 +331,16 @@ function dw_campaigns_settings() {
         '#type'             => 'textarea',
         '#description'      => t('Email sent to host and co-host when their event is accepted'),
         '#default_value'    => variable_get('dw_campaigns_host_event_accepted_email', 'Your event has been accepted, please login to manage your event')
-    ); 
+    );
+ 
+    $form['walking_specific']['dw_campaign_host_panel_message'] = array(
+        '#title'            => 'Host Panel Message',
+        //'#type'             => 'textarea',
+        '#type'             => 'text_format',
+        '#format'           => '1',
+        '#description'      => t('Message shown on the host panel to all hosts - this is where you can include links or new information)'),
+        '#default_value'    => variable_get('dw_campaign_host_panel_message', '')
+    );
     
     
     $form['nav_bar'] = array(
@@ -815,18 +832,40 @@ function dw_campaigns_settings() {
         '#default_value'    => variable_get('dw_campaigns_admin_contact_hosts_default_cc', '')           
     );
 
-    $form['host_request_services'] = array(
+    $form['host_request_services_fieldset'] = array(
         '#type'             => 'fieldset',
         '#title'            => t('Host Request Services'),
     );
 
-    $form['host_request_services']['dw_campaigns_host_request_services_email'] = array(
+    $form['host_request_services_fieldset']['dw_campaigns_host_request_services_email'] = array(
         '#title'            => 'Host Request Services From Email',
         '#type'             => 'textfield',
         '#description'      => t('Host Request Services From Email'),
         '#maxlength'        => 250,
         '#default_value'    => variable_get('dw_campaigns_host_request_services_email', '')           
     );
+
+    $form['livedocx_fieldset'] = array(
+        '#type'             => 'fieldset',
+        '#title'            => t('DocX '),
+    );
+
+    $form['livedocx_fieldset']['dw_campaigns_livedocx_login'] = array(
+        '#title'            => 'Login for livedocx.com',
+        '#type'             => 'textfield',
+        '#description'      => t(''),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_livedocx_login', '')           
+    );
+
+    $form['livedocx_fieldset']['dw_campaigns_livedocx_password'] = array(
+        '#title'            => 'Password for livedocx.com',
+        '#type'             => 'textfield',
+        '#description'      => t(''),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_livedocx_password', '')           
+    );
+
 
 
 
@@ -1322,8 +1361,22 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
         array(
             'data' => t('Email'),
         ),
+/*
         array(
             'data' => t('Address'),
+        ),
+*/
+        array(
+            'data' => t('Street Address'),
+        ),
+        array(
+            'data' => t('City'),
+        ),
+        array(
+            'data' => t('State / Province'),
+        ),
+        array(
+            'data' => t('Postal'),
         ),
         array(
             'data' => t('Check#'),
@@ -1510,6 +1563,9 @@ function dw_campaigns_offline_donation_post($row) {
 
     $values['invoice_serial'] = $invoice_serial;
 
+    if($values['non_deductible'] == 1) {
+        $params['non_deductible_amount'] = $values['donation_amount'];
+    }
 
     $params['amount']                           = $values['donation_amount'];
     $params['amount_other']                     = $values['donation_amount'];

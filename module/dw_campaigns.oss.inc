@@ -188,22 +188,38 @@ function dw_campaigns_get_oss_participation_type($campaign) {
         extract($a);
     }
 
+// FIXME - we do this differently in different places, this should be done in one place
+$currency = '$';
+if(isset($campaign->field_dw_currency['und']['0']['value'])) {
+    switch($campaign->field_dw_currency['und']['0']['value']) {
+        case 'GBP':
+            $currency = '&pound;';
+            break;
+        case 'EUR':
+        case 'EURO':
+            $currency = '&euro;';
+            break;
+    }
+}
+
+
     $types = array();
 
+	// FIXME - this should not be hardcoded, these need to be dynamic strings without hardcoded html in them
     if($adult_pledge != -1) {    
-        $types['adult_pledge']    = t('<span class="participation-label">Adult - Commit to raise $!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">Commit to raise $!amount per adult and register for free!</span>', array('!amount' => $adult_pledge));
+        $types['adult_pledge']    = t('<span class="participation-label">Adult - Commit to raise ' . $currency . '!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">Commit to raise ' . $currency . '!amount per adult and register for free!</span>', array('!amount' => $adult_pledge));
     }
     if($adult_purchase != -1) {
-        $types['adult_purchase']  = t('<span class="participation-label">Adult - $!amount Registration Fee</span> ......... <span class="option_price">$!amount</span><span class="next_line">The fee is not tax-receiptable and non-refundable</span>', array('!amount' => $adult_purchase));
+        $types['adult_purchase']  = t('<span class="participation-label">Adult - ' . $currency . '!amount Registration Fee</span> ......... <span class="option_price">' . $currency . '!amount</span><span class="next_line">The fee is not tax-receiptable and non-refundable</span>', array('!amount' => $adult_purchase));
     }
     if($family_pledge != -1) {
-        $types['family_pledge']   = t('<span class="participation-label">Family - Commit to raise $!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">(2 adults plus children) Commit to raise $!amount per family and register for free!</span>', array('!amount' => $family_pledge));
+        $types['family_pledge']   = t('<span class="participation-label">Family - Commit to raise ' . $currency . '!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">(2 adults plus children) Commit to raise ' . $currency . '!amount per family and register for free!</span>', array('!amount' => $family_pledge));
     }
     if($runner_pledge != -1) {
-        $types['runner_pledge']   = t('<span class="participation-label">Runner - Commit to raise $!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">Commit to raise $!amount per adult and register for free!</span>', array('!amount' => $runner_pledge));
+        $types['runner_pledge']   = t('<span class="participation-label">Runner - Commit to raise ' . $currency . '!amount</span> ......... <span class="option_price">FREE</span><span class="next_line">Commit to raise ' . $currency . '!amount per adult and register for free!</span>', array('!amount' => $runner_pledge));
     }
     if($runner_purchase != -1) {
-        $types['runner_purchase'] = t('<span class="participation-label">Runner - $!amount Registration Fee</span> ......... <span class="option_price">$!amount</span><span class="next_line">The fee is not tax-receiptable and non-refundable</span>', array('!amount' => $runner_purchase));
+        $types['runner_purchase'] = t('<span class="participation-label">Runner - ' . $currency . '!amount Registration Fee</span> ......... <span class="option_price">' . $currency . '!amount</span><span class="next_line">The fee is not tax-receiptable and non-refundable</span>', array('!amount' => $runner_purchase));
     }
 
     return $types;
@@ -989,7 +1005,8 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
         $contribution_page_id = $cpage->id;
         $pcp        = NULL;
 
-        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' fundraiser ' . date('Y'); 
+        $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
+        $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' fundraiser ' . $suffix;
         $tag_id = dw_campaigns_get_tag_id_by_name($name);
         dw_campaigns_tag_contact($tag_id, array($contactId));
 
@@ -1955,7 +1972,9 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
         }
     }
 
-    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' donor ' . date('Y');
+    $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
+    $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' donor ' . $suffix;
+
     $tag_id = dw_campaigns_get_tag_id_by_name($name);
     dw_campaigns_tag_contact($tag_id, array($values['contact_id']));
 
