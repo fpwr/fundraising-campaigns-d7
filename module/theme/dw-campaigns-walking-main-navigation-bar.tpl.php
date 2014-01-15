@@ -123,11 +123,14 @@
                     <a href="<?php echo $about_url; ?>"><?php echo t('About Us'); ?></a>
                 </li>
                 <li>
+                    <a href="/inTheMedia">In the Media</a>
+                </li>
+                <!--<li>
                     <a href="/node/451"><?php echo t('OSS Funded Research'); ?></a>
                 </li>
                 <li>
                     <a href="/content/research-plan"><?php echo t('Research Plan'); ?></a>
-                </li>
+                </li>-->
                 <li>
                     <a href="/node/126"><?php echo t('Host A Walk'); ?></a>
                 </li>
@@ -144,8 +147,13 @@
         if($user->uid != 0) {
         ?>
         
-        <li class="<?php echo $account_class; ?>">
+        <li class="<?php echo "navlearn"//$account_class; ?>">
             <a href="/dw/user/profile"><?php echo t('My Account'); ?></a>
+
+            <ul>
+                <li><a href="test">Fundraising Tips</a></li>
+            </ul>
+
         </li>
         <?php
         }

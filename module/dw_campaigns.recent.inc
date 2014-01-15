@@ -73,7 +73,8 @@ function dw_campaigns_campaign_id_to_contribution_page_id($id, $by_id = TRUE) {
 function dw_campaigns_host_event_create_page() {
     global $user;
 
-$email_dupe = FALSE;
+    $email_dupe = FALSE;
+
     $form = drupal_get_form('dw_campaigns_host_event_create_form');
     return theme('dw_campaigns_host_event_create_page_theme', array('form' => $form));
 }
@@ -709,7 +710,8 @@ function dw_campaigns_user_donations_add_form_new_validate(&$form, &$form_state)
 
     $form_state['values']['donation_amount']    = preg_replace("/[^0-9\.]/", '', $form_state['values']['donation_amount']);
     
-    $values             = $form_state['values']; 
+    $values             = $form_state['values'];
+ 
     $campaign           = node_load($values['campaign']);
 
     // $campaign is the drupal node, not an id

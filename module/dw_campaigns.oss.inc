@@ -1270,7 +1270,16 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
             '#default_value'    => 30
         );
 
-
+/*JFN - january 10 2014 0800 - [#begin #task]
+    add gender option to the register for payment form.
+    add the gender selection element to the form.
+*/
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'select',
+            '#title'            => t('What is the gender of the runner?'),
+            '#options'          => array('male'=>'male', 'female'=>'female'),
+            '#default_value'    => 'male'
+        );
     }
 
 
@@ -1435,7 +1444,12 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
         '100'  => '$100',
         '-1'   => 'Other Amount'
     );
-    
+
+    /* JFN january 10 2014 0830 [#reminder]
+        during a conference with Ryan, we decided that it would be a good idea to normalize this form submission validation process.
+        can we try to normalize all form validation somewhere else?  Maybe, don't spend too much time on this, we just need it to work to client spec for now.
+        notes: form_state contains the data used to fill the form as a reference, we NEED to migrate any aliases back into this variable for it to produce any effect.
+    */
 
     $multi = FALSE;
 
@@ -1692,11 +1706,9 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
             11  => 'General decline code, may have different reasons for each card type. Please have your client call customer service.',
             12  => 'Incorrect CVV2 or Expiry date',
             14  => 'This means that the credit card is over the limit.',
-            15  => 'Decline code, may have different reasons for each card type. Please have your client call customer s
-ervice.',
+            15  => 'Decline code, may have different reasons for each card type. Please have your client call customer service.',
             16  => 'Invalid charge card number. Verify and re-enter credit card information.',
-            17  => 'Unable to authorize transaction. Verify card information with customer and re-enter. Could be invali
-d name or expiry date.',
+            17  => 'Unable to authorize transaction. Verify card information with customer and re-enter. Could be invalid name or expiry date.',
             18  => 'Card not supported by institution.',
             19  => 'Incorrect CVV2.',
             22  => 'Bank Timeout. Bank lines may be down or busy. Re-try transaction later.',
@@ -1794,7 +1806,7 @@ d name or expiry date.',
                 case 100:
                     form_set_error('', t('Failed to charge card - please try a different card'));
                     break;
-		case 42:
+		        case 42:
                     form_set_error('cvv', t('CVV2 (number on back) required'));
                     break;
                 default:
@@ -1808,6 +1820,7 @@ d name or expiry date.',
 }
 
 function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form, &$form_state) {
+
     global $user;
     global $dw_campaign_module_path;
 
@@ -1829,7 +1842,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
     $contributionType   = dw_campaigns_create_contribution_type_for_campaign($campaign);
     $contributionPage   = dw_campaigns_get_contribution_page_for_campaign($campaign);
 
-    $params                             = array();   
+    $params                             = array();
     $params['contact_id']               = $values['contact_id'];
     $params['contribution_page_id']     = $contributionPage->id;
     $params['contribution_type_id']     = $contributionType->id;
