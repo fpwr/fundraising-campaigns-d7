@@ -6506,40 +6506,44 @@ function dw_campaigns_user_donations_add_form_submit(&$form, &$form_state) {
 }
 
 
+
 //JFN - january 16 2014 0035 - [#dev "offline-donations-form upload functionality"]
 function dw_campaigns_upload_offline_form_form( $form, &$form_state ){
     $documentPath = $form_state['build_info']['args'][0];
 
-    $form['form-file'] = array(
-        '#type' => 'managed_file',
-        '#upload_validators' => array(
-            'file_validate_extensions' => array('pdf')
-        ),
-        '#upload_location' => 'public://donation_forms/'
+    $form['pdf'] = array(
+        '#type' => 'file'
     );
-
-    $form['#attributes'] = array(
-        'class' => 'admin-upload-form-form'
-    );
-
-
 
     $form['document_path'] = array(
         '#type' => 'hidden',
         '#value' => $documentPath
     );
 
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Submit'
+    );
+
+    $form['#attributes'] = array('class' => 'admin-upload-form-form');
+
     return $form;
+
 }
 
-function dw_campaigns_upload_offline_form_form_validate( $form_id, $form_values ){
-    //I trust that a site admin would know better than to upload something other than the forms... buuuuuut, I can do the validation here if anyone insists.
-    //I may want to
+function dw_campaigns_upload_offline_form_form_validate( $form, &$form_state ){
+    //var_dump( $form['pdf'] );exit;
+
+    $file = file_save_upload('pdf', array());
+
+    $file->filename = basename($form['document_path']['#value']);
+
+    file_move($file, 'public://donation_forms/'.$file->filename, FILE_EXISTS_REPLACE);
+
 }
 
-function dw_campaigns_upload_offline_form_form_submit( $form_id, $form_values ){
-    //do stuff with the submitted data now!
-    //var_dump( $form_values['values'] );exit;
+function dw_campaigns_upload_offline_form_form_submit( $form, &$form_state ){
+
 }
 
 

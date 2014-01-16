@@ -43,11 +43,11 @@
     border-color: red;
 }
 
-.admin-upload-form-form #edit-form-file-upload-button{
+.admin-upload-form-form .form-submit{
     position: relative;
     background-color: #CC60B6;
     padding: 3px;
-    left: 217px;
+    left: 215px;
     top: -23px;
     border-radius: 6px;
 }
