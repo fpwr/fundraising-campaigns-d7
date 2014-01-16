@@ -1,3 +1,66 @@
+.sponsors-block .block-content{
+    background-color: red;
+    margin-left: 15px;
+}
+
+.sponsor-logo{
+    position: relative;
+    float: left;
+    width: 75px;
+    height: 35px;
+    background-color: green;
+    margin-right: 25px;
+    margin-top: 10px;
+}
+
+.sponsor-remove-button{
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    bottom: -7px;
+    right: -7px;
+    background-color: yellow;
+
+}
+
+.sponsor-add-button{
+    position: absolute;
+    background-color: purple;
+    width: 24px;
+    height: 24px;
+    bottom: -7px;
+}
+
+.admin-upload-form-form{
+    background-color: #D1A1D6;
+    padding: 6px;
+    border-radius: 4px;
+    position: relative;
+    height: 19px;
+    margin-left: 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: red;
+}
+
+.admin-upload-form-form #edit-form-file-upload-button{
+    position: relative;
+    background-color: #CC60B6;
+    padding: 3px;
+    left: 217px;
+    top: -23px;
+    border-radius: 6px;
+}
+
+.admin-upload-form-form #edit-form-file-remove-button{
+    position: absolute;
+    background-color: #CC60B6;
+    padding: 3px;
+    left: 215px;
+    top: 3px;
+    border-radius: 6px;
+}
+
 #splashr {
     position: absolute;
     top: 200px;

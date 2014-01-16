@@ -61,7 +61,8 @@ function dw_campaigns_civicrm_rest_settings_load() {
     if($loaded) {
         return;
     }
-    
+
+
     $dw_settings['restUrl']     = variable_get('dw_campaigns_cfg_rest_url', '');
     $dw_settings['siteKey']     = variable_get('dw_campaigns_cfg_sitekey', '');
     $dw_settings['loginName']   = variable_get('dw_campaigns_cfg_loginname', '');
@@ -4116,6 +4117,8 @@ function dw_campaigns_country_select_callback($form, $form_state) {
 
 function dw_campaigns_get_state_by_country($country = NULL) {
     global $dw_settings;
+
+    //JFN - january 8 2014 - say wha?
 file_put_contents("/tmp/zs");
 
     $parsed = parse_url($dw_settings['restUrl']);
@@ -6278,7 +6281,8 @@ function dw_campaigns_user_donations_add_form_validate(&$form, &$form_state) {
 
     $form_state['values']['donation-amount'] = preg_replace("/[^0-9\.]/", '', $form_state['values']['donation-amount']);
 
-    $values             = $form_state['values']; 
+    $values             = $form_state['values'];
+ 
     $campaign           = node_load($values['campaign']);
 
     // $campaign is the drupal node, not an id
@@ -6443,7 +6447,8 @@ function dw_campaigns_user_donations_add_form_submit(&$form, &$form_state) {
     $params['contact_id']               = $values['contact_id'];
     $params['contribution_page_id']     = $contributionPage->id;
     $params['contribution_type_id']     = $contributionType->id;
-    //$params['contribution_status_id']   = 1; // 1 = completed 2 = pending 3 = failed 
+    //$params['contribution_status_id']   = 1; // 1 = completed 2 = pending 3 = failed
+ 
     $params['contribution_status_id']   = 2;
     $params['payment_instrument_id']    = 1;
     $params['pcp_made_through_id']      = $values['pcpId'];
@@ -6499,6 +6504,48 @@ function dw_campaigns_user_donations_add_form_submit(&$form, &$form_state) {
     echo '<p>Donation has been recorded.. reloading donations list</p><script language="javascript" type="text/javascript"> parent.location.reload(); </script>';
     die;
 }
+
+
+//JFN - january 16 2014 0035 - [#dev "offline-donations-form upload functionality"]
+function dw_campaigns_upload_offline_form_form( $form, &$form_state ){
+    $documentPath = $form_state['build_info']['args'][0];
+
+    $form['form-file'] = array(
+        '#type' => 'managed_file',
+        '#upload_validators' => array(
+            'file_validate_extensions' => array('pdf')
+        ),
+        '#upload_location' => 'public://donation_forms/'
+    );
+
+    $form['#attributes'] = array(
+        'class' => 'admin-upload-form-form'
+    );
+
+
+
+    $form['document_path'] = array(
+        '#type' => 'hidden',
+        '#value' => $documentPath
+    );
+
+    return $form;
+}
+
+function dw_campaigns_upload_offline_form_form_validate( $form_id, $form_values ){
+    //I trust that a site admin would know better than to upload something other than the forms... buuuuuut, I can do the validation here if anyone insists.
+    //I may want to
+}
+
+function dw_campaigns_upload_offline_form_form_submit( $form_id, $form_values ){
+    //do stuff with the submitted data now!
+    //var_dump( $form_values['values'] );exit;
+}
+
+
+
+
+
 
 function dw_campaigns_invoice_generate_id($currency = 'USD') {
     $invoice_id = md5(uniqid(rand(), true));
@@ -6656,5 +6703,3 @@ function dw_campaigns_contact_importer_contacts_alter(&$list, $imported) {
     }
 
 }
-
-?>
