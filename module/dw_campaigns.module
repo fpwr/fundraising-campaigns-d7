@@ -6522,7 +6522,7 @@ function dw_campaigns_upload_offline_form_form( $form, &$form_state ){
 
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => 'Submit'
+        '#value' => 'Upload New Form'
     );
 
     $form['#attributes'] = array('class' => 'admin-upload-form-form');
