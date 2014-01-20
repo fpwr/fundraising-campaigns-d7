@@ -866,6 +866,16 @@ function dw_campaigns_settings() {
         '#default_value'    => variable_get('dw_campaigns_livedocx_password', '')           
     );
 
+    $form['donors_forms'] = array(
+        '#type'             => 'fieldset',
+        '#title'            => t('Donor Forms')
+    );
+
+        $form['donors_forms']['dw_campaigns_donors_attending'] = array(
+            '#type'             => 'checkbox',
+            '#title'            => 'enable attendance questions',
+            '#default_value'    => variable_get('dw_campaigns_donors_attending', '')
+        );
 
 
 
@@ -891,7 +901,7 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         'dw-campaigns-invitation-text',
         'dw_campaigns_user_thankyou_text',
         'dw_campaigns_runner_signup_email',
-        'dw_campaigns_canadian_receipt_email',
+        'dw_campaigns_canadian_receipt_email'
     );
 
     foreach($possibles as $key) {

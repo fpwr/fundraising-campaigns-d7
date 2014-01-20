@@ -49,10 +49,6 @@ function dw_campaigns_permission() {
     );
 }
 
-
-
-
-
 function dw_campaigns_civicrm_rest_settings_load() {
     global $dw_settings;
 
@@ -1698,7 +1694,6 @@ function dw_campaigns_rdf_namespaces() {
     );
 }
 
-
 function dw_campaigns_init() {
     global $dw_campaign_module_path;
 
@@ -1874,12 +1869,6 @@ function dw_campaigns_node_modified($node) {
     }
 }
 
-
-
-
-
-
-
 function dw_campaigns_user_register_page() {
     $form = drupal_get_form('dw_campaigns_user_register_form');
     return theme('dw_campaigns_user_register_page_theme', array('registerForm' => $form));
@@ -1999,7 +1988,6 @@ function dw_campaigns_address_form_fields($contact, $include_phone = FALSE) {
 
     return $form;
 }
-
 
 /**
  * split out the username / password fields to their own function so we don't have duplicate code
@@ -3895,8 +3883,9 @@ function dw_campaigns_users_donate_page($username, $campaignPath) {
     extract($data);
 
     drupal_set_title($pcp->title);
-   
-    $_SESSION['donate_page_redir']    = 'dw/users/' . arg(2) . '/' . arg(3) . '/join';
+
+    //JFN - january 20 2014 0827 - [#change "remove the donor rsvp popup"]
+    //$_SESSION['donate_page_redir']    = 'dw/users/' . arg(2) . '/' . arg(3) . '/join';
 
     return theme('dw_campaigns_users_donate_page_theme', array('thisUser' => $owner_user, 'campaign' => $campaign, 'pcp' => $pcp));
 }
@@ -3921,7 +3910,6 @@ function dw_campaigns_users_supporters_page($username, $campaignPath) {
 
     return theme('dw_campaigns_derby_pcp_supporters', array('thisUser' => $owner_user, 'campaign' => $campaign, 'pcp' => $pcp, 'num_per_page' => 20));
 }
-
 
 function dw_campaigns_user_get_notify_settings($uid) {
     $res    = db_query("select * from dw_campaigns_user_notify_settings where drupal_id = :uid", array(':uid' => $uid));
@@ -4040,7 +4028,6 @@ function dw_campaigns_user_notify_settings_form_submit(&$form, &$form_state) {
     drupal_set_message(t('Notification settings have been updated.'));
 }
 
-
 function dw_campaigns_users_donate_co_page($username, $campaignPath, $account = NULL) {
     $data = dw_campaigns_users_pcp_page($username, $campaignPath, true);
     extract($data);
@@ -4139,7 +4126,6 @@ file_put_contents("/tmp/zs");
     return $states;
 }
 
-
 function dw_campaigns_users_donate_co_page_form_validate(&$form, &$form_state) {
     global $user;
     global $dw_campaign_module_path;
@@ -4174,19 +4160,19 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
     global $user;
     $multi      = FALSE;
 
-    if(!is_object($campaign)) {
-        $campaign = node_load($campaign);
-    }
+    $campaign = !is_object($campaign) ? node_load($campaign) : $campaign;
 
     $contact    = dw_campaigns_resolve_contact($user);
 
     $form = array();
+
     $form['#attributes']    = array(
         'class'             => array('dw_campaigns-profile-form'),
         'enctype'           => "multipart/form-data"
     );
   
     $currency = ' (USD)';
+
     if(!is_null($campaign)) { 
         $currency = isset($campaign->field_dw_currency['und']['0']['value']) ? $campaign->field_dw_currency['und']['0']['value'] : 'USD';
         $currency = " ($currency)";
@@ -4319,13 +4305,10 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
     //get the user and drop it in for a preview if they are logged in (user-photo is the default for a donation)
     $imageSrc = _dw_campaigns_get_photo($user, $image_params, 'user-photo', NULL, $temp_filename);
 
-    
     $form['user-photo-tmp'] = array(
         '#type'             => 'hidden',
         '#value'            => $temp_filename
     );
-
-
 	
     $form['donation-comments']['picture-preview'] = array(
        '#type'              => 'markup',
@@ -4368,9 +4351,6 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         '#title'            => t('Comment'),
         '#description'      => t('Leave !user a message that will be displayed next to your donation.', array('!user' => $pcpContact->first_name)),
     );
-    
-    
-    
 
 /*    
     $form['privacy-fieldset'] = array(
@@ -4413,7 +4393,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         '#default_value'    => 1
     );
 
-   $form['payment-fieldset']['billing-info'] = array(
+    $form['payment-fieldset']['billing-info'] = array(
         '#type'             => 'fieldset',
         '#title'            => 'Billing Information',
         '#prefix'           => '<div id="alt-billing-div" class="alt-billing-hid">',
@@ -4470,8 +4450,6 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         '#title'            => t('Card Number'),
         '#required'         => true
     );
-    
-
 
     $form['payment-fieldset']['cvv'] = array(
         '#type'             => 'textfield',
@@ -4504,11 +4482,11 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         '#options'          => $years
     );
 
-if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
-    $form['payment-fieldset']['card_number']['#default_value']  = '4035630376186495';
-    $form['payment-fieldset']['exp-month']['#default_value']    = 2;
-    $form['payment-fieldset']['exp-year']['#default_value']     = 5; // 2016 is 2011 + 5
-}
+    if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
+        $form['payment-fieldset']['card_number']['#default_value']  = '4035630376186495';
+        $form['payment-fieldset']['exp-month']['#default_value']    = 2;
+        $form['payment-fieldset']['exp-year']['#default_value']     = 5; // 2016 is 2011 + 5
+    }
 
     $form['pws_relationship'] = array(
             '#type'             => 'select',
@@ -4516,6 +4494,64 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
             '#options'          => dw_campaigns_relationship_tag_list(),
             '#required'         => true
     );
+
+    //JFN - january 20 2014 0924 - [#todo "add in child and adult form fields from dw_campaigns_donor_participation_form"]
+    //migrate the form fields, and the form validation here.
+    //we do run into a situation where we don't always want to display them here.
+    //so what we're going to do is add a toggle in the admin panel.
+    //in the form validate, use an isset to determine if we even use these fields.
+    //in the submit form hook, use an isset to determine if we should save these fields at all.
+    if( variable_get('dw_campaigns_donors_attending', false) ){
+        //@fixme determine best way to hide this group of fields if you can't actually attend.
+        //dvr( $campaign );
+        $event_max = variable_get('dw_campaigns_walking_event_max', '6');
+        $contact_id = isset($_SESSION['contact_id']) ? $_SESSION['contact_id'] : NULL;
+
+        for($i=0; $i<=$event_max; $i++) {
+            $attending[$i] = $i;
+        }
+
+        $form['choice'] = array(
+            '#type'             => 'markup',
+            '#markup'           => '<div class="participation-words">' . t('Do you plan to attend the @campaign walk?', array('@campaign' => $campaign->title)) . '</div><div class="buttons"><div class="btn yes fb-unhide">Yes</div><div class="btn no fb-close">No</div></div>'
+        );
+
+        list($children, $adults) = dw_campaigns_get_event_participants_count($campaign->nid, 0, $contact_id);
+
+        $form['event-participants'] = array(
+            '#type'             => 'fieldset',
+        );
+
+        $form['event-participants']['children'] = array(
+            '#type'             => 'select',
+            '#title'            => t('How many children will be attending the event'),
+            '#options'          => $attending,
+            '#default_value'    => $children
+        );
+
+        $form['event-participants']['adults'] = array(
+            '#type'             => 'select',
+            '#title'            => t('How many adults will be attending the event'),
+            '#options'          => $attending,
+            '#default_value'    => $adults
+        );
+
+        $form['contact_id']     = array(
+            '#type'             => 'hidden',
+            '#value'            => $contact_id
+        );
+
+        $form['campaign_id']    = array(
+            '#type'             => 'hidden',
+            '#value'            => $campaign->nid
+        );
+
+        $form['event-participants']['submit']         = array(
+            '#type'             => 'submit',
+            '#value'            => t('Submit'),
+            '#attributes'       => array('class'=> array('btn'))
+        );
+    }
 
     //payment information
     $form['submit-fieldset'] = array(
@@ -4525,40 +4561,40 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
     $owner_user     = dw_campaigns_get_selected_user();
     if(is_null($owner_user)) {
         $displayname    = '';
+
     } else {
         $displayname    = htmlentities($owner_user->data['displayname'], ENT_QUOTES);
+
     }
 
     $title          = htmlentities($campaign->title, ENT_QUOTES);
-   
 
- 
     if($include_donation_conf) {
-    drupal_add_js('
-        (function($) {
-          $(document).ready(function() {
-            $(".confirm-amount").click(function() {
-              var amount = $("#edit-donation-amount").val();
-              var owner  = "' . $displayname . '";
-              var title  = "' . $title . '";
-              if(amount == "" || amount<0.01) {
-                  alert("Please specify an amount for your donation");
-                  return false;
-              }
+        drupal_add_js('
+            (function($) {
+              $(document).ready(function() {
+                $(".confirm-amount").click(function() {
+                  var amount = $("#edit-donation-amount").val();
+                  var owner  = "' . $displayname . '";
+                  var title  = "' . $title . '";
+                  if(amount == "" || amount<0.01) {
+                      alert("Please specify an amount for your donation");
+                      return false;
+                  }
 
-              res = confirm("Please confirm your donation of ' . $currency_symbol . '" + amount + " to the " + title + ".");
+                  res = confirm("Please confirm your donation of ' . $currency_symbol . '" + amount + " to the " + title + ".");
 
-              if(res) {
-                $("#show-words").fancybox().trigger("click"); 
-                setTimeout("jQuery(\"#edit-submit\").attr(\"disabled\", true)", 500);
-              }
+                  if(res) {
+                    $("#show-words").fancybox().trigger("click");
+                    setTimeout("jQuery(\"#edit-submit\").attr(\"disabled\", true)", 500);
+                  }
 
-              return res;
+                  return res;
 
-            });
-          });
-        })(jQuery);
-        ','inline');
+                });
+              });
+            })(jQuery);
+            ','inline');
     }
 
 
@@ -4573,7 +4609,6 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
         '#attributes'       => array('class' => array('btn', 'confirm-amount'))
     );
 
-
     $form['campaign'] = array(
         '#type'     => 'hidden',
         '#value'    => $campaign->nid
@@ -4583,11 +4618,10 @@ if($campaign->field_dw_processor_mode['und']['0']['value'] == 'test') {
         '#type'     => 'hidden',
         '#value'    => $pcp->id
     );
-    
-    
+
+
     return $form;
 }
-
 
 function dw_campaigns_users_donate_page_form_validate(&$form, &$form_state) {
     global $user;
@@ -5192,17 +5226,28 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
     dw_campaigns_tag_contact($tag_id, array($values['contact_id']));
 
 
-// we only send a receipt if this is a REAL transaction, offline transactions do not get counted
-if(!isset($values['offline']) || 1==1) {
-    // send email confirmation to donator
-    drupal_mail('dw_campaigns_receipt', 'donate',           $values['email'],   user_preferred_language($user), $mergeObjects, $from);
-    if($contributionPage->currency == 'CAD') {
-//        dw_campaign_receipt_report_email($contribution->id);
+    // we only send a receipt if this is a REAL transaction, offline transactions do not get counted
+    if(!isset($values['offline']) || 1==1) {
+        // send email confirmation to donator
+        drupal_mail('dw_campaigns_receipt', 'donate',           $values['email'],   user_preferred_language($user), $mergeObjects, $from);
+        if($contributionPage->currency == 'CAD') {
+    //        dw_campaign_receipt_report_email($contribution->id);
+        }
     }
-}
 
+    //JFN - january 20 2014 1208 - [#migration "dw_campaigns_donor_participation_form_submit to here"]
+    if( isset($values['campaign_id']) && isset($values['children']) && isset($values['adults']) && $values['contact_id']){
+        //dvr($values);exit;
 
+        dw_campaigns_set_event_participants_count($values['campaign_id'], 0, $values['children'], $values['adults'], 0, 'donator', $values['contact_id']);
 
+        if($values['children'] > 0 || $values['adults'] > 0) {
+            $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
+            $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' participant ' . $suffix;
+            $tag_id = dw_campaigns_get_tag_id_by_name($name);
+            dw_campaigns_tag_contact($tag_id, array($values['contact_id']));
+        }
+    }
 
     drupal_set_message('Thank you for your support! You will receive an email receipt shortly.');
 
@@ -5524,7 +5569,6 @@ function dw_campaigns_user_share_page($campaignId = NULL, $user = NULL, $showEma
     ));
 }
 
-
 function dw_campaigns_user_share_page_form($form, &$form_state, $campaignId) {
     global $user;
 
@@ -5617,7 +5661,6 @@ function dw_campaigns_user_share_page_form_validate(&$form, &$form_state) {
         form_set_error('invitation-from-name', t('You must include a name that this is from'));
     }
 }
-
 
 function dw_campaigns_user_share_page_form_submit(&$form, &$form_state) {
     
@@ -5739,8 +5782,6 @@ function dw_campaigns_share_mail($key, &$message, $params) {
     }
 }
 
-
-
 function dw_campaigns_user_share_page_form_submit_old(&$form, &$form_state) {
     
     global $user;
@@ -5802,7 +5843,6 @@ function dw_campaigns_user_share_page_form_submit_old(&$form, &$form_state) {
     drupal_goto(dw_campaigns_user_get_pcp_url(false));
 }
 
-
 function dw_campaigns_get_best_contact_id($user = NULL) {
     $source_contact_id = NULL;
 
@@ -5814,7 +5854,6 @@ function dw_campaigns_get_best_contact_id($user = NULL) {
 
     return $source_contact_id;
 }
-
 
 function dw_campaign_update_privacy($contact_id, $softcont_id, $pcp, $privacy) {
     db_query("replace into dw_campaigns_donation_privacy (civi_contact_id, soft_id, pcp, options) VALUES(:contactid, :soft_id, :pcp, :options)", array(
@@ -6011,7 +6050,6 @@ function dw_campaign_get_payment_processor_list() {
     return $list;
 }
 
-
 function dw_campaigns_user_search_dummy_form($form, &$form_state, $campaign_id) {
     
     $form = array();
@@ -6136,7 +6174,6 @@ function dw_campaigns_all_currencies() {
 
     return $return;
 }
-
 
 function dw_campaigns_user_donations_add_page($campaignId = NULL) {
     global $user;
@@ -6274,8 +6311,6 @@ function dw_campaigns_user_donations_add_form($form, &$form_state, $campaign, $p
 
     return $form;
 }
-
-
 
 function dw_campaigns_user_donations_add_form_validate(&$form, &$form_state) {
 
@@ -6423,7 +6458,6 @@ function dw_campaigns_user_donations_add_form_validate(&$form, &$form_state) {
 
 }
 
-
 function dw_campaigns_user_donations_add_form_submit(&$form, &$form_state) {
     global $user;
     global $dw_campaign_module_path;
@@ -6505,8 +6539,6 @@ function dw_campaigns_user_donations_add_form_submit(&$form, &$form_state) {
     die;
 }
 
-
-
 //JFN - january 16 2014 0035 - [#dev "offline-donations-form upload functionality"]
 function dw_campaigns_upload_offline_form_form( $form, &$form_state ){
     $documentPath = $form_state['build_info']['args'][0];
@@ -6546,11 +6578,6 @@ function dw_campaigns_upload_offline_form_form_submit( $form, &$form_state ){
 
 }
 
-
-
-
-
-
 function dw_campaigns_invoice_generate_id($currency = 'USD') {
     $invoice_id = md5(uniqid(rand(), true));
     $invoice_id.= '-' . $currency;
@@ -6558,7 +6585,6 @@ function dw_campaigns_invoice_generate_id($currency = 'USD') {
     return $invoice_id;
 }
 
-    
 function dw_campaigns_invoice_generate_serial($currency = 'USD', $tax_receipt_sent = 0) {
     $table = sprintf("dw_campaigns_contribution_receipts_%s", $currency);
     if(!db_table_exists($table)) {
@@ -6682,6 +6708,7 @@ function dw_campaigns_invoice_sync_with_contributions($currency = 'USD', $contri
 }
 
 function dw_campaigns_preprocess(&$variables, $hook) {
+
 }
 
 function dw_campaigns_contact_importer_contacts_alter(&$list, $imported) {
