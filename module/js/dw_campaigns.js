@@ -112,16 +112,94 @@ var dw_campaigns = {
 					//remove the loading optoins
 					stateSelect.remove(0);
 					//add in new options
-					for(var index = 0; index < results.length; index++) {
-						var option 	= document.createElement('option');
-						option.text 	= results[index].name;
-						option.value	= results[index].value;
-						stateSelect.options.add(option);
-					}
-					
-					$(stateSelect).val(me.selectedState[key]);
-					
-					stateSelect.disabled = false;
+                    if( results ){
+			    		for(var index = 0; index < results.length; index++) {
+		    				var option 	= document.createElement('option');
+	    					option.text 	= results[index].name;
+    						option.value	= results[index].value;
+						    stateSelect.options.add(option);
+					    }
+
+                    }else{
+                        //JFN - january 20 2014 0717 - [#bugfix "can't seem to connect to the ajax service that provides this information at times, we'll default to this data set when that does happen for now."]
+                        //if we can fix the ajax issue on my local machine, we can remove this if/else block entirely.
+                        var options = {
+                            "": "- select a state-",
+                            "1000": "Alabama",
+                            "1001": "Alaska",
+                            "1052": "American Samoa",
+                            "1002": "Arizona",
+                            "1003": "Arkansas",
+                            "1060": "Armed Forces Americas",
+                            "1059": "Armed Forces Europe",
+                            "1061": "Armed Forces Pacific",
+                            "1004": "California",
+                            "1005": "Colorado",
+                            "1006": "Connecticut",
+                            "1007": "Delaware",
+                            "1050": "District of Columbia",
+                            "1008": "Florida",
+                            "1009": "Georgia",
+                            "1053": "Guam",
+                            "1010": "Hawaii",
+                            "1011": "Idaho",
+                            "1012": "Illinois",
+                            "1013": "Indiana",
+                            "1014": "Iowa",
+                            "1015": "Kansas",
+                            "1016": "Kentucky",
+                            "1017": "Louisiana",
+                            "1018": "Maine",
+                            "1019": "Maryland",
+                            "1020": "Massachusetts",
+                            "1021": "Michigan",
+                            "1022": "Minnesota",
+                            "1023": "Mississippi",
+                            "1024": "Missouri",
+                            "1025": "Montana",
+                            "1026": "Nebraska",
+                            "1027": "Nevada",
+                            "1028": "New Hampshire",
+                            "1029": "New Jersey",
+                            "1030": "New Mexico",
+                            "1031": "New York",
+                            "1032": "North Carolina",
+                            "1033": "North Dakota",
+                            "1055": "Northern Mariana Islands",
+                            "1034": "Ohio",
+                            "1035": "Oklahoma",
+                            "1036": "Oregon",
+                            "1037": "Pennsylvania",
+                            "1056": "Puerto Rico",
+                            "1038": "Rhode Island",
+                            "1039": "South Carolina",
+                            "1040": "South Dakota",
+                            "1041": "Tennessee",
+                            "1042": "Texas",
+                            "1058": "United States Minor Outlying Islands",
+                            "1043": "Utah",
+                            "1044": "Vermont",
+                            "1057": "Virgin Islands",
+                            "1045": "Virginia",
+                            "1046": "Washington",
+                            "1047": "West Virginia",
+                            "1048": "Wisconsin",
+                            "1049": "Wyoming"
+                        };
+
+                        for( var thisOption in options ){
+                            var option = document.createElement('option');
+                                option.text = options[thisOption];
+                                option.value = thisOption;
+                                stateSelect.options.add(option);
+                        }
+
+                    }
+
+                    $(stateSelect).val(me.selectedState[key]);
+
+                    stateSelect.disabled = false;
+
 				}
 			});
 			
@@ -497,6 +575,8 @@ $(document).ready(function(){
 	});
 });
 })(jQuery);
+
+//donations
 
 (function(global) {
 	var noop = function(){};
