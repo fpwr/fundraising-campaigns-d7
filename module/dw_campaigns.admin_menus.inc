@@ -1305,7 +1305,7 @@ function dw_campaigns_active_campaigns() {
 }
 
 
-function dw_campaigns_offline_donations_select_form(&$form, &$form_state, $options, $selected = NULL) {
+function dw_campaigns_offline_donations_select_form($form, &$form_state, $options, $selected = NULL) {
     $form = array();
 
     $t = array();
@@ -1462,7 +1462,7 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
     return theme('dw_campaigns_reports_campaign_offline_donations', array('campaign' => $campaign, 'form' => $form, 'donations' => $donations, 'selform' => $selform, 'headers' => $headers, 'mode' => $mode));
 }
 
-function dw_campaigns_reports_campaign_offline_donations_form(&$form, &$form_state, $donation_ids, $campaign) {
+function dw_campaigns_reports_campaign_offline_donations_form($form, &$form_state, $donation_ids, $campaign) {
     $form   = array();
 
     $form['nid'] = array(
@@ -1987,7 +1987,7 @@ function dw_campaigns_reports_event_registration_from_list($list, $mode, $campai
     }
 }
 
-function dw_campaigns_reports_event_registration_form(&$form, &$form_state, $options, $arg, $mode) {
+function dw_campaigns_reports_event_registration_form($form, &$form_state, $options, $arg, $mode) {
     $form = array();
 
     $form['options']     = array(
@@ -2078,7 +2078,7 @@ function dw_campaigns_reports_event_emails($arg = '') {
 
 }
 
-function dw_campaigns_reports_event_emails_form(&$form, &$form_state, $options, $arg) {
+function dw_campaigns_reports_event_emails_form($form, &$form_state, $options, $arg) {
     $form = array();
 
     $t = array();
@@ -2115,7 +2115,7 @@ function dw_campaigns_report_host_panel() {
     drupal_goto('dw/user/host');
 }
 
-function dw_campaigns_reports_activepages_select_form(&$form, &$form_state, $options, $selected = NULL) {
+function dw_campaigns_reports_activepages_select_form($form, &$form_state, $options, $selected = NULL) {
     $form = array();
 
     $t = array();

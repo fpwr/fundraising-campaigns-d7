@@ -2200,7 +2200,7 @@ function dw_campaigns_campaign_search_pcp_search($campaign, $in_query) {
 }
 
 
-function dw_campaigns_search_form(&$form, &$form_state, $in_query = NULL) {
+function dw_campaigns_search_form($form, &$form_state, $in_query = NULL) {
 
     $form = array();
     $mode           = dw_campaigns_get_selected_type();
