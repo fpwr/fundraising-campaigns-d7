@@ -18,8 +18,8 @@
     }
     
     $goalRemaining  = dw_campaigns_force_decimal($goalTotal - $goalProgress, $campaign->field_dw_currency['und']['0']['value']);
-    $goalTotal      = dw_campaigns_force_decimal($goalTotal);
-    $goalProgress   = dw_campaigns_force_decimal($goalProgress);
+    $goalTotal      = dw_campaigns_force_decimal($goalTotal, $campaign->field_dw_currency['und']['0']['value']);
+    $goalProgress   = dw_campaigns_force_decimal($goalProgress, $campaign->field_dw_currency['und']['0']['value']);
 
     if($goalRemaining < 0) {
         $goalRemaining		= '0.00';

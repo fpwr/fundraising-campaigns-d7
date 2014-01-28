@@ -61,7 +61,7 @@ function sort_leaders($a, $b) {
         CREATE TEMPORARY TABLE
             $table
             (
-                name char(255),
+                name char(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci,
                 drupal_id int,
                 photo char(255),
                 position int,
@@ -71,7 +71,7 @@ function sort_leaders($a, $b) {
                 location char(255),
                 donations int,
                 url char(255)
-            )
+            ) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
     ";
     db_query($query);
 

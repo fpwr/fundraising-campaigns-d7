@@ -32,12 +32,40 @@ $pp = array(
     'title'    => 'FPWR France Donation',
 );
 
-if($values['campaign'] != 197 && $values['campaign'] != 340) {
-    $pp = array(
-        'currency' => 'NZD',
-        'business' => '8NHDV9M9JNUM2',
-        'title'    => 'PWS NZ Donation',
-    );
+// FIXME - this should not be a static list - paypal is no longer a one even one off so refactor the solution
+$french = array(
+    '197' => '197',
+    '340' => '340',
+    '753' => '753',
+    '762' => '762',
+    '765' => '765',
+    '768' => '768',
+    '774' => '774',
+    '783' => '783',
+    '819' => '819'
+);
+
+$uk = array(
+  '871' => '871',
+  '874' => '874'
+);
+
+$campaign = $values['campaign'];
+
+if(!isset($french[$campaign])) {
+    if(!isset($uk[$campaign])) {
+        $pp = array(
+            'currency' => 'NZD',
+            'business' => '8NHDV9M9JNUM2',
+            'title'    => 'PWS NZ Donation',
+        );
+    } else {
+        $pp = array(
+            'currency' => 'GBP',
+            'business' => 'XPTLFJZBUTHFW',
+            'title'    => 'PWS UK Donation',
+        );
+    }
 }
 
 /*

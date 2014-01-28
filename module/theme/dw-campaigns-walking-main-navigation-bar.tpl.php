@@ -157,6 +157,7 @@
         </li>
         <?php
         }
+        if(1==2) {
         ?>
 <li class="merchandise last">
 	<link rel="stylesheet" type="text/css" href="https://cache.audiolife.com/widget/PoppyV1/history/history.css" />
@@ -186,12 +187,13 @@
 	<script src="/sites/all/modules/dw_campaigns/gtScript.js" language="JavaScript" type="text/javascript"></script>
 	<div id="GoodThreadsContent" ></div>
 </li>
-<!--
+<?php
+        }
+?>
         <li class="facebook_like last">
             <div> 
                 <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fonesmallstep.fpwr.org%2F&amp;send=false&amp;layout=button_count&amp;width=120&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:120px; height:21px;" allowTransparency="true"></iframe>
             </div>
         </li>
--->
     </ul>
 </div>
