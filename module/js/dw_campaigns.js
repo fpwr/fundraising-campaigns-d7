@@ -307,7 +307,29 @@ var dw_campaigns = {
 
 		});
 		$(locationField).change();
-	}
+	},
+        initHostsMenu: function() {
+                var $ = jQuery;
+                var me = this;
+
+                 $('.form_menu li a').click(function() {
+                    $('.form_menu li').removeClass('selected');
+                    $(this).parent().addClass('selected');
+                    me.syncHostsMenu();
+                 });
+
+                 $('.form_menu li.first a').click();
+        },
+        syncHostsMenu: function() {
+                var $ = jQuery;
+                var selected = $('.form_menu li.selected a');
+
+                $('.hidmenu').hide();
+
+                if(typeof selected.attr('nohref') != 'undefined') {
+                    $('.menu-' + selected.attr('nohref').substr(1)).show();
+                }
+        }
 };
 
 /**
