@@ -3320,6 +3320,30 @@ function dw_campaigns_admin_contact_hosts($selected = NULL) {
     return theme('dw_campaigns_admin_contact_hosts', array('form' => $form));
 }
 
+function dw_campaigns_admin_grab_exchange_rate_data(){
+    // we want to run at most once per day
+
+    $last_date  = variable_get('dw_campaigns_cron_hosts_process_last_run', 0);
+    $day        = date("Ymd", REQUEST_TIME);
+    $day_dashed = date("Y-m-d", REQUEST_TIME);
+    $d_year     = date('Y', REQUEST_TIME);
+    $d_month    = date('m', REQUEST_TIME);
+    $d_day      = date('d', REQUEST_TIME);
+
+
+    $dates      = dw_campaigns_get_campaign_dates();
+
+
+//    variable_set("exchangeRateApiKey", "1aa1cffb79274b22895215966cfbbc1e");
+
+    if($day > $last_date) {
+        $apiKey = variable_get("exchangeRateApiKey");   //TODO: Move this to an admin form setting
+        variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
+
+    }
+}
+
+
 function dw_campaigns_admin_contact_hosts_process() {
 
     // we want to run at most once per day

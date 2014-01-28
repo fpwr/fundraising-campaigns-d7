@@ -35,6 +35,7 @@ $dw_settings = array(
     'loginPass'	=> 'adminpassword',
 );
 
+
 function dw_campaigns_permission() {
     return array(
         PERM_ADMIN_DW_CAMPAIGN => array(
@@ -1798,6 +1799,7 @@ window.setTimeout(function() {
 function dw_campaigns_cron() {
     dw_campaigns_admin_contact_hosts_process();
     dw_campaigns_admin_generate_cdn_receipts();
+    dw_campaigns_admin_grab_exchange_rate_data();
 }
 
 function dw_campaigns_homepage_goto() {

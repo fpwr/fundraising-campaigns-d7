@@ -901,7 +901,8 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         'dw-campaigns-invitation-text',
         'dw_campaigns_user_thankyou_text',
         'dw_campaigns_runner_signup_email',
-        'dw_campaigns_canadian_receipt_email'
+        'dw_campaigns_canadian_receipt_email',
+        'splashr_html'
     );
 
     foreach($possibles as $key) {

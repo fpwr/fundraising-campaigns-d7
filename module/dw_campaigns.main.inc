@@ -2472,9 +2472,26 @@ function dw_campaigns_force_decimal($in, $currency = 'USD', $always_show_usd = f
     return $fmt;
 }
 
+//dw_campaigns_admin_grab_exchange_rate_data();
+//exit;
+//dw_campaigns_convert_to_usd("AUD", 10.00);
+
 function dw_campaigns_convert_to_usd($currency, $in) {
-    
-// prices according to xe.com  Live rates at 2011.04.01 18:47:00 UTC
+
+    $exchangeRates = variable_get("exchangeRates");
+
+    $rate = $exchangeRates->{ $currency };
+
+    if( !$rate ){
+        //@todo we should write a log, and redirect to a fail page.
+    }
+
+    $converted = $in * $rate;
+
+    return $converted;
+
+    //JFN - january 24 2014 0746 - [#todo "below is the old static code for currency exchange. above is the new currency exchange stuff. remove the old stuff in february 2014"]
+    // prices according to xe.com  Live rates at 2011.04.01 18:47:00 UTC
     switch($currency) {
         case 'AUD':
             //$in = $in * 1.03861;
@@ -2504,6 +2521,20 @@ function dw_campaigns_convert_to_usd($currency, $in) {
 }
 
 function dw_campaigns_convert_from_usd($currency, $in) {
+
+    $exchangeRates = variable_get("exchangeRates");
+
+    $rate = 1 / $exchangeRates->{ $currency };
+
+    if( !$rate ){
+        //@todo should redirect to error page, and log/email error to admins
+    }
+
+    $converted = $in * $rate;
+
+    return $converted;
+    //JFN - january 24 2014 0758 - [#todo "below is the old static code for currency exchange. above is the new currency exchange stuff. remove the old stuff in february 2014"]
+
     switch($currency) {
         case 'AUD':
             $in = $in * 0.97322;

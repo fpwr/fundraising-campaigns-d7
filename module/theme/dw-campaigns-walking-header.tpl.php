@@ -6,7 +6,7 @@
 ?>
 
 <script type="text/javascript">
-(function ($) {
+    (function ($) {
 $(document).ready(function() {
     var do_nav = function(cur_val) {
         if(cur_val != '') {
