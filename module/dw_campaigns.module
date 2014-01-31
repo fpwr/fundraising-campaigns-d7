@@ -676,10 +676,11 @@ function dw_campaigns_menu() {
 
     $items['dw/users/fundraisingTips'] = array(
         'title'                 => t('Fundraising Tips'),
-        'page callback'         => 'drupal_get_form',
-        'page arguments'        => array('dw_campaigns_currency_config'),
+        'page callback'         => 'dw_campaigns_fundraising_tips_page',
+        'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
-        'type'                  => MENU_LOCAL_TASK
+        'type'                  => MENU_LOCAL_TASK,
+        'weight'                => 15
     );
 
     $items['dw/user/donations/%'] = array(
@@ -5465,6 +5466,14 @@ function dw_campaigns_user_edit_page($campaignId = NULL) {
     }
 
     return dw_campaigns_user_create_pcp_page($campaignId);
+}
+
+function dw_campaigns_fundraising_tips_page(){
+    $currentDomain = $_SERVER['HTTP_HOST'];
+    $html = '<a href="http://onesmallstep.fpwr.org/sites/default/files/Fundraising_Guide.pdf" download="Fundraising_Tips.pdf">Download To Your Computer</a>'.
+            '<br>'.
+            '<iframe src="http://docs.google.com/gview?url=http://onesmallstep.fpwr.org/sites/default/files/Fundraising_Guide.pdf&embedded=true" style="width:100%; height:800px;" frameborder="0"></iframe>';
+    return $html;
 }
 
 function dw_campaigns_user_donations_page($campaignId = NULL) {

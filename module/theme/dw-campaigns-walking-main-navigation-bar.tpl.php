@@ -149,11 +149,6 @@
         
         <li class="<?php echo "navlearn"//$account_class; ?>">
             <a href="/dw/user/profile"><?php echo t('My Account'); ?></a>
-
-            <ul>
-                <li><a href="/sites/default/files/Fundraising_Guide.pdf">Fundraising Tips</a></li>
-            </ul>
-
         </li>
         <?php
         }
