@@ -870,7 +870,7 @@ function dw_campaigns_get_contribution_by_id($contribution_id, $nocache = FALSE)
  * @return array the contributions if any were found
  */
 function dw_campaigns_get_contributions_for_pcp($pcp, $by_id = FALSE) {
-    
+
     static $contributions          = array();
     static $by_id_contributions    = array();
     static $grabbed_all            = FALSE;
@@ -2480,7 +2480,7 @@ function dw_campaigns_convert_to_usd($currency, $in) {
 
     $exchangeRates = variable_get("exchangeRates");
 
-    $rate = $exchangeRates->{ $currency };
+    $rate = 1/$exchangeRates->{ $currency };
 
     if( !$rate ){
         //@todo we should write a log, and redirect to a fail page.
@@ -2524,7 +2524,7 @@ function dw_campaigns_convert_from_usd($currency, $in) {
 
     $exchangeRates = variable_get("exchangeRates");
 
-    $rate = 1 / $exchangeRates->{ $currency };
+    $rate = $exchangeRates->{ $currency };
 
     if( !$rate ){
         //@todo should redirect to error page, and log/email error to admins

@@ -151,7 +151,7 @@
             <a href="/dw/user/profile"><?php echo t('My Account'); ?></a>
 
             <ul>
-                <li><a href="test">Fundraising Tips</a></li>
+                <li><a href="/sites/default/files/Fundraising_Guide.pdf">Fundraising Tips</a></li>
             </ul>
 
         </li>

@@ -50,35 +50,54 @@
 <li class="last"><a class="clicker" nohref="#event_documentdb">Document<br>Database</a></li>
 </div>
 
+
 <div class="forms">
     <div class="hidmenu menu-event_fundraisers">
-<?php
-        echo drupal_render($fundraisers_form);
-?>
+
+        <?php //Event Details Settings
+            echo drupal_render($fundraisers_form);
+        ?>
+
     </div>
+
     <div class="hidmenu menu-event_details">
-<?php
-        echo drupal_render($manage_form);
-?>
+
+        <?php //Fundraiser Management
+            echo drupal_render($manage_form);
+        ?>
+
     </div>
+
     <div class="hidmenu menu-event_request">
 
-<?php
-        echo drupal_render($request_form);
-?>
+        <?php //Request Services
+            $tshirts_and_services_node = explode('/', drupal_lookup_path("source", 'tshirts_and_services') );       //this is horrible!
+            $RequestServicesNode = node_load( $tshirts_and_services_node );
+
+            echo $RequestServicesNode->{'body'}['und'][0]['value'];
+        ?>
+
     </div>
+
     <div class="hidmenu menu-event_reports">
         <ul>
             <li> <a href="/dw/user/host/<?php echo $event_id;?>/reports/registration/SCREEN">Event Registration Report (SCREEN)</a> </li>
             <li> <a href="/dw/user/host/<?php echo $event_id;?>/reports/registration/CSV">Event Registration Report (download CSV)</a> </li>
         </ul>
-<?php
-        echo drupal_render($reports_form);
-?>
+
+        <?php //Reports
+            echo drupal_render($reports_form);
+        ?>
+
     </div>
+
     <div class="hidmenu menu-event_documentdb">
         <p>
-        <?php echo $message;?>
+
+            <?php //Document Database
+                echo $message;
+            ?>
+
         </p>
     </div>
 </div>

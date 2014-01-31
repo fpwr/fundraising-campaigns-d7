@@ -1,5 +1,30 @@
 <?php
 
+function dw_campaigns_currency_config(){
+    return array(
+        'currency_service_provider' =>  array(
+            '#title'            => 'Exchange Rate Data Provider',
+            '#type'             => 'select',
+            '#options'          => Array('openexchangerates.org'),
+            '#description'      => t('Links your site to an external data provider for currency conversion rates. To ensure you have the most up to date currency values possible.'),
+            '#maxlength'        => 250,
+            '#default_value'    => 0
+        ),
+        'currency_service_provider_api_key' => array(
+            '#title'            => 'Account API key',
+            '#type'             => 'textfield',
+            '#description'      => t('data providers usually require an api key, get one and enter it here!'),
+            '#maxlength'        => 250,
+            '#default_value'    => variable_get('currency_service_provider_api_key')
+        ),
+        'currency_service_provider_get_data' => array(
+            '#type'             => 'submit',
+            '#value'            => t('Sync Exchange Rates Now'),
+            '#submit'           => array('dw_campaigns_admin_grab_exchange_rate_data_submit')
+        )
+    );
+}
+
 function dw_campaigns_civicrm_config() {
     
     $form = array();

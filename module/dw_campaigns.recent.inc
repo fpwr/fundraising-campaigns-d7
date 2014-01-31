@@ -1312,7 +1312,8 @@ function dw_campaigns_user_host_manage_page($event_id) {
 
     $manage_form  = drupal_get_form('dw_campaigns_user_host_manage_page_form', $event_id);
 
-    $request_form = drupal_get_form('dw_campaigns_user_host_request_services_form', $event_id);
+    //$request_form = drupal_get_form('dw_campaigns_user_host_request_services_form', $event_id);
+    $request_form = array();
 
     //$reports_form = drupal_get_form('dw_campaigns_user_host_reports_form', $event_id);
 $reports_form = array();
@@ -1837,6 +1838,13 @@ function dw_campaigns_create_extended_event($event_id) {
 
 function dw_campaigns_user_host_request_services_form($form, &$form_state, $event_id) {
 
+    $form = array();
+
+    return $form;
+
+
+
+    //JFN - request for removal/replacement, delete below this line sometime in the near future (september 30)
     $values = dw_campaigns_get_host_request_data($event_id);
 
     $form   = array();
@@ -3333,16 +3341,18 @@ function dw_campaigns_admin_grab_exchange_rate_data(){
 
     $dates      = dw_campaigns_get_campaign_dates();
 
-
-//    variable_set("exchangeRateApiKey", "1aa1cffb79274b22895215966cfbbc1e");
-
     if($day > $last_date) {
-        $apiKey = variable_get("exchangeRateApiKey");   //TODO: Move this to an admin form setting
+        $apiKey = variable_get('currency_service_provider_api_key');
         variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
 
     }
+
 }
 
+function dw_campaigns_admin_grab_exchange_rate_data_submit($form, $form_state){
+    dw_campaigns_admin_grab_exchange_rate_data();
+    return $form;
+}
 
 function dw_campaigns_admin_contact_hosts_process() {
 

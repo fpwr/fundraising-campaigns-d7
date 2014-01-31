@@ -97,7 +97,18 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_CALLBACK
     );
- 
+
+    //$items['admin/settings/dw_campaigns_currency_setup'] = component('Currency')->get_admin_form();
+
+    $items['admin/settings/dw_campaigns_currency_setup'] = array(
+        'title'                 => "Currency",
+        'description'           => "Use this to configure the way you want to handle currency.",
+        'page callback'         => "drupal_get_form",
+        'page arguments'        => array("dw_campaigns_currency_config"),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => "dw_campaigns.admin_menus.inc",
+        'type'                  => MENU_NORMAL_ITEM
+    );
  
     $items['admin/settings/dw_campaigns_civi_setup'] = array(
         'title'                 => "DW Campaigns Civi REST Interface Configuration",
@@ -633,7 +644,7 @@ function dw_campaigns_menu() {
         'page callback'         => 'dw_campaigns_user_profile',
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
         'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 10
+	    'weight'		        => 10
     );
 
 
@@ -643,7 +654,7 @@ function dw_campaigns_menu() {
         'page callback'         => 'dw_campaigns_user_view_page',
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
         'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 1
+	    'weight'		        => 1
     );
 
     $items['dw/user/edit_page'] = array(
@@ -651,11 +662,8 @@ function dw_campaigns_menu() {
         'page callback'         => 'dw_campaigns_user_edit_page',
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
         'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 2
+	    'weight'		        => 2
     );
-    
-
-
 
     $items['dw/user/donations'] = array(
     	'title'                 => 'My Donations',
@@ -663,16 +671,24 @@ function dw_campaigns_menu() {
         'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 3
+	    'weight'		        => 3
     );
-    
+
+    $items['dw/users/fundraisingTips'] = array(
+        'title'                 => t('Fundraising Tips'),
+        'page callback'         => 'drupal_get_form',
+        'page arguments'        => array('dw_campaigns_currency_config'),
+        'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
+        'type'                  => MENU_LOCAL_TASK
+    );
+
     $items['dw/user/donations/%'] = array(
     	'title'                 => 'Historical My Donations',
     	'page callback'	        => 'dw_campaigns_user_donations_page',
         'page arguments'        => array(3),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 3
+	    'weight'		        => 3
     );
    
     $items['dw/user/send_thankyou/%/%'] = array(
@@ -681,7 +697,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(3, 4),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 3
+	    'weight'		        => 3
     );
 
     $items['dw/user/send_thankyou/%/%/thanked'] = array(
@@ -690,7 +706,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(3, 4),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 3
+	    'weight'		        => 3
     );
 
     $items['dw/user/donations/add'] = array(
@@ -699,7 +715,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 3
+	    'weight'		        => 3
     );
     
 
@@ -709,7 +725,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 4
+	    'weight'		        => 4
     );
 
     $items['dw/user/share']     = array(
@@ -718,7 +734,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_LOCAL_TASK,
-	'weight'		=> 5
+	    'weight'		        => 5
     );
 
     $items['dw/user/addressbook'] = array(
@@ -727,7 +743,7 @@ function dw_campaigns_menu() {
         'page arguments'        => array(),
         'access arguments'      => array(PERM_USER_DW_CAMPAIGN),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 5
+	    'weight'		        => 5
     );
 
     $items['dw/user/share/%']   = array(
@@ -804,7 +820,7 @@ function dw_campaigns_menu() {
     	'access callback'       => 'dw_campaigns_host_permission_check',
     	'access arguments'      => array(3),
     	'type'                  => MENU_CALLBACK,
-	'weight'		=> 3
+	'weight'		            => 3
     );
 
     $items['dw/user/host/%/reports/registration/%']    = array(
