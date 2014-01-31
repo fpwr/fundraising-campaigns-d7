@@ -33,29 +33,35 @@
 
 .admin-upload-form-form{
     background-color: #D1A1D6;
-    padding: 6px;
     border-radius: 4px;
     position: relative;
-    height: 19px;
+    height: 10px;
+    padding: 6px;
     margin-left: 15px;
     border-style: solid;
     border-width: 1px;
     border-color: red;
 }
 
+.admin-upload-form-form div div:first-child{
+    position: absolute;
+    left:0px;
+    bottom: 0px;
+}
+
 .admin-upload-form-form .form-submit{
-    position: relative;
+    position: absolute;
     background-color: #CC60B6;
     padding: 3px;
-    left: 145px;
-    top: -23px;
+    right: 2px;
+    top: 2px;
+    bottom: 2px;
     border-radius: 6px;
 }
 
 .admin-upload-form-form #edit-form-file-remove-button{
     position: absolute;
     background-color: #CC60B6;
-    padding: 3px;
     left: 215px;
     top: 3px;
     border-radius: 6px;
