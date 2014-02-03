@@ -8,7 +8,7 @@ global $dw_campaign_module_path;
 $dw_campaign_module_path = drupal_get_path('module', 'dw_campaigns') . '/';
 define('DW_CAMPAIGN_MODULE_PATH', $dw_campaign_module_path);
 
-
+include_once($dw_campaign_module_path . 'dw_utilities.inc');
 include_once($dw_campaign_module_path . 'dw_campaigns.main.inc');
 include_once($dw_campaign_module_path . 'dw_campaigns.helpers.inc');
 include_once($dw_campaign_module_path . 'dw_campaigns.oss.inc');
@@ -46,7 +46,7 @@ function dw_campaigns_permission() {
         ),
         PERM_USER_DW_CAMPAIGN => array(
             'title' => t('Valid user of DW Pages')
-        ),
+        )
     );
 }
 
@@ -150,10 +150,30 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
+    $items['admin/reports/active_campaigns/csv'] = array(
+        'title'                 => 'DW Active Campaigns Csv',
+        'description'           => "A csv file filled with active dw campaign data",
+        'page callback'         => 'dw_campaigns_active_campaigns_csv',
+        'page arguments'        => array(),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
     $items['admin/reports/dw_emails'] = array(
         'title'                 => "DW Campaigns Emails",
         'description'           => "List of raw email addresses of fundraisers",
         'page callback'         => 'dw_campaigns_reports_email',
+        'page arguments'        => array(),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+    $items['admin/reports/dw_emails/csv'] = array(
+        'title'                 => "DW Campaigns Emails CSV",
+        'description'           => "List of raw email addresses of fundraisers output as a csv",
+        'page callback'         => 'dw_campaigns_reports_email_csv',
         'page arguments'        => array(),
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'file'                  => 'dw_campaigns.admin_menus.inc',
@@ -174,6 +194,16 @@ function dw_campaigns_menu() {
         'title'                 => "DW Campaigns Emails",
         'description'           => "List of email addresses by Event",
         'page callback'         => 'dw_campaigns_reports_event_emails',
+        'page arguments'        => array(3),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+    $items['admin/reports/dw_event_emails/%/csv'] = array(
+        'title'                 => "DW Campaigns Emails CSV",
+        'description'           => "List of email addresses by Event generated as CSV file",
+        'page callback'         => 'dw_campaigns_reports_event_emails_csv',
         'page arguments'        => array(3),
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'file'                  => 'dw_campaigns.admin_menus.inc',
@@ -213,7 +243,12 @@ function dw_campaigns_menu() {
     );
 
 
+
+
+
+    //DW Offline Donations
     $items['admin/reports/dw_offline'] = array(
+        //displays an event selection form (dw_campaigns_offline_donations_select_form), which forwards us to 'admin/reports/dw_offline/%/% on submit
         'title'                 => "DW Offline Donations",
         'description'           => "Offline Donations",
         'page callback'         => 'dw_campaigns_offline_donations',
@@ -223,6 +258,7 @@ function dw_campaigns_menu() {
     );
 
     $items['admin/reports/dw_offline/%'] = array(
+        //this path seems redundant.
         'title'                 => "DW Offline Donations",
         'description'           => "Offline Donations",
         'page callback'         => 'dw_campaigns_offline_donations',
@@ -232,6 +268,7 @@ function dw_campaigns_menu() {
     );
 
     $items['admin/reports/dw_offline/%/%'] = array(
+        //segment 3 can be 'ALL', or a node id pointing at an event, segment 4 can be 'SCREEN', or 'CSV'
         'title'                 => "DW Offline Donations",
         'description'           => "Offline Donations",
         'page callback'         => 'dw_campaigns_offline_donations',
@@ -239,6 +276,11 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_NORMAL_ITEM
     );
+
+
+
+
+
 
     $items['admin/reports/dw_pcp_reports/%'] = array(
         'title'                 => "DW Campaigns PCP Reports",
@@ -267,7 +309,6 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
-
     $items['admin/reports/dw_offline_reports/%'] = array(
         'title'                 => "DW Campaigns Offline Donation Reports",
         'description'           => "Offline Donation Reports",
@@ -276,6 +317,7 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_NORMAL_ITEM
     );
+
     $items['admin/reports/dw_offline_reports/%/CSV'] = array(
         'title'                 => "DW Campaigns Offline Donation Reports",
         'description'           => "Offline Donation Reports",
@@ -284,6 +326,7 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_NORMAL_ITEM
     );
+
     $items['admin/reports/dw_receipts/%'] = array(
         'title'                 => "DW Campaigns Receipts",
         'description'           => "Receipt",
@@ -292,6 +335,7 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_CALLBACK
     );
+
     $items['admin/reports/dw_receipts/%/email'] = array(
         'title'                 => "DW Campaigns Receipts Email",
         'description'           => "Receipt",
@@ -300,6 +344,7 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_CALLBACK
     );
+
     $items['admin/reports/dw_receipts/%/pdf'] = array(
         'title'                 => "DW Campaigns Receipts PDF",
         'description'           => "Receipt",
@@ -309,6 +354,11 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
+
+
+
+
+    //DW Personal Page Fundraising Totals
     $items['admin/reports/dw_pp_fundraising_total'] = array(
         'title'                 => "DW Personal Page Fundraising Totals",
         'description'           => "Includes the total fundraising amounts and contact for every fundraiser",
@@ -317,6 +367,10 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'type'                  => MENU_NORMAL_ITEM
     );
+
+
+
+
 
     $items['admin/reports/dw_hosts_panel'] = array(
         'title'                 => "DW Campaigns Host Panel (Admin)",
@@ -345,6 +399,16 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
+    $items['admin/reports/dw_activepages/%/csv'] = array(
+        'title'                 => 'DW Active PCPs CSV',
+        'description'           => 'Active Personal Campaign Pages CSV Output',
+        'page callback'         => 'dw_campaigns_report_activepages_csv',
+        'page arguments'        => array(3),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+
     $items['admin/reports/dw_hosts'] = array(
         'title'                 => "DW Hosts",
         'description'           => "List of hosts including: name, email, state/province and country grouping",
@@ -359,6 +423,16 @@ function dw_campaigns_menu() {
         'title'                 => "DW Shirt Orders",
         'description'           => "Shirt Orders",
         'page callback'         => 'dw_campaigns_reports_shirtorders',
+        'page arguments'        => array(),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+    $items['admin/reports/dw_shirtorders/csv'] = array(
+        'title'                 => "DW Shirt Orders",
+        'description'           => "Shirt Orders",
+        'page callback'         => 'dw_campaigns_reports_shirtorders_csv',
         'page arguments'        => array(),
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'file'                  => 'dw_campaigns.admin_menus.inc',
@@ -395,6 +469,15 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
+    $items['admin/reports/dw_eventinsurance/csv'] = array(
+        'title'                 => "DW Event Insurance CSV",
+        'description'           => "Event Insurance Csv Output",
+        'page callback'         => 'dw_campaigns_reports_eventinsurance_csv',
+        'page arguments'        => array(),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
 
     $items['dw'] = array(
         'title'                 => 'Fundraising',
@@ -411,6 +494,7 @@ function dw_campaigns_menu() {
         'access arguments'      => array(PERM_ACCESS_DW_CAMPAIGN),
         'type'                  => MENU_CALLBACK
     );
+
     $items['dw/lang/%'] = array(
         'title'                 => 'Cache Cleared',
         'page callback'         => 'dw_campaigns_lang',

@@ -1,3 +1,4 @@
+<a href="/admin/reports/dw_shirtorders/csv">Download CSV</a>
 <?php
 
     $headers = array();
