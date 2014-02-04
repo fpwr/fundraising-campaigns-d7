@@ -1293,6 +1293,51 @@ function dw_campaigns_user_host_page_form($form, &$form_state, $campaigns) {
     return $form;
 }
 
+function dw_campaigns_host_event_donors($event_id){
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+    $event = node_load($event_id);
+
+    $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
+
+    foreach( $pcps as $id => $pcp ){
+
+        $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+        foreach( $supporters as $supporter ){
+            $pcp_contact = _dw_civicrm_contact_get(array(
+                    'contact_id'  => $supporter->contact_id,
+                    'returnFirst' => 1
+                ));
+
+            $csvData = array(
+                $pcp_contact->display_name,
+                $pcp_contact->email,
+                $pcp_contact->street_address,
+                $pcp_contact->city,
+                $pcp_contact->state_province_name,
+                $pcp_contact->postal_code
+            );
+
+            $csvDataArray[] = $csvData;
+        }
+
+    }
+
+    return output_csv( 'host_event_donors_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
 function dw_campaigns_user_host_page_form_validate($form, &$form_state) {
     $values = $form_state['values'];
 

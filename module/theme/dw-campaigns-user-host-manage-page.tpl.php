@@ -131,9 +131,41 @@
         </p>
     </div>
 
-    <div class="hidemenu menu-event_donors">
-        <?php //Donors
-            //this appears to be visible on all tabs? wtfm?
-        ?>
+    <div class="hidmenu menu-event_donors">
+        <p>
+            <a href="/dw/user/host/<?= $event_id ?>/donors/csv">Download CSV</a>
+            <div class="table">
+                <div class="tr header">
+                    <div class="td">name</div>
+                    <div class="td">email</div>
+                    <div class="td">street</div>
+                    <div class="td">city</div>
+                    <div class="td">state</div>
+                    <div class="td">postal</div>
+                </div>
+
+            <?php //Donors
+                $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
+
+                foreach( $pcps as $id => $pcp ){
+
+                    $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+                    foreach( $supporters as $supporter ){
+                        echo('<div class="tr">');
+                        //var_dump( $supporter);
+                        $pcp_contact = _dw_civicrm_contact_get(array(
+                                'contact_id'  => $supporter->contact_id,
+                                'returnFirst' => 1
+                            ));
+
+                        echo( '<div class="td">' . $pcp_contact->display_name . '</div><div class="td">' . $pcp_contact->email . '</div><div class="td">' . $pcp_contact->street_address . '</div><div class="td">' . $pcp_contact->city . '</div><div class="td">' . $pcp_contact->state_province_name . '</div><div class="td">' . $pcp_contact->postal_code . '</div>');
+                        echo('</div>');
+                    }
+
+                }
+            ?>
+            </div>
+        </p>
     </div>
 </div>

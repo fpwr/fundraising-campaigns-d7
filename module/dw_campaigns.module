@@ -868,7 +868,16 @@ function dw_campaigns_menu() {
     	'page arguments'        => array(3),
     	'access callback'       => 'dw_campaigns_host_permission_check',
     	'access arguments'      => array(3),
-        'type'                  => MENU_CALLBACK,
+        'type'                  => MENU_CALLBACK
+    );
+
+    $items['dw/user/host/%/donors/csv'] = array(
+        'title'                 => 'Host Management',
+        'page callback'         => 'dw_campaigns_host_event_donors',
+        'page arguments'        => array(3,5),
+        'access callback'       => 'dw_campaigns_host_permission_check',
+        'access arguments'      => array(3),
+        'type'                  => MENU_CALLBACK
     );
 
     $items['dw/user/host/%/contact_fundraisers']    = array(
@@ -1292,19 +1301,19 @@ function dw_campaigns_theme() {
         ),
         'dw_campaigns_derby_pcp_owner' => array(
             'template'  => 'theme/dw-campaigns-derby-pcp-owner',
-            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL),
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL)
         ),
         'dw_campaigns_derby_pcp_position' => array(
             'template'  => 'theme/dw-campaigns-derby-pcp-position',
-            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL),
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL)
         ),
         'dw_campaigns_derby_pcp_statistics' => array(
             'template'  => 'theme/dw-campaigns-derby-pcp-statistics',
-            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL),
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL)
         ),
         'dw_campaigns_derby_pcp_supporters' => array(
             'template'  => 'theme/dw-campaigns-derby-pcp-supporters',
-            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL, 'num_per_page' => NULL, 'show_return' => TRUE),
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL, 'num_per_page' => NULL, 'show_return' => TRUE)
         ),
         'dw_campaigns_derby_statistics' => array(
             'template'  => 'theme/dw-campaigns-derby-statistics',
