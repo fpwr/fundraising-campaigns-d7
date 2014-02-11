@@ -70,7 +70,7 @@
         </li>
 
         <li class="">
-            <a class="clicker" nohref="#event_documentdb">Document<br>Database</a>
+            <a class="clicker" nohref="#event_documentdb">Document<br>Samples</a>
         </li>
 
         <li class="last">
