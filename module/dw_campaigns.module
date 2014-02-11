@@ -4217,9 +4217,6 @@ function dw_campaigns_country_select_callback($form, $form_state) {
 function dw_campaigns_get_state_by_country($country = NULL) {
     global $dw_settings;
 
-    //JFN - january 8 2014 - say wha?
-file_put_contents("/tmp/zs");
-
     $parsed = parse_url($dw_settings['restUrl']);
     $target = sprintf("http://%s/civicrm/ajax/jqState?_id=address_1_country_id&_name=address%%5B1%%5D%%5Bcountry_id%%5D&_value=%s", $parsed['host'], $country);
 
@@ -4227,7 +4224,6 @@ file_put_contents("/tmp/zs");
 
     $data = file_get_contents($target);
     $ball = json_decode($data);
-file_put_contents("/tmp/zs");
     foreach($ball as $state_obj) {
         $value = $state_obj->value;
         $name  = $state_obj->name;
@@ -4321,13 +4317,19 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
     // FIXME - do this better - having this hardcoded in a donation form is bad
     $currency_symbol = '$';
+
     switch($currency) {
         case ' (GBP)':
-            $currency_symbol = '£';
+            $currency_symbol = '\u00a3';
             break;
+
         case ' (EUR)':
         case ' (EURO)':
-            $currency_symbol = '';
+            $currency_symbol = '\u20ac';
+            break;
+
+        case ' (CAD)':
+            $currency_symbol = 'CA$';
             break;
     }
 
@@ -4518,6 +4520,43 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
 
     $form['payment-fieldset']['billing-info'] = array_merge($form['payment-fieldset']['billing-info'], $billing_address_form);
+
+    drupal_add_js(
+        array(
+            'donations_form' => array(
+                'language' => $_SESSION['language']->language
+            )
+        ),
+        'setting'
+    );
+
+
+    drupal_add_js('
+        window.onload = function(){
+            var settings = Drupal.settings.donations_form
+                if( settings.language == "en" ) var separator = ".";
+                if( settings.language == "fr" ) var separator = ",";
+
+            var donationInput = document.getElementById("edit-donation-amount");
+                donationInput.onkeyup = function(){
+                    donationInput.value = donationInput.value.replace(/[^0-9]+/g, "");
+                };
+
+                donationInput.style.textAlign = "right";
+                donationInput.style.fontSize = "24px";
+
+            var currencyMarker = document.createElement("span");
+                currencyMarker.innerHTML = separator+"00";
+                currencyMarker.style.fontSize = "24px";
+
+            donationInput.parentNode.insertBefore(currencyMarker, donationInput.nextSibling);
+
+
+            //whenever we key any input, we only allow numbers 0-9.
+            //we then add in the currency selector, depending on what language the user is viewing it in.
+        };
+
+    ','inline');
 
     drupal_add_js('
         (function ($) {

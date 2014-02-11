@@ -1,3 +1,11 @@
+/* facebook connect button, as supplied by the fboauth module, set to the header region. */
+.facebook-action-connect{
+    position: absolute;
+    top: 50px;
+    right: 0px;
+
+}
+
 .sponsors-block .block-content{
     background-color: red;
     margin-left: 15px;
