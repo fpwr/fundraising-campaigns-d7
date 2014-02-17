@@ -1,3 +1,11 @@
+.facebook-action-connect{
+    position: relative;
+    top: -33px;
+    float: right;
+    right: 50px;
+    z-index: 1000;
+}
+
 body {
 	background:#305673 url('images/bg.jpg') repeat-x;
 }

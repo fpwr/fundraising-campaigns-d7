@@ -407,7 +407,6 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
 */
     node_save($node);
 
-
     $node_event = dw_campaigns_create_extended_event($node->nid);
 
     // copy over values
@@ -417,8 +416,6 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
     $node_event->body['und']['0']['value']                         = isset($values['event-details']) ? $values['event-details'] : '';
 
     node_save($node_event);
-
-
 
     $to     = variable_get('dw_campaigns_host_submit_email', '');
     $from   = variable_get('dw_campaigns_default_receipt_from_email', 'root@');
@@ -434,16 +431,20 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
 
     }
 
-    if(strncmp($user->name, 'PH1', 3) == 0) {
+    if(strncmp($user->name, 'PH1', 3) == 0)
+    {
         module_invoke_all('user_logout', $user);
         session_destroy();
     }
 
     $alias = sprintf("%s.%s@%s", $contact->first_name, $contact->last_name, 'onesmallstep.fpwr.org');
 
-    try { 
+    try
+    {
         db_query('insert into postfix.forwardings VALUES(:from, :to)', array(':from' => $alias, ':to' => $user->mail));
-    } catch (Exception $e) {
+
+    }
+    catch (Exception $e) {
 
     }
 
@@ -458,7 +459,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
    
 }
 
-function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
+function dw_campaigns_host_event_create_alert_mail($key, &$message, $params){
     global $user;
 
     $contact_fields = array(
@@ -470,11 +471,11 @@ function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
         'country'               => 'Country',
         'postal_code'           => 'Postal Code',
         'email'                 => 'Email',
-        'phone'                 => 'Phone',
+        'phone'                 => 'Phone'
     );
 
-    switch($key)
-    {
+    switch($key){
+
         case 'event_create_alert':
             $subject            = 'New Event Created';
 
@@ -492,10 +493,10 @@ function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
             $message['body'][]  = $body;
             break;
     }
+
 }
 
 function dw_campaigns_host_event_set_variables($node, $values) {
-
     $fund_goal  = isset($values['fundraising-goal']) ? $values['fundraising-goal'] : 0;
     $fund_goal  = preg_replace('/[^0-9\.]/', '', $fund_goal);
     $fund_goal  = round($fund_goal);
@@ -519,7 +520,7 @@ function dw_campaigns_host_event_set_variables($node, $values) {
         $node->field_dw_currency['und']['0']['value']       = !empty($values['fundraising-currency']) ? $values['fundraising-currency'] : 'USD';
     }
 
-    $node->body['und']['0']['value']                        = isset($values['event-description']) ? $values['event-description']       : '';
+    $node->body['und']['0']['value']                        = isset($values['event-description']) ? $values['event-description'] : '';
 
 
     return $node;
@@ -571,13 +572,13 @@ function dw_campaigns_user_donations_add_page_new_host($campaignId = NULL, $pcp_
     return theme('dw_campaigns_user_donations_add_theme', array('form' => $form, 'campaign' => $campaign, 'pcp' => $pcp));
 }
 
-function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign, $pcp) {
+function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign, $pcp){
     $form = array();
-    $form['#attributes']    = array(
+
+    $form['#attributes']    =  array(
         'class'             => array('dw_campaigns-profile-form'),
-        'enctype'           => "multipart/form-data"
+        'enctype'           => 'multipart/form-data'
     );
-   
 
     $multi = FALSE;
 
@@ -596,7 +597,6 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
         '#title'            => t('Donation Amount') . ' ' . $currency,
         '#default_value'    => variable_get('default_contribution_amount', '100.00')
     );
-    
 
 
     if($multi) {
@@ -634,27 +634,27 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
     $form['city']['#suffix']        = '</div>';
     $form['postal_code']['#suffix'] = '</div>';
     
-    unset($form['address_2']);
+    unset( $form['address_2'] );
 
   
     $form['payment_instrument'] = array(
         '#type'             => 'select',
         '#title'            => t('Payment Instrument'),
-        '#options'          => array('check' => 'Check', 'cash' => 'Cash'),
-    );  
+        '#options'          => array('check' => 'Check', 'cash' => 'Cash')
+    );
     
     $form['payment_check_number'] = array(
         '#type'             => 'textfield',
-        '#title'            => t('Check Number'),
+        '#title'            => t('Check Number')
     );
     
  
     $form['include_in_honor_roll'] = array(
         '#type'             => 'checkbox',
         '#title'            => t('Show First and Last name on donation list (will show anonymous otherwise)'),
-        '#default_value'    => 1,
-    )
-;
+        '#default_value'    => 1
+    );
+
     $form['non_deductible'] = array(
         '#type'             => 'checkbox',
         '#title'            => t('Non-deductible'),
@@ -673,7 +673,7 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
         $form['trxn_id'] = array(
             '#type'             => 'textfield',
             '#title'            => t('Transaction Id'),
-            '#default_value'    => NULL,
+            '#default_value'    => NULL
         );
     }
 
