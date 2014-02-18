@@ -426,6 +426,9 @@ function dw_campaigns_get_event_participants_count($campaignId, $pcpId, $contact
     return array($children, $adults);
 }
 
+
+// NOTE - SCHEMA CHANGE: ALTER TABLE `dw_campaigns_event_participants` ADD `gender` ENUM( 'M', 'F' ) NULL DEFAULT NULL COMMENT 'Null / Male / Female';
+
 //function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0) {
 function dw_campaigns_set_event_participants_count($params) {
 
@@ -434,6 +437,8 @@ function dw_campaigns_set_event_participants_count($params) {
     $defaults = array(
         'campaignId'         => null, 
         'pcpId'              => null,
+        'age'                => 0,
+        'gender'             => null,
         'children'           => 0,
         'adults'             => 0,
         'participation_type' => 'adult_pledge', 

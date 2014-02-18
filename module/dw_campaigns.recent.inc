@@ -2873,7 +2873,7 @@ function dw_campaigns_donor_participation_form_validate(&$form, &$form_state) {
 function dw_campaigns_donor_participation_form_submit(&$form, &$form_state) {
     $values = $form_state['values'];
 
-    dw_campaigns_set_event_participants_count($values['campaign_id'], 0, $values['children'], $values['adults'], 0, 'donator', $values['contact_id']);
+    dw_campaigns_set_event_participants_count(array('campaignId' => $values['campaign_id'], 'children' => $values['children'], 'adults' => $values['adults'], 'participation_type' => 'donator', 'contactId' => $values['contact_id']));
 
     if($values['children'] > 0 || $values['adults'] > 0) {
         $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));

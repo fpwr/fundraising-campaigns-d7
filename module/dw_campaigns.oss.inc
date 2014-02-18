@@ -1081,7 +1081,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
     } 
 
     $values['num_attending'] = $values['children'] + $values['adults'];
-    dw_campaigns_set_event_participants_count($campaign->nid, $pcp->id, $values['children'], $values['adults'], $values['age'], $values['participation_type']);
+    dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'pcpId' => $pcp->id, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => $values['age'], 'participation_type' => $values['participation_type']));
 
     $event_data = new stdClass();
     $event_data->participants_old = $participants_old;
@@ -1889,7 +1889,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
             $values['gender'] = null;
         }
 
-        dw_campaigns_set_event_participants_count($campaign->nid, 0, $values['children'], $values['adults'], $values['age'], $values['participation_type'], $values['contact_id']);
+        dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => $values['age'], 'participation_type' => $values['participation_type'], 'contactId' => $values['contact_id']));
     }
 
 

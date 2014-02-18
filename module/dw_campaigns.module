@@ -3274,7 +3274,7 @@ function dw_campaigns_user_create_pcp_page_form_submit(&$form, &$form_state) {
         } 
      
         if(isset($values['children'])) {
-            dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'pcpId' => $pcp->id, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => 0));
+            dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'pcpId' => $pcp->id, 'children' => $values['children'], 'adults' => $values['adults']));
         }
    
  
