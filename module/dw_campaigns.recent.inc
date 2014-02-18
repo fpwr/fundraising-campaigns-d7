@@ -331,7 +331,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
         $contact    = $res['contact'];
         $user       = $res['user'];
     } else {
-        $contact    = _dw_civicrm_contact_get_from_user($user);    
+        $contact    = _dw_civicrm_contact_get_from_user($user);
     }
 
     $host_record    = dw_campaigns_lookup_host_record($user->uid);
