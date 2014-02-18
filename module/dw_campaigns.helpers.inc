@@ -2,42 +2,13 @@
 
 define('CACHE_LENGTH', 7200);
 
-/**
- *  This seems completely unnecessary to do this every 'session', since the api_key doesn't change - this could just be done once
- */
-function civicrm_rest_login($login, $pass) {
-    
-    $data		= array();
-    $params['name']	= $login;
-    $params['pass']	= $pass;
-
-    $loginResponse	= civicrm_query('login', $params, TRUE, FALSE, TRUE);
-    
-    if(!$loginResponse) {
-        throw new Exception('Invalid Login Credentials');
-    }
-    // this should only return one set
-    foreach($loginResponse->children() as $loginData) {		
-        if($loginData->is_error == 0) {
-            $data['apiKey']     = (string) $loginData->api_key;
-            $data['sessionId']	= (string) $loginData->PHPSESSID;
-        } else {
-            dw_campaigns_cache_dirty('login_');
-            $error_message = isset($loginData->error_message) ? $loginData->error_message : '(unknown)';
-            throw new Exception('Unable to login with these credentials - ' . $error_message);
-        }
-    }
-    
-    return $data;
-}
-
 function dw_campaigns_cache_get_filename($page, $params) {
 
     global $dw_campaign_module_path;
 
     static $md5s    = array();
 
-    $secret_params  = array('key' => 1, 'api_key' => 1, 'name' => 1, 'pass' => 1);
+    $secret_params  = array('key' => 1, 'api_key' => 1);
     $page_filtered  = str_replace('/', '-', $page);
 
     ksort($params);
@@ -49,7 +20,12 @@ function dw_campaigns_cache_get_filename($page, $params) {
         if(isset($secret_params[$key])) {
             $secret_accumulator .= "_{$key}={$value}";
         } else {
-            $args .= "_{$key}={$value}";
+            if(is_array($key) || is_array($value)) {
+                // FIXME - we need to do something better
+                $args .= '_array_';
+            } else {
+                $args .= "_{$key}={$value}";
+            }
         }
     }
 
@@ -125,30 +101,29 @@ function dw_campaigns_clean_dirtied_cache() {
     }
 }
 
-function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FALSE, $noLogin = FALSE) {
+function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FALSE, $noLoginUnused = FALSE, $v3 = false) {
+
     global $debug;
     global $dw_settings;
     global $dw_campaign_module_path;
-    
+   
+    $api_call_implemented = false;
+ 
     static $dirtied_in_request = 0;
 
     $dirty  = FALSE;
-    
-    // if we aren't in the process of logging in (or doing an explicit non logged in query), and we aren't logged in login
-    if(!$noLogin && (!isset($dw_settings['loggedIn']) || !$dw_settings['loggedIn'])) {
-        if($debug) {
-            echo "doing login";
-        }
-       _dw_do_login(); 
-    }
     
     if($page[0] == '/') {
         $page = substr($page, 1);
     }
     
-    $query	= '';
-    
+    $query    = '';
+   
+    $dw_settings['siteKey'] = '7a20825d96b3e4c1a78aac6625c5a712';
+    $dw_settings['apiKey'] = '2feeddeef';
+ 
     $params['key'] = $dw_settings['siteKey'];
+    $params['json'] = 1;
 
     if(isset($dw_settings['apiKey']) && !is_null($dw_settings['apiKey'])) {
         $params['api_key']  = $dw_settings['apiKey'];
@@ -196,6 +171,7 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
 
 
         if(strlen($data) == 0) {
+            // FIXME - do something better here
             // file_put_contents("/tmp/ERR-" . microtime(TRUE), $cache_file . "\n" . $data);
         }
     } else {
@@ -204,21 +180,35 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
 
     }
 
-    $cnt        = preg_match('/(<\?xml version="1.0"\?>.*)/sm', $data, $match);
-    $newdata    = $match[0];
-        
-    $result     = simplexml_load_string($newdata);
+if(!$v3) {
+    echo "\n";
+    echo "<br>";
+    echo $baseUrl;
+    echo "&";
+    echo $queryString;
+    echo "\n";
+    echo "<br>";
+
+
+
+    if(strstr($data, 'error_mess') !== FALSE) {
+        echo "errror message fail";
+        //var_dump(json_decode($data));
+    } 
+}
+
+file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($queryString) . "\n", FILE_APPEND);
 
     if($debug) {
         echo $url . "\n<br>\n";
     }
 
     if($cacheable && $dirty && strlen($data) > 0) {
-
-        file_put_contents($cache_file, $data);
+// FIXME - re-enable this
+        //file_put_contents($cache_file, $data);
     }
     
-    return $result;
+    return json_decode($data);
 }
 
 function do_curl($url) {
@@ -257,23 +247,6 @@ function do_post_request($baseUrl, $queryString) {
     return $data;
 }
 
-function _dw_do_login() {
-    global $dw_settings;
-   
-    dw_campaigns_civicrm_rest_settings_load();
- 
-    if(!isset($dw_settings['loggedIn']) || !$dw_settings['loggedIn']) {
-        try {
-            $loginResults               = civicrm_rest_login($dw_settings['loginName'], $dw_settings['loginPass']);
-        } catch(Exception $e) {
-            echo "Unable to login. Please Contact Support";
-            die;
-        }
-        $dw_settings['apiKey']      = $loginResults['apiKey'];
-        $dw_settings['loggedIn']    = TRUE;
-    }
-}
-
 
 function _dw_civicrm_tag_create($params) {
         
@@ -289,7 +262,7 @@ function _dw_civicrm_tag_create($params) {
 
     $return = new stdClass;
 
-    $return->tag_id = isset($res->Result->tag_id) ? (int) $res->Result->tag_id : NULL;
+    $return->tag_id = isset($res->tag_id) ? (int) $res->tag_id : NULL;
 
     dw_campaigns_cache_dirty('tag');
 
@@ -304,7 +277,7 @@ function _dw_civicrm_tag_get($params) {
     $res = civicrm_query('/tag/get', $params, TRUE);
 
     $return = new stdClass;
-    $return->tag_id = isset($res->Result->id) ? (int)$res->Result->id : NULL;
+    $return->tag_id = isset($res->id) ? (int)$res->id : NULL;
 
     return $return;
 
@@ -318,7 +291,7 @@ function _dw_civicrm_tag_entity_add($params) {
         $params['entity_table'] = 'civicrm_contribution_page';
     }
 
-    $res = civicrm_query('/entity_tag/add', $params, FALSE);
+    $res = civicrm_query('/entity_tag/create', $params, FALSE, TRUE, FALSE, TRUE);
     $return = json_decode(json_encode($res));
 
     return $return;
@@ -332,7 +305,7 @@ function _dw_civicrm_tag_entity_remove($params) {
         $params['entity_table'] = 'civicrm_contribution_page';
     }
 
-    $res = civicrm_query('/entity_tag/remove', $params, FALSE);
+    $res = civicrm_query('/entity_tag/delete', $params, FALSE);
     $return = new stdClass;
 
     return $return;
@@ -345,26 +318,12 @@ function _dw_civicrm_tag_entity_display($params) {
         $params['entity_table'] = 'civicrm_contact';
     }
 
-    $res = civicrm_query('/entity_tag/display', $params, FALSE);
+    $res = civicrm_query('/entity_tag/get', $params, FALSE);
     $return = json_decode(json_encode($res));
 
     return $return;
 
 }
-
-/*
-function civicrm_entity_tag_display( &$params ) {
-    if ( !is_array($params) ) {
-        return civicrm_create_error( ts( 'params should be an array.' ) );
-    }
-    
-    $entityID    = null;
-    $entityTable = 'civicrm_contact';
-   
-    if ( !( $entityID = CRM_Utils_Array::value( 'entity_id', $params ) ) ) {
-        $entityID = CRM_Utils_Array::value( 'contact_id', $params );
-*/
-
 
 
 function _dw_civicrm_contact_get_from_user($user) {
@@ -397,14 +356,13 @@ function _dw_civicrm_contact_get($params) {
         unset($params['returnFirst']);
     }
 
-    $res = civicrm_query('/contact/get', $params, TRUE);
+    $res = civicrm_query('/contact/get', $params, TRUE, FALSE, FALSE, TRUE);
 
     $return = new stdClass;
-    if($res->Result->is_error === 0 ) {
+    if($res->is_error !== 0 ) {
         $return->contact_id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
-        unset($return->is_error);
+        $return = $res->values;
         if($returnOne) {
             foreach($return as $key => $value) {
                 $return = $value;
@@ -424,18 +382,22 @@ function _dw_civicrm_contact_create($params) {
         dw_campaigns_cache_dirty('contact-get', "contact_id=" . $params['contact_id']);
     }
 
-    $res = civicrm_query('/contact/create', $params);
+    $res = civicrm_query('/contact/create', $params, false, true, false, TRUE);
     
-    $return = new stdClass;
 
     if(_dw_check_error($res)) {
+        $return = new stdClass;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        // contact/get returns [contact id] => stdObj - our functions assume a standard object with contact_id as a field
+        $return = current($res->values);
+        $return->contact_id = $return->id;
+
+        // FIXME - don't write files to /tmp
         @file_put_contents("/tmp/create_contact", date("Y-m-d H:i:s") . "\n" . serialize($params) . "\n" . print_r($return, TRUE) . "\n\n\n", FILE_APPEND);
     }
     
-    return $return;
+    return $return;;
 
 }
 
@@ -445,28 +407,17 @@ function _dw_civicrm_contact_update($params) {
     
 
 function _dw_civicrm_contributionsoft_get($params) {
-    $res = civicrm_query('/contributionSoft/get', $params, TRUE);
+/*
+$back = debug_backtrace();
+echo $back[1]['function'] . '<br>';
+echo $back[2]['function'] . '<br>';
+*/
+    $res = civicrm_query('/contributionSoft/get', $params, TRUE, FALSE, FALSE, TRUE);
 
-    $return = new stdClass;
-
-    if(isset($params['returnFirst']) && $params['returnFirst']) {
-        if(_dw_check_error($res)) {
-            $return->id = NULL; // when we look up a record, we only care if we know its number
-        } else {
-            $return = _dw_undo_simplexml($res->Result->children());
-            
-        }
+    if(_dw_check_error($res)) {
+        $return = $res->error_data;
     } else {
-        if(_dw_check_error($res)) {
-            $return = _dw_undo_simplexml($res->Result->error_data->children());
-        } else {
-            // lets wrapper it
-            $res            = _dw_undo_simplexml($res->Result);
-            if(isset($res->id)) {
-                $id             = $res->id;
-                $return->$id    = $res;
-            }
-        }
+        $return = $res->values;
     }
 
     return $return;
@@ -482,14 +433,14 @@ function _dw_civicrm_contributionsoft_create($params) {
         cache_clear_all($params['pcp_id'] . '_DONT', 'cache');
     }
 
-    $res = civicrm_query('/contributionSoft/create', $params);
+    $res = civicrm_query('/contributionSoft/create', $params, FALSE, TRUE, FALSE, FALSE);
 
-    $return = new stdClass;
 
     if(_dw_check_error($res)) {
+        $return = new stdClass;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = current($res->values);
     }
     
     return $return;
@@ -506,34 +457,47 @@ function _dw_civicrm_contributionpage_create($params) {
         dw_campaigns_cache_dirty('contributionPage-get_rowCount');
     }   
 
+    if(isset($params['contribution_type_id'])) {
+        $params['financial_type_id'] = $params['contribution_type_id'];
+    }
 
 
-    $res = civicrm_query('/contributionPage/create', $params);
-    
-    $return = new stdClass;
+    $res = civicrm_query('/contributionPage/create', $params, FALSE, TRUE, FALSE, FALSE);
+
 
     if(_dw_check_error($res)) {
+        $return = new stdClass;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = $res;
     }
     
     return $return;
 
 }
 
+
+// NEW
 function _dw_civicrm_contributionpage_get($params) {
-    $res = civicrm_query('/contributionPage/get', $params, TRUE);
-    
+
+    if(isset($params['contribution_type_id'])) {
+        $params['financial_type_id'] = $params['contribution_type_id'];
+    }
+
+    $res = civicrm_query('/contributionPage/get', $params, TRUE, FALSE, FALSE, TRUE);
+
     $return = new stdClass;
-    
+  
     if(_dw_check_error($res)) {
-        $return = _dw_undo_simplexml($res->Result->error_data->children());
+        $return = $res->error_data;
     } else {
-        if(!isset($res->Result)) {
-            file_put_contents("/tmp/bah", print_r($res, TRUE));
+        if(!isset($res->values)) {
+// FIXME - handle this somehow
         } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+            foreach($res->values as $key => $value) {
+                $value->contribution_type_id = $value->financial_type_id;
+                $return->$key = $value;
+            } 
         }
     }
     
@@ -555,14 +519,18 @@ function _dw_civicrm_contribution_create($params) {
         dw_campaigns_cache_dirty('contribution', 'contribution_page_id=' . $params['contribution_page_id']);
     }
 
-    $res = civicrm_query('/contribution/add', $params);
+    if(isset($params['contribution_type_id'])) {
+        $params['financial_type_id'] = $params['contribution_type_id'];
+    }
+
+    $res = civicrm_query('/contribution/create', $params, false, true, false, false);
     
-    $return = new stdClass;
 
     if(_dw_check_error($res)) {
+        $return = new stdClass;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = current($res->values);
     }
     
     return $return;
@@ -570,9 +538,14 @@ function _dw_civicrm_contribution_create($params) {
 }
 
 // for some reason 'id' looks up 'contact_id' - so you MUST specify contribution_id to look up by the 'id' column in civicrm_contribution
-// this function returns a single object if returnFirst is set, or an obj->objects 
 function _dw_civicrm_contribution_get($params) {
-
+/*
+$back = debug_backtrace();
+echo $back[1]['function'] . '<br>';
+echo $back[2]['function'] . '<br>';
+*/
+// This is no longer needed in civi 4.4 - left here incase this breaks on an earlier version
+/*
     $return = array(
         'contribution_page_id'    => 1, // added by Ryan
         'contact_type'            => 1,
@@ -612,96 +585,74 @@ function _dw_civicrm_contribution_get($params) {
         'amount_level'            => 1,
         'contribution_note'       => 1
     ); 
-
+*/
     $params['return'] = $return;
 
-    $res = civicrm_query('/contribution/get', $params, TRUE);
+    $res = civicrm_query('/contribution/get', $params, TRUE, FALSE, FALSE, TRUE);
 
-    $return = new stdClass;
-    if(isset($params['returnFirst']) && $params['returnFirst']) {
-        if(_dw_check_error($res)) {
-            $return->id = NULL; // when we look up a record, we only care if we know its number
-        } else {
-            if(isset($res->Result)) {
-                $return = _dw_undo_simplexml($res->Result->children());
-            } 
-        }
-    } else {
-        if(_dw_check_error($res)) {
-            $return = _dw_undo_simplexml($res->Result->error_data->children());
-        } else {
-            $res            = _dw_undo_simplexml($res->Result);
-            $id             = $res->contribution_id;
-            $return->$id    = $res;
-        }
-    }
-
-    return $return;
+    if(_dw_check_error($res)) {
+        return $res->error_data;
+    } 
+        
+    return $res->values;
 
 }
 
 
 function _dw_civicrm_pcp_create($params) {
     // any attempt to create / update should dirty all pcp records
-    dw_campaigns_cache_dirty('PCP-get', '');
-    
-    $res = civicrm_query('/PCP/create', $params);
+    dw_campaigns_cache_dirty('Pcp-get', '');
+   
+    // make sure we are doing a regular pcp -
+    if(isset($params['pcpBlock']) && $params['pcpBlock'] === 0) {
+        // if we are using the "old" way modify it so it works with civi 4
+        if(isset($params['contribution_page_id']) && !isset($params['pcp_block_id'])) {
+            $params2 = array(
+                'contribution_page_id' => $params['contribution_page_id'],
+                'pcpBlock'             => 1
+            );
+            $res = _dw_civicrm_pcp_get($params2);
+            $count = count($res);
+            if($count != 1) {
+               // FIXME - do something, if we get 0 its bad, if we get more than 1 its REAL bad
+               echo "pcp block lookup fail - $count";
+               die;
+            }
 
-    $return = new stdClass;
+            $res = current($res); 
+            $params['pcp_block_id'] = $res->id; 
+        }
+    }
+ 
+    $res = civicrm_query('/Pcp/create', $params, false, true, false, false); // change last to v3
+
     
     if(_dw_check_error($res)) {
+        $return = new stdClass;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = $res;
     }
     
     return $return;   
 }
 
+// NEW
 function _dw_civicrm_pcp_get($params) {
-    
-    $res = civicrm_query('/PCP/get', $params, TRUE);
-    
+
+    $res = civicrm_query('/Pcp/get', $params, TRUE, FALSE, FALSE, TRUE);
+   
+    // FIXME - this second scenario is strange, if nothing is matched it returns only "is_error:0" - we should probably fix the api side of things 
+    if(count($res) == 0 || (count($res) ==1 && isset($res->is_error))) {
+        return NULL;
+    }
+     
     $return = new stdClass;
-    $return->id = NULL; // If we don't hit any 'good' cases we should fail
-    
-    if(isset($params['returnFirst']) && $params['returnFirst']) {
-        if(_dw_check_error($res)) {
-            // we should never error if its just one record we want  
-        } else {
-            // get the single child record
-            $return = _dw_undo_simplexml($res->Result->children());
-        }
-    } else {
-	unset($return->id);
 
-        // if we are expecting 1 or more, see if the error flag is set, if not, we only got one record
-        if(! _dw_check_error($res) ) {
-            $res            = _dw_undo_simplexml($res->Result);
-            $id             = $res->id;
-            if(is_null($id)) {
-              $error = array();
-              $error['params'] = $params;
-              $error['res']    = $res;
-              $error['data']   = $_REQUEST;
-
-              // this error has been tracked down to the remote end doing - DB_DataObject Error: DB Error: connect failed
-              //mail('', 'PCP READ ERROR', serialize($error));
-            } else {
-                $return->$id    = $res;
-            }
-        } else {
-            // we fall in here if multiple records were returned, which they might if we want all pcps for a contribution page
-            // but we should make sure its a valid response by checking the error string
-            if(isset($res->Result->error_message) && strstr($res->Result->error_message, 'pcps matching input params') !== FALSE) {
-                $temp_return = _dw_undo_simplexml($res->Result->error_data->children());
-                $return = new stdClass;                
-                foreach($temp_return as $key => $pcp) {
-                    $key            = (string) preg_replace('/^_/', '', $key);
-                    $return->$key   = $pcp;
-                }
-            }
-        }
+    // renumber the rows so they match the pcp_id
+    foreach($res as $garbage => $pcp) {
+        $key = $pcp->id;
+        $return->$key = $pcp;
     }
     
     return $return;
@@ -711,33 +662,30 @@ function _dw_civicrm_pcp_get($params) {
 function _dw_civicrm_pcp_search_owner($params) {
     global $debug;
 
-    $res = civicrm_query('/PCP/search_owner', $params);
+    $res = civicrm_query('/Pcp/search_owner', $params, false, true, false, true);
     
     $return = new stdClass;
 
     if(_dw_check_error($res)) {
         $return = NULL; // when we look up a record, we only care if we know its number
     } else { 
-        $res = _dw_undo_simplexml($res->Result->Results->children());
-        foreach($res as $key => $value) {
-            $key            = preg_replace('/^_/', '', $key);
-            $return->$key   = $value;
-        }
+        $return = $res->values; 
     }
     
     return $return;
 
 }
 
+// these are now called "financial types" in v3 - they are mapping contribution_type_id into financial_type_id for us (as a compatibility for 4.3 -> 4.4)
 function _dw_civicrm_contributiontype_create($params) {
-     $res = civicrm_query('/contributionType/create', $params);
+     $res = civicrm_query('/contributionType/create', $params, false, true, false, false);
     
     $return = new stdClass;
     
     if(_dw_check_error($res)) {
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = $res;
     }
     
     return $return;   
@@ -746,14 +694,20 @@ function _dw_civicrm_contributiontype_create($params) {
 
 function _dw_civicrm_event_create($params) {
     
-    $res = civicrm_query('/event/create', $params);
+    $res = civicrm_query('/event/create', $params, false, true, false, false);
     
     $return = new stdClass;
 
     if(_dw_check_error($res)) {
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = current($res->values);
+                 
+        // maybe this returned differently before, but our code expects event_id (which should be the same as id)
+        if(isset($return->id) && !isset($return->event_id)) {
+            // we expect this
+            $return->event_id = $return->id;
+        }
     }
     
     return $return;
@@ -761,21 +715,22 @@ function _dw_civicrm_event_create($params) {
 }
 
 function _dw_civicrm_event_get($params) {
-    
-    $res = civicrm_query('/event/get', $params);
-    
+
+    $res = civicrm_query('/event/get', $params, true, false, false, false);
     $return = new stdClass;
     
     if(_dw_check_error($res)) {
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = current($res->values);
     }
-    
+
     return $return;
 
 }
 
+
+// FIXME - not migrated, not currently in use
 /**
  * Note - unlike their function, this will return multiple matches if you use a generic enough WHERE clause like event_id or no WHERE at all
  * they default to returning 25 rows, and if there is somehow a participant_id dupe in those rows they will only return one row for each dupe
@@ -805,6 +760,7 @@ function _dw_civicrm_participant_get($params) {
 
 }
 
+// FIXME - not migrated, not currently in use
 function _dw_civicrm_participant_create($params) {
     
     $res = civicrm_query('/participant/create', $params);
@@ -821,48 +777,25 @@ function _dw_civicrm_participant_create($params) {
 
 }
 
-function _dw_civicrm_friend_create($params) {
-    global $debug;
-    $debug = true;
-    $res = civicrm_query('/friend/create', $params);
-    $debug = false;
-    $return = new stdClass;
 
-    if(_dw_check_error($res)) {
-        $return->id = NULL; // when we look up a record, we only care if we know its number
-    } else {
-        $return = _dw_undo_simplexml($res->Result->children());
-    }
-    
-    return $return;
-
-}
 
 
 function _dw_civicrm_pseudoconstant_stateprovince() {
-    $res = civicrm_query('/pseudoconstant/stateprovince', array(), TRUE);
 
-    $return = array();
-    foreach($res->Result->stateProvince->children() as $key => $value) {
-        $key            = (string) preg_replace('/^_/', '', $key);
-        $value          = (string) $value;
-        $return[$key]   = $value;
-    }
-   
-    $return['nostate'] = '(No State)';
- 
-    return $return;
+    $params = array('name' => 'stateProvince');
+
+    $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
+
+    return (array)$res->values;
 }
 
 function _dw_civicrm_pseudoconstant_country() {
-    $res = civicrm_query('/pseudoconstant/country', array(), TRUE);
 
-    $return = array();
-    foreach($res->Result->countries->children() as $key => $value) {
-        $key            = (string) preg_replace('/^_/', '', $key);
-        $value          = (string) $value;
-        $return[$key]   = $value;
-    }
+    $params = array('name' => 'country');
+
+    $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
+
+    $return = (array)$res->values;
 
     // scoot the US and Canada to the top
     $others = array();
@@ -894,57 +827,58 @@ function _dw_civicrm_pseudoconstant_country() {
 }
 
 function _dw_civicrm_pseudoconstant_countryIsoCode() {
-    $res = civicrm_query('/pseudoconstant/countryIsoCode', array(), TRUE);
 
-    $return = array();
-    foreach($res->Result->countries->children() as $key => $value) {
-        $key            = (string) preg_replace('/^_/', '', $key);
-        $value          = (string) $value;
-        $return[$key]   = $value;
-    }
-    
-    return $return;
+    $params = array('name' => 'countryIsoCode');
+
+    $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
+
+    return (array)$res->values;
+
 }
 
+function _dw_civicrm_pseudoconstant_statesProvinceForCountry($country = '1228') {
 
+    $params = array('name' => 'stateProvinceForCountry', 'id' => $country);
+
+    $res = civicrm_query('/constant/get', $params,  TRUE, FALSE, FALSE, TRUE);    
+
+    return (array)$res->values;
+}
 
 function _dw_campaigns_pseudoconstant_paymentprocessor() {
-    $res = civicrm_query('/pseudoconstant/paymentprocessor', array());
     
-    $return = array();
-    foreach($res->Result->paymentprocessor->children() as $key => $value) {
-        $key            = (string) preg_replace('/^_/', '', $key);
-        $value          = (string) $value;
-        $return[$key]   = $value;
-    }
+    $params = array('name' => 'paymentProcessor');    
+
+    $res = civicrm_query('/constant/get', $params);
     
-    return $return;
+    return $res->values;
 }
+
 // PaymentProcessor::getPayment
 
 function _dw_campaigns_paymentprocessor_getpayment($params) {
-    $res = civicrm_query('/paymentprocessor/getpayment', $params);
+    $res = civicrm_query('/paymentProcessor/get', $params);
 
     $return = new stdClass;
 
     if(_dw_check_error($res)) {
         return NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result);
+        $return = current($res->values);
     }
 
     return $return;
 }
 
 function _dw_campaigns_payment_dodirectpayment($params) {
-    $res = civicrm_query('/payment/dodirectpayment', $params, FALSE, TRUE);
+    $res = civicrm_query('/directPayment/dodirectpayment', $params, FALSE, TRUE);
 
     $return = new stdClass;
 
     if(_dw_check_error($res)) {
-        $return->error = (int) $res->Result->error_message; // when we look up a record, we only care if we know its number
+        $return->error = (int) $res->error_message; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result);
+        $return = $res;
     }
 
     return $return;
@@ -956,10 +890,10 @@ function _dw_campaigns_dwutils_get_deduped_contact_id($params) {
     $return = new stdClass;
 
     if(_dw_check_error($res)) {
-        $return->id = NULL; // when we look up a record, we only care if we know its number
+        $return = NULL; // when we look up a record, we only care if we know its number
     } else {
 
-        $contact_id   = (string) $res->Result->result;
+        $contact_id   = (string) $res->result;
 
         dw_campaigns_cache_dirty('contact-get', "contact_id=" . $contact_id);
 
@@ -972,25 +906,24 @@ function _dw_campaigns_dwutils_get_deduped_contact_id($params) {
 // for our purpose we need an ajax version of stateProvinceForCountry, but we'll use the civi ajax way (this is how taylors states worked)
 function _dw_civicrm_jq_state($country) {
     global $dw_settings;
-    
-    $parsed = parse_url($dw_settings['restUrl']);
-    
-    $target = sprintf("http://%s/civicrm/ajax/jqState?_id=address_1_country_id&_name=address%%5B1%%5D%%5Bcountry_id%%5D&_value=%s", $parsed['host'], $country);
 
-    $res = file_get_contents($target);
-    $data = json_decode($res);
+    $res = _dw_civicrm_pseudoconstant_statesProvinceForCountry($country);
 
-    if(count($data) == 1) {
-        $dummy              = new stdClass;
-//     $return['nostate']   = '(No State)';
-        $dummy->name        = "(No State)";
-        $dummy->value       = "nostate";
+    $return = array();
 
-        $data       = array();
-        $data[]     = $dummy;
+    $return[] = array('name' => '- select a state-','value' => '');
+
+    foreach($res as $key => $value) {
+        $return[] = array('name' => $value, 'value' => intval($key));
     }
 
-    echo json_encode($data);
+
+    if(count($return) == 1) {
+        
+        $return   = array(array('name' => '(No State)', 'value' => 'nostate'));
+    }
+
+    echo json_encode($return);
 
     die;
 }
@@ -1046,7 +979,7 @@ function _dw_save_user_to_contact_glue($user, $contact) {
     if($contact->contact_id == 1) {
         drupal_set_message(t('A system error has occured, please contact ossbug@fpwr.org with details about what you were doing when this error occured - if you were signing up please try again later'), 'error');
 
-		// FIXME - this should be configured on an admin form
+        // FIXME - this should be configured on an admin form
         mail('root@', 'failure - contact_id = 1', date("Y-m-d H:i:s"));
 
         drupal_goto('dw');
@@ -1059,27 +992,29 @@ function _dw_save_user_to_contact_glue($user, $contact) {
    
 }
 
+// FIXME - not migrated, not currently in use - api should be in v3 now - but is untested
 function _dw_civicrm_pcp_sync_titles($params) {
-    $res = civicrm_query('/PCP/sync_titles', $params);
+    $res = civicrm_query('/Pcp/sync_titles', $params);
     
     $return = new stdClass;
     
-    if(_dw_check_error($res) || !isset($res->Result)) {
+    if(_dw_check_error($res) || !isset($res->values)) {
+echo 'make sure the check of "res" here is valid';die;
         $return->id = NULL; // when we look up a record, we only care if we know its number
     } else {
-        $return = _dw_undo_simplexml($res->Result->children());
+        $return = $res;
     }
     
     return $return;   
 }
 
-function _dw_check_error($xml) {
+function _dw_check_error($data) {
     global $debug;
-    
-    if(isset($xml->Result->is_error) && $xml->Result->is_error == 1) {
+
+    if(isset($data->is_error) && $data->is_error == 1) {
         if($debug) {
             echo "there was an error, do something";
-            print_r($xml);
+            print_r($data);
         }
         return true;
     }
@@ -1087,8 +1022,9 @@ function _dw_check_error($xml) {
 }
 
 function _dw_undo_simplexml($xml) {
-    @$data = json_decode(json_encode($xml));
-    return $data;
+$back = debug_backtrace();
+echo "<br><br>" . $back[1]['function'] . " is trying to call undo simplexml!!!<br>";
+echo " from " . $back[2]['function'] . "<br><br>";
 }
 
 
@@ -1203,7 +1139,7 @@ function fancy_merge_string($keyArray, &$subject)
     if(!is_array($keyArray))
     {
         drupal_set_message('invalid key array to fancy merge', 'error');
-	return;
+        return;
     }
 
     foreach($keyArray as $group => $list)

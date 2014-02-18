@@ -227,6 +227,19 @@ function dw_campaigns_settings() {
         '#collapsible'      => TRUE,
     );
     
+    $form['walking_specific']['dw_campaigns_walking_adults_attending_prompt'] = array(
+        '#title'            => 'Prompt for "How many adults are attending the event"',
+        '#type'             => 'textfield',
+        '#description'      => t('Please define this in English and translate to other languages with the translation system'),
+        '#default_value'    => variable_get('dw_campaigns_walking_adults_attending_prompt', 'How many adults will be attending the event')           
+    );
+
+    $form['walking_specific']['dw_campaigns_walking_children_attending_prompt'] = array(
+        '#title'            => 'Prompt for "How many children are attending the event"',
+        '#type'             => 'textfield',
+        '#description'      => t('Please define this in English and translate to other languages with the translation system'),
+        '#default_value'    => variable_get('dw_campaigns_walking_children_attending_prompt', 'How many children will be attending the event')           
+    );
     
     $form['walking_specific']['dw_campaigns_walking_distance_unit'] = array(
         '#title'            => 'Distance Measurement Unit',
@@ -243,6 +256,13 @@ function dw_campaigns_settings() {
         '#type'             => 'textfield',
         '#description'      => t('This is the email that gets sent host form submissions'),
         '#default_value'    => variable_get('dw_campaigns_host_submit_email', '')
+    );
+
+    $form['walking_specific']['dw_campaigns_host_forward_database_table'] = array(
+        '#title'            => 'Table to attempt to add host email "forward" to',
+        '#type'             => 'textfield',
+        '#description'      => t('FPWR assigns hosts fpwr.org emails which it forwards to themr primary - leave empty if you don\'t want/need this'),
+        '#default_value'    => variable_get('dw_campaigns_host_forward_database_table', '')
     );
 
     $form['walking_specific']['dw_campaigns_fundraising_goal_override'] = array(
@@ -1294,7 +1314,7 @@ function dw_campaigns_active_campaigns() {
 }
 
 
-function dw_campaigns_offline_donations_select_form(&$form, &$form_state, $options, $selected = NULL) {
+function dw_campaigns_offline_donations_select_form($form, &$form_state, $options, $selected = NULL) {
     $form = array();
 
     $t = array();
@@ -1451,7 +1471,7 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
     return theme('dw_campaigns_reports_campaign_offline_donations', array('campaign' => $campaign, 'form' => $form, 'donations' => $donations, 'selform' => $selform, 'headers' => $headers, 'mode' => $mode));
 }
 
-function dw_campaigns_reports_campaign_offline_donations_form(&$form, &$form_state, $donation_ids, $campaign) {
+function dw_campaigns_reports_campaign_offline_donations_form($form, &$form_state, $donation_ids, $campaign) {
     $form   = array();
 
     $form['nid'] = array(
@@ -1976,7 +1996,7 @@ function dw_campaigns_reports_event_registration_from_list($list, $mode, $campai
     }
 }
 
-function dw_campaigns_reports_event_registration_form(&$form, &$form_state, $options, $arg, $mode) {
+function dw_campaigns_reports_event_registration_form($form, &$form_state, $options, $arg, $mode) {
     $form = array();
 
     $form['options']     = array(
@@ -2067,7 +2087,7 @@ function dw_campaigns_reports_event_emails($arg = '') {
 
 }
 
-function dw_campaigns_reports_event_emails_form(&$form, &$form_state, $options, $arg) {
+function dw_campaigns_reports_event_emails_form($form, &$form_state, $options, $arg) {
     $form = array();
 
     $t = array();
@@ -2104,7 +2124,7 @@ function dw_campaigns_report_host_panel() {
     drupal_goto('dw/user/host');
 }
 
-function dw_campaigns_reports_activepages_select_form(&$form, &$form_state, $options, $selected = NULL) {
+function dw_campaigns_reports_activepages_select_form($form, &$form_state, $options, $selected = NULL) {
     $form = array();
 
     $t = array();

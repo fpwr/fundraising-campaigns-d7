@@ -304,6 +304,7 @@ function dw_campaigns_user_register_oss_create_pcp_page($campaignId, $signup_typ
 
 
     //get the registration form, but in simplified form
+
     $form = drupal_get_form('dw_campaigns_user_register_oss_create_pcp_page_form', $campaignId, $signup_type, $pcp_id);
     return  theme('dw_campaigns_user_create_pcp_page_theme', array('campaign' => $campaign, 'pcpCreateForm' => $form));
 
@@ -319,6 +320,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
     /* look up our current pcp if we have one */
     $mode_type = dw_campaigns_get_selected_type();
     $real_pcp = NULL;
+
     if($mode_type != 'walking') {
         if(!is_null($campaign)) {
             $real_pcp     = dw_campaigns_user_get_pcp_for_campaign($user, $campaign);
@@ -330,9 +332,10 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             drupal_goto('dw/user/edit_page');
         }
     }
+
     $real_pcp_id    = isset($real_pcp->id) ? $real_pcp->id : NULL;
 
-    /* lets see if our import value ia  valid one*/
+    /* lets see if our import value is a valid one*/
     $pcps   = dw_campaigns_user_get_historical_pcps($user);
 
     if(!isset($pcps[$pcp_id])) {
@@ -418,7 +421,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
 
     if($user->uid == 0) {
         $dummy   = array();
-        $in_form = dw_campaigns_user_register_form(NULL, $dummy, 'pcp-photo', $pcp->id, NULL, FALSE);
+        $in_form = dw_campaigns_user_register_form(NULL, $form_state, 'pcp-photo', $pcp->id, NULL, FALSE);
     
         $form = array_merge($form, $in_form);
         
@@ -654,14 +657,14 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
 
         $form['contribution-heading']['children'] = array(
             '#type'             => 'select',
-            '#title'            => t('How many children will be attending the event'),
+            '#title'            => t(variable_get('dw_campaigns_walking_children_attending_prompt', 'How many children will be attending the event')),
             '#options'          => $attending,
             '#default_value'    => $children
         );
     
         $form['contribution-heading']['adults'] = array(
             '#type'             => 'select',
-            '#title'            => t('How many adults will be attending the event'),
+            '#title'            => t(variable_get('dw_campaigns_walking_adults_attending_prompt', 'How many adults will be attending the event')),
             '#options'          => $attending,
             '#default_value'    => $adults
 
@@ -873,6 +876,9 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_validate(&$form, &$
 
 function dw_campaigns_create_civi_contact_from_form_helper($values) {
     global $user;
+    $disable_create_drupal = false; // used for debugging
+
+if(!$disable_create_drupal) {
 
     if(! ($user->uid > 0)) {
         $params                     = array();
@@ -914,6 +920,7 @@ function dw_campaigns_create_civi_contact_from_form_helper($values) {
 
         $_SESSION['created_user']       = 1;
     }
+}
 
     //upload photo if they gave one
     if($values['user-photo-tmp']) {
@@ -921,12 +928,12 @@ function dw_campaigns_create_civi_contact_from_form_helper($values) {
     }
     
     $contact = _dw_campaigns_update_civicrm_contact($user, $values);
-   
+
     $params = array(
         'contact_id'    => $contact->contact_id,
         'returnFirst'   => 1
     );
-    
+
     $contact        = _dw_civicrm_contact_get($params);
  
     _dw_save_user_to_contact_glue($user, $contact);
@@ -935,6 +942,7 @@ function dw_campaigns_create_civi_contact_from_form_helper($values) {
 }
 
 function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$form_state) {
+
     global $user;
     //register the user in drupal
     $values                     = $form_state['values'];
@@ -1002,12 +1010,14 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
         // we're creating a new entry, so we can (mostly) trust the campaign they want to create a campaign for
     	$campaign   = node_load($values['campaign-id']);
         $cpage      = dw_campaigns_get_contribution_page_for_campaign($campaign);
+
         $contribution_page_id = $cpage->id;
         $pcp        = NULL;
 
         $suffix = variable_get('dw_campaigns_cfg_tag_suffix', date('Y'));
         $name   = variable_get('dw_campaigns_cfg_tag_prefix', 'OSS') . ' fundraiser ' . $suffix;
         $tag_id = dw_campaigns_get_tag_id_by_name($name);
+
         dw_campaigns_tag_contact($tag_id, array($contactId));
 
     }
@@ -1040,6 +1050,8 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
     $params['is_active']            = 1;
     $params['is_thermometer']       = 1;
     $params['is_honor_roll']        = 1;
+// FIXME
+// v3 no longer has this field - rather we now need a pcp_block_id - for now we make up for this in the create call
     $params['contribution_page_id'] = $contribution_page_id;
     $params['pcpBlock']             = 0; // we do NOT want a pcpBlock
     $params['currency']             = $currency;
@@ -1069,9 +1081,8 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
     } 
 
     $values['num_attending'] = $values['children'] + $values['adults'];
- 
     dw_campaigns_set_event_participants_count($campaign->nid, $pcp->id, $values['children'], $values['adults'], $values['age'], $values['participation_type']);
- 
+
     $event_data = new stdClass();
     $event_data->participants_old = $participants_old;
     $event_data->participants     = $values['num_attending'];
@@ -1867,10 +1878,15 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
     $params['source']                   = "DW Campaigns Module";
 
 
+    // NOTE - children is a hidden field on this form - I believe at some point in the past we didn't include children / adults (and now age) on a page
     if(isset($values['children'])) {
 
         if(!isset($values['age'])) {
             $values['age'] = 0;
+        }
+
+        if(!isset($values['gender'])) {
+            $values['gender'] = null;
         }
 
         dw_campaigns_set_event_participants_count($campaign->nid, 0, $values['children'], $values['adults'], $values['age'], $values['participation_type'], $values['contact_id']);

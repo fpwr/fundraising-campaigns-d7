@@ -27,7 +27,6 @@ $debug = FALSE;
 
 global $dw_settings;
 $dw_settings = array(
-    'loggedIn'  => FALSE,
     'apiKey'	=> NULL,
     'restUrl'	=> '',
     'siteKey'	=> '',
@@ -1757,9 +1756,6 @@ function dw_campaigns_init() {
         dw_campaigns_set_selected_campaign($campaign);
     }
         
-    global $custom_theme;
-    $custom_theme =  'dw_campaigns_' . $mode;
-    
     if(   substr($_GET['q'], 0, 3) === 'dw/'
        && $_GET['q'] != 'dw/user/login'
        && $_GET['q'] != 'dw/user/register'
@@ -1822,6 +1818,13 @@ function dw_campaigns_homepage($type) {
     return '';
 }
 
+// FIXME - we should probably add a theme_enable(array('dw_campaigns_derby', 'dw_campaigns_walking')) to an installer
+function dw_campaigns_custom_theme() {
+
+    $mode       = variable_get('dw_campaigns_operating_mode', 'derby');
+    return 'dw_campaigns_' . $mode;
+}
+
 function dw_campaigns_walking_homepage($type) {
     global $user;
 
@@ -1833,12 +1836,6 @@ function dw_campaigns_walking_homepage($type) {
     dw_campaigns_set_selected_type('walking');
     
     setcookie('forcetype', 'walking');
-
-    $theme = 'dw_campaigns_walking';
-    
-    global $custom_theme;
-    $custom_theme = $theme;
-  
 
     return '';
 }
@@ -1884,14 +1881,16 @@ function dw_campaigns_user_register_page() {
     return theme('dw_campaigns_user_register_page_theme', array('registerForm' => $form));
 }
 
-function dw_campaigns_address_form_fields($contact, $include_phone = FALSE) {
+function dw_campaigns_address_form_fields($contact, $include_phone = FALSE, $form_country = 1228) {
     
     // lookup countries
     $countries = _dw_civicrm_pseudoconstant_country();
-    $states = _dw_civicrm_pseudoconstant_stateprovince();
+    //$states = _dw_civicrm_pseudoconstant_stateprovince();
 
     //get the selected country from the contact or us 1228 = USA
-    $countryId = ($contact['country_id'] > 0) ? $contact['country_id'] : 1228;
+    $countryId = ($contact['country_id'] > 0) ? $contact['country_id'] : $form_country;
+    
+    $states = _dw_civicrm_pseudoconstant_statesProvinceForCountry($countryId);
     
     $form['first_name']     = array(
         '#type'             => 'textfield',
@@ -2128,7 +2127,11 @@ function dw_campaigns_user_register_form($form, &$form_state, $type = 'user-phot
         );
     }
 
-    $address_form   = dw_campaigns_address_form_fields($contact, TRUE);
+
+    // FIXME - I don't like fixing this problem this way 
+    $in_country = isset($form_state['input']['country']) ? $form_state['input']['country'] : 1228;
+    $address_form   = dw_campaigns_address_form_fields($contact, TRUE, $in_country);
+
     $form           = array_merge($form, $address_form);
     
     if($mode_type == 'walking') {
@@ -3017,14 +3020,14 @@ die;
  
         $form['event-fields']['children'] = array(
             '#type'             => 'select',
-            '#title'            => t('How many children will be attending the event'),
+            '#title'            => t(variable_get('dw_campaigns_walking_children_attending_prompt', 'How many children will be attending the event')),
             '#options'          => $attending,
             '#default_value'    => $children
         );
 
         $form['event-fields']['adults'] = array(
             '#type'             => 'select',
-            '#title'            => t('How many adults will be attending the event'),
+            '#title'            => t(variable_get('dw_campaigns_walking_adults_attending_prompt', 'How many adults will be attending the event')),
             '#options'          => $attending,
             '#default_value'    => $adults
         );
@@ -3271,7 +3274,7 @@ function dw_campaigns_user_create_pcp_page_form_submit(&$form, &$form_state) {
         } 
      
         if(isset($values['children'])) {
-            dw_campaigns_set_event_participants_count($campaign->nid, $pcp->id, $values['children'], $values['adults'], 0);
+            dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'pcpId' => $pcp->id, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => 0));
         }
    
  
@@ -4239,8 +4242,10 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
           })(jQuery);
         ','inline');
     } 
-    
-    $address_form   = dw_campaigns_address_form_fields($contact);
+  
+    // FIXME - I don't like fixing this problem this way 
+    $in_country = isset($form_state['input']['country']) ? $form_state['input']['country'] : 1228; 
+    $address_form   = dw_campaigns_address_form_fields($contact, FALSE, $in_country);
 
 
     // build building address fields
@@ -4704,6 +4709,8 @@ if(!$alt_billing) {
     $params['state_province']                   = $state;
     $params['postal_code']                      = $values['postal_code'];
     $params['country']                          = $country_iso_code;
+    $params['contribution_type_id']             = $contributionType->id;
+    $params['contributionType_id']              = $contributionType->id;
     $params['contributionType_name']            = $contributionType->name;
     $params['contributionType_accounting_code'] = $contributionType->accounting_code;
     $params['contributionPageID']               = $contributionPage->id;
@@ -4797,7 +4804,7 @@ if(!$alt_billing) {
         $form_state['values']['trxn_id']       = 'FAKECC-' . str_replace(".", "-", microtime(TRUE));;
         return;
     }
-   
+
     if(is_null($mode) || is_null($ppID)) {
         form_set_error('', "Please contact support, unknown billing processor");
         return;
@@ -4809,6 +4816,7 @@ if(!$alt_billing) {
     
     $paymentProcessor       = _dw_campaigns_paymentprocessor_getpayment($paymentParams);
 
+$mode = 'test';
     if($mode === 'test') {
         /*
         Visa   4155100421445993 
@@ -5102,9 +5110,8 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
     $params['trxn_id']                  = $values['trxn_id'];
     $params['source']                   = "DW Campaigns Module";    
 
-
     $contribution = _dw_civicrm_contribution_create($params);
-    
+  
     if(is_null($contribution->id)) {
         // todo - raise some sort of an error
         drupal_set_message(t('An unknown error occured while creating contribution.  Contact Support with ID: INV-') . $values['invoice_id']);
@@ -5677,35 +5684,30 @@ function dw_campaigns_user_share_page_form_submit(&$form, &$form_state) {
     $sent       = array();
  
     if(!is_null($params['source_contact_id'])) {
-        if(1==2) {
-            //send the emails using civicrms friend class
-            _dw_civicrm_friend_create($params);
-        } else {
-            $index = 0;
-            foreach($targets as $email) {
+        $index = 0;
+        foreach($targets as $email) {
 
-                $email  = trim($email);
-                  
-                if(strlen($email) > 5 && !isset($sent[$email])) {
-                    $params['invitation-from-name'] = $values['invitation-from-name'];
-                    $return = drupal_mail('dw_campaigns_share', 'sharer', $email,  user_preferred_language($user), $params, $params['from_email']);
-                    if(!$return['result']) {
-                        array_pop($_SESSION['messages']['error']);
-                        drupal_set_message(t('Unable to send email to @target_email_address', array('@target_email_address' => $email)), 'error'); 
+            $email  = trim($email);
+              
+            if(strlen($email) > 5 && !isset($sent[$email])) {
+                $params['invitation-from-name'] = $values['invitation-from-name'];
+                $return = drupal_mail('dw_campaigns_share', 'sharer', $email,  user_preferred_language($user), $params, $params['from_email']);
+                if(!$return['result']) {
+                    array_pop($_SESSION['messages']['error']);
+                    drupal_set_message(t('Unable to send email to @target_email_address', array('@target_email_address' => $email)), 'error'); 
+                } else {
+                    if(!isset($addresses[$email])) {
+                        $address_id = dw_campaigns_add_address_book($user, $email, '');
                     } else {
-                        if(!isset($addresses[$email])) {
-                            $address_id = dw_campaigns_add_address_book($user, $email, '');
-                        } else {
-                            $address_id = $addresses[$email]->address_id;
-                        }
-
-                        dw_campaigns_set_address_book_status($address_id, $pcpPage->id, time());
-
+                        $address_id = $addresses[$email]->address_id;
                     }
-                    
-                    $sent[$email]   = $email;
-                    $index++;            
+
+                    dw_campaigns_set_address_book_status($address_id, $pcpPage->id, time());
+
                 }
+                
+                $sent[$email]   = $email;
+                $index++;            
             }
         }
         drupal_set_message("Thank you for sharing with friends and family!");
@@ -5775,21 +5777,18 @@ function dw_campaigns_user_share_page_form_submit_old(&$form, &$form_state) {
         $params['is_test']              = '0';
         
         if(!is_null($params['source_contact_id'])) {
-            if(1==2) {
-                //send the emails using civicrms friend class
-                _dw_civicrm_friend_create($params);
-            } else {
-                $index = 0;
-                while($email = $values['email-' . $index]) {
-                    $params['index']                = $index;
-                    $params['first_name']           = $values['first_name-' . $index];
-                    $params['last_name']            = $values['last_name-' . $index];
-                    $params['invitation-from-name'] = $values['invitation-from-name'];
-                    drupal_mail('dw_campaigns_share', 'sharer', $email,  user_preferred_language($user), $params, $params['from_email']);
-                    $index++;            
-                }
+
+            $index = 0;
+            while($email = $values['email-' . $index]) {
+                $params['index']                = $index;
+                $params['first_name']           = $values['first_name-' . $index];
+                $params['last_name']            = $values['last_name-' . $index];
+                $params['invitation-from-name'] = $values['invitation-from-name'];
+                drupal_mail('dw_campaigns_share', 'sharer', $email,  user_preferred_language($user), $params, $params['from_email']);
+                $index++;            
             }
             drupal_set_message("Thank you for sharing with friends and family!");
+
         } else {
             drupal_set_message("Unable to determine your contact information");
         }
@@ -5954,6 +5953,7 @@ function dw_campaigns_walking_host_page_form_submit(&$form, &$form_state) {
     
     $email = variable_get('dw_campaigns_host_submit_email', '');
     if(empty($email)) {
+// FIXME - this should go somewhere - just not here
 /*
         $target = tempnam($dw_campaign_module_path . "/host_submit/", 'host_');
         file_put_contents($target, serialize($values));
@@ -5999,7 +5999,7 @@ function dw_campaigns_host_mail($key, &$message, $params) {
 
 function dw_campaign_get_payment_processor_list() {
     $processors     = _dw_campaigns_pseudoconstant_paymentprocessor();
-    
+
     $list           = array();
     foreach($processors as $id => $label) {
         $list[$id] = $label;
@@ -6208,7 +6208,9 @@ function dw_campaigns_user_donations_add_form($form, &$form_state, $campaign, $p
         );
     }
 
-    $address_form   = dw_campaigns_address_form_fields(NULL);
+    // FIXME - I don't like fixing this problem this way 
+    $in_country = isset($form_state['input']['country']) ? $form_state['input']['country'] : 1228;
+    $address_form   = dw_campaigns_address_form_fields(NULL, FALSE, $in_country);
 
     $form           = array_merge($form, $address_form);
     

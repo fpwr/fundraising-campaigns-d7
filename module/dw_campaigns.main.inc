@@ -307,6 +307,7 @@ function dw_campaigns_create_contribution_type_for_campaign($node) {
         
         $params['id']               = $contributionPage->contribution_type_id; 
     }
+
     $params['name']             = "Campaign " . $node->nid . ": " . $node->title;
     $params['description']      = $node->body;
     $params['is_deductible'] 	= 1;
@@ -368,17 +369,20 @@ function dw_campaigns_get_event_registration_for_campaign($node) {
     $node = (is_object($node)) ? $node : node_load($node);
    
 
- 
     if(!isset($pages[$node->nid])) {
     
         $result  = db_query("SELECT event_page_id FROM {dw_campaigns_campaigns_to_contribution_pages} WHERE nid = :nid", array(':nid' => $node->nid));
         
         //if(count($result) == 0 ) {
-        if($result->rowCount() == 0 ) {
+        if($result->rowCount() == 0) {
             return $res;
         }
       
         $row        = $result->fetchObject();
+        if(is_null($row->event_page_id)) {
+            return $res;
+        }
+
         // get event by event id
         $event      = _dw_civicrm_event_get(array('id' => $row->event_page_id));
 
@@ -422,8 +426,24 @@ function dw_campaigns_get_event_participants_count($campaignId, $pcpId, $contact
     return array($children, $adults);
 }
 
-function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0) {
+//function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0) {
+function dw_campaigns_set_event_participants_count($params) {
+
     global $dw_campaign_module_path;
+
+    $defaults = array(
+        'campaignId'         => null, 
+        'pcpId'              => null,
+        'children'           => 0,
+        'adults'             => 0,
+        'participation_type' => 'adult_pledge', 
+        'contactId'          => 0
+    );
+
+    // set all the values we except as local variables to keep the code mostly the same
+    foreach($defaults as $key => $value) {
+        $$key = isset($params[$key]) ? $params[$key] : $value;
+    }    
 
     if($age == '' || is_null($age)) {
         $age    = 0;
@@ -471,6 +491,7 @@ function dw_campaigns_get_contribution_page_from_id($id) {
     if(is_null($pages)) {
         $pages                 = array();
         $params['rowCount']    = 999999;
+
         $raw_pages             = _dw_civicrm_contributionpage_get($params);
 
         foreach($raw_pages as $key => $page) {
@@ -595,7 +616,7 @@ function dw_campaigns_user_get_pcp_for_walking($user) {
         $contactId  = _dw_campaigns_user_get_contact_id($user);
     
         $pcps       = _dw_campaigns_get_pcp_by_contact($contactId, FALSE);
-    
+
         foreach($pcps as $pcp) {
             if(in_array($pcp->contribution_page_id, $campaign_values)) {
                 $pcp_result[$user->uid] = $pcp;
@@ -1245,7 +1266,13 @@ function dw_campaigns_create_event_registration_for_campaign($node, $contributio
     if(isset($event->id) && !is_null($event->id) && !empty($event->id)) {
         $params['id']       = $event->id;        
     }
-    
+   
+    $ts = strtotime($node->field_dw_date_range['und']['0']['value']);
+    if($ts > mktime(0,0,0,1,1,date('Y'))) {
+        $start_date = date("Y-m-d", $ts);
+        $end_date   = date("Y-m-d", strtotime($node->field_dw_date_range['und']['0']['value2']));
+    }
+ 
     $params['title']                            = $node->title;
     $params['event_type_id']                    = '3'; // this is hardcoded for FPWR 'Derby' style
     $params['description']                      = $node->body;
@@ -1253,8 +1280,8 @@ function dw_campaigns_create_event_registration_for_campaign($node, $contributio
 // TODO - evaluate which of these should be configurable, some of these settings are from 2010 FPWR annual conference
     $params['participant_listing_id']           = NULL; // ???
     $params['is_public']                        = 1;
-    $params['start_date']                       = '';
-    $params['end_date']                         = '';   
+    $params['start_date']                       = $start_date;
+    $params['end_date']                         = $end_date;   
     $params['is_online_registration']           = 1;
     $params['registration_link_text']           = 'Register Now';
     $params['registration_start_date']          = '';
@@ -1605,10 +1632,11 @@ function _dw_campaigns_campaign_total($campaign) {
 }
 
 function  _dw_campaigns_campaigns_total() {
-    $goal         = 0;
-    $total_raised = 0;
-    $total_usd    = 0;
-    $total_pcps   = 0;
+    $goal             = 0;
+    $total_campaigns  = 0;
+    $total_raised     = 0;
+    $total_usd        = 0;
+    $total_pcps       = 0;
     $total_pcps_withd = 0;
   
     $cache = cache_get('dw_campaigns_campaigns_total');
@@ -2161,6 +2189,7 @@ function dw_campaigns_get_campaign_path($campaignId, $prefix = '/dw/campaign', $
  */
 
 function dw_campaigns_get_donate_url($user, $campaign) {
+
     $campaign = (is_object($campaign)) ? $campaign : node_load($campaign);
     
     $prefix = 'dw/users/' . $user->name;
@@ -2170,6 +2199,7 @@ function dw_campaigns_get_donate_url($user, $campaign) {
 
 
 function dw_campaigns_campaign_search_pcp_search($campaign, $in_query) {
+
     $matches            = array();
 
     $params             = array();
@@ -2187,9 +2217,9 @@ function dw_campaigns_campaign_search_pcp_search($campaign, $in_query) {
     {
         if(isset($pcps[$contact_id]))
         {
-            $pcp = $pcps[$contact_id];
-           
-            $_user                      = user_load(_dw_campaigns_contact_id_get_user($contact_id));
+            $pcp                        = $pcps[$contact_id];
+            $_userId                    = _dw_campaigns_contact_id_get_user($contact_id);
+            $_user                      = user_load($_userId);
             $civi_contact->user         = $_user;
             $civi_contact->pcp_title    = $pcp->title; 
             $matches[$contact_id]       = $civi_contact;
@@ -2200,7 +2230,7 @@ function dw_campaigns_campaign_search_pcp_search($campaign, $in_query) {
 }
 
 
-function dw_campaigns_search_form(&$form, &$form_state, $in_query = NULL) {
+function dw_campaigns_search_form($form, &$form_state, $in_query = NULL) {
 
     $form = array();
     $mode           = dw_campaigns_get_selected_type();
