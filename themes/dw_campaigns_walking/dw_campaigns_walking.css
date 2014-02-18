@@ -1,4 +1,19 @@
 /* facebook connect button, as supplied by the fboauth module, set to the header region. */
+.google-map-view{
+    width: 100%;
+    height: 150px;
+}
+
+#donations-form-map-view{
+
+}
+
+
+#donations-form-address-validation-notice{
+    /*used to display a notice that the address entered is possibly invalid!*/
+    color: red;
+}
+
 .facebook-action-connect{
     position: absolute;
     top: 50px;
