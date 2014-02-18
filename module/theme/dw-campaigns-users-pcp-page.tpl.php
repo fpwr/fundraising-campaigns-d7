@@ -16,6 +16,13 @@ echo "<!-- PCP_ID: {$pcp->id} -->";
     $matched_image  = '';
     //get the user and drop it in for a preview
     $imageSrc       = _dw_campaigns_get_photo($thisUser,  $image_params, 'pcp-photo', $pcp->id, $matched_image);
+    $ogImage        = $imageSrc;
+
+    $size = getimagesize($_SERVER['DOCUMENT_ROOT'] . $imageSrc);
+    if($size[1] < 200) {
+
+        $ogImage    = _dw_campaigns_get_photo($thisUser,  array('h' => 400), 'pcp-photo', $pcp->id, $matched_image);
+    }
 
     global $base_url;
 
@@ -23,7 +30,8 @@ echo "<!-- PCP_ID: {$pcp->id} -->";
         '#tag' => 'meta',
         '#attributes' => array(
           "property" => "og:image",
-          "content" => $base_url . $imageSrc,
+          //"content" => $base_url . $imageSrc,
+          "content" => $base_url . $ogImage,
         ),
     );
 

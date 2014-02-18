@@ -1,3 +1,4 @@
+<a href="/admin/reports/dw_event_emails/<?= $selected ?>/CSV">Download CSV</a>
 <?php
 
     $raw_headers    = $headers;

@@ -6,9 +6,12 @@
 <div class="where-the-funds-go">
     <h2><?php echo t('Where the Funds Go'); ?></h2>
 <p>
-<?php echo t('All proceeds from the One SMALL Step walks go to fund the Prader-Willi Syndrome Research plan jointly created by FPWR and PWSAUSA.'); ?>
-<?php echo t('Click below to find more information on the research plan and how the organizations are working together.'); ?>
+<?php
+    //JFN - january 13 2014 1107 - [#contentChange "replaced text, removed link, modified about us link"]
+    echo t('100% of proceeds from One SMALL Step events fund cutting edge Prader-Willi syndrome research. Learn more about research funded by the Foundation for Prader-Willi Research!');
+?>
 </p>
-    <a href="http://www.fpwr.org/sites/default/files/imagefield_default_images/PWSResearchPlan_rev2011.pdf" class="btn btn-light-blue"><?php echo t('About the Prader-Willi Syndrome Research Plan'); ?></a>
-    <a href="<?php echo $about_link; ?>" class="btn btn-dark-blue"><?php echo t('FPWR / PWSA(USA) Working Together'); ?></a>
+
+<br><a href="http://fpwr.org/prader-willi-syndrome-research" class="btn btn-light-blue"><?php echo t('Learn more about PWS Research'); ?></a>
+
 </div>

@@ -70,7 +70,7 @@ if($theme_type == 'walking') {
                 donationdate datetime,
                 note char(255),
                 is_pay_later char(255)
-            )
+            ) CHARACTER SET utf8 COLLATE utf8_bin
     ";
     db_query($query);
 

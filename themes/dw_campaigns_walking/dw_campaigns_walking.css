@@ -1,3 +1,130 @@
+/* facebook connect button, as supplied by the fboauth module, set to the header region. */
+.facebook-action-connect{
+    position: absolute;
+    top: 50px;
+    right: 0px;
+
+}
+
+.sponsors-block .block-content{
+    background-color: red;
+    margin-left: 15px;
+}
+
+.sponsor-logo{
+    position: relative;
+    float: left;
+    width: 75px;
+    height: 35px;
+    background-color: green;
+    margin-right: 25px;
+    margin-top: 10px;
+}
+
+.sponsor-remove-button{
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    bottom: -7px;
+    right: -7px;
+    background-color: yellow;
+
+}
+
+.sponsor-add-button{
+    position: absolute;
+    background-color: purple;
+    width: 24px;
+    height: 24px;
+    bottom: -7px;
+}
+
+.admin-upload-form-form{
+    background-color: #D1A1D6;
+    border-radius: 4px;
+    position: relative;
+    height: 10px;
+    padding: 6px;
+    margin-left: 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: red;
+}
+
+.admin-upload-form-form div div:first-child{
+    position: absolute;
+    left:0px;
+    bottom: 0px;
+}
+
+.admin-upload-form-form .form-submit{
+    position: absolute;
+    background-color: #CC60B6;
+    padding: 3px;
+    right: 2px;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 6px;
+}
+
+.admin-upload-form-form #edit-form-file-remove-button{
+    position: absolute;
+    background-color: #CC60B6;
+    left: 215px;
+    top: 3px;
+    border-radius: 6px;
+}
+
+#splashr {
+    top: 200px;
+    left: 0px;
+    right: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #EBF4F7;
+    border-style: solid;
+    border-width: 2px;
+    border-color: orange;
+
+    padding: 15px;
+    width: 470px;
+    height: auto;
+    text-align: left;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 0 75px 15px #0A1436;
+    box-shadow: 0 0 75px 15px #0A1436;
+}
+
+#splashr_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+    width: 100%;
+    height: 100%;
+    background: #ace;
+    display: none;
+}
+
+#splashr_close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 32px;
+    height: 32px;
+    background-color: slategray;
+    border-radius: 16px;
+    box-sizing: border-box;
+    padding-top: 3px;
+    font-size: 20px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 2px;
+    border-color: slateblue;
+}
+
 body {
   	margin-bottom: 0px;
   	padding-bottom: 0px;
@@ -354,7 +481,7 @@ body.dw-walking #main .bg {
 .home-support-block .support-left {
 	position:absolute;
 	/* background:transparent url('images/bannerimage.jpg') no-repeat top; */
-	background: traspararent;
+	background: transparent;
 	bottom: 9px;
 	color: #A6CBE6;
 	font-size: 14px;
@@ -474,7 +601,7 @@ body.dw-walking #main .bg {
 }
 
 .home-support-block .support-right .right p.location {
-    color: #687F44; //#5DA0CD;
+    color: #687F44;
     font-size: 18px;
 }
 
@@ -667,7 +794,8 @@ float:left;
 .walking-location #content-bottom {
 	/*background-image: url('images/bgContentBottom-loc.gif');*/
 	background-image: url('images/bgContentBottom-locTall.gif');
-	height:540px;
+	/*height:540px;*/
+	height:640px;
 }
 
 .dw-walking #content-bottom .block {
@@ -847,7 +975,7 @@ padding-right:5px;
 .dw-walking #content-bottom #block-dw-campaigns-24 .location-raised .location-label {
 	color: #5DA0CD;
 	font-size: 18px;
-	font-style:bold;
+	font-weight: bold;
 	left: 120px;
 	position: absolute;
 	top: 4px;
@@ -1098,6 +1226,10 @@ a.see-all {
 .page-dw .derby-event-details a {
 	display:block;
 	padding-top:5px;
+}
+
+.page-dw .derby-event-details .contact a {
+    display: inline;
 }
 
 .page-dw #content-bottom .derby-event-details a {
@@ -1642,7 +1774,6 @@ td.position {
 	position: absolute;
 	right: 10px;
 	top: 3px;
-	//color: #FFF;
 	color: #000;
 	text-decoration: none;
 }
@@ -2555,9 +2686,6 @@ form#dw-campaigns-host-event-create-form.dw_campaigns-profile-form .container-in
 }
 
 
-}
-
-
 
 .offline-mailing .offline-mailing-address-content {
     font-size:15pt;
@@ -2790,26 +2918,22 @@ background: #E8F1F7 url('images/thermoRight.gif') no-repeat scroll 1px 0px;
 #right #block-dw-campaigns-42 .location-raised .location-label {
 	color: #5DA0CD;
 	font-size: 18px;
-	font-style:bold;
-/*	left: 120px;*/
+	font-weight: bold;
 	position: absolute;
-/*	top: 4px; */
-left:114px;
-top:30px;
-padding-left:4px;
+    left:114px;
+    top:30px;
+    padding-left:4px;
 }
 
 #right #block-dw-campaigns-42 .location-preamble .preamble-label {
 	/*color: #5DA0CD;*/
 	color: #000;
 	font-size: 18px;
-	font-style:bold;
-/*	left: 120px;*/
+	font-weight: bold;
 	position: absolute;
-/*	top: 4px; */
-left:114px;
-top:8px;
-padding-left:4px;
+    left:114px;
+    top:8px;
+    padding-left:4px;
 }
 
 #right #block-dw-campaigns-42 .have-raised .dollar-label {
@@ -3021,7 +3145,7 @@ overflow: hidden;
 }
 
 #block-dw-campaigns-11 {
-    min-height: 678px;
+    min-height: 720px;
 }
 
 .alt-billing-hid {
@@ -3352,4 +3476,157 @@ display: none;
 
 .dw-walking-get-involved #switch_edit-question-value {
 display:none !important;
+}
+
+.contact-fundraisers {
+display:block;
+float:right;
+position:relative;
+top:-30px;
+border-radius:10px;
+border:2px solid #2087C5;
+background-color:#30A1D4;
+height:40px;
+width:200px;
+padding-top:14px;
+padding-left:20px;
+}
+
+.contact-fundraisers a {
+font-size:20px;
+color:#000;
+}
+
+#edit-event-statistics table {
+width:890px;
+}
+
+.page-dw-user-host #content {
+padding-top:20px;
+
+}
+
+.page-dw-user-host .forms {
+border-top-left-radius: 20px;
+border-top-right-radius: 20px;
+border:2px solid #2087C5;
+position:relative;
+top:-20px;
+background:#fff;
+min-height:200px;
+}
+
+.page-dw-user-host #block-system-navigation {
+display:none;
+}
+
+.page-dw-user-host #content .forms form legend {
+display:none;
+}
+
+.page-dw-user-host #content .forms form #edit-insurance legend {
+display:block;
+}
+
+.page-dw-user-host #content .forms form #edit-shirts legend {
+display:block;
+}
+
+.page-dw-user-host #content .forms form fieldset {
+border: 0px;
+margin: 0px;
+padding: 20px;
+}
+
+.host-title {
+display:block;
+font-size:28px;
+color:#30A1D4;
+font-weight:bold;
+}
+
+.host-location {
+display:block;
+padding-top:6px;
+font-size:18px;
+color:#4D4D4D;
+font-weight:bold;
+}
+
+
+.page-dw-user-host #content form {
+border-top: 0px;
+}
+
+.form_menu {
+display:block;
+padding:0px;
+}
+
+.form_menu li {
+border-top-left-radius: 20px;
+border-top-right-radius: 20px;
+display: inline-block;
+border:2px solid #2087C5;
+background-color:#30A1D4;
+height:80px;
+/* #afafaf; */
+}
+
+.form_menu li.selected {
+background-color:#829EB3; 
+/* #afafaf; */
+}
+
+.form_menu li a {
+    min-height:60px;
+    display:inline-block;
+    cursor: pointer;
+    color:black;
+    font-size:20px;
+    text-decoration:none;
+    padding-left:20px;
+    padding-right:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.page-dw-user-host div.hidmenu {
+    display:none;
+}
+
+.menu-event_reports ul {
+    margin-left:20px;
+    margin-top:20px;
+}
+
+.menu-event_documentdb p {
+    margin-top:20px;
+    margin-left:10px;
+}
+
+.menu-event_donors p {
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.table{
+    display: table;
+    padding: 15px;
+}
+
+.table .tr{
+    display: table-row;
+}
+.header .td{
+    font-weight: 900;
+    border-style: solid;
+    border-width: 1px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+}
+
+.table .tr .td{
+    display: table-cell;
+    padding: 4px;
 }

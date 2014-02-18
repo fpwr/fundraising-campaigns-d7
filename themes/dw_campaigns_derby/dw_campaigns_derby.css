@@ -1,3 +1,11 @@
+.facebook-action-connect{
+    position: relative;
+    top: -33px;
+    float: right;
+    right: 50px;
+    z-index: 1000;
+}
+
 body {
 	background:#305673 url('images/bg.jpg') repeat-x;
 }
@@ -51,7 +59,7 @@ h2 {
 	background:transparent url('images/bgHeader.png') no-repeat;
 */
 	height:94px;
-	background:transparent url('images/bgHeader-2012.png') no-repeat 0px 7px;
+	background:transparent url('images/bgHeader-2013.png') no-repeat 0px 7px;
 	position:relative;
 	z-index:9;
 }

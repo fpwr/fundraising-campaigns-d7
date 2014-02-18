@@ -127,14 +127,19 @@ if(!is_null($campaign)) {
 </ul>
 <?php if(arg(2) == 'location') { ?>
 <div class="sponsors" style="margin-top:218px;width:258px;position:relative;left:-8px;padding-left:8px;padding-top:14px;padding-bottom:14px;background:#ffffff;">
+    <div class="sponsor-top">
+        <img  alt="" width="232" src="/sites/default/files/scotia.png" style="margin-left:8px"/>
+    </div>
     <div class="sponsor-left" style="display:inline-block;width:120px;vertical-align:top;">
         <img  alt="" width="116" src="/sites/default/files/RFHK_Logo_Vert.png" />
-        <img  alt="" width="116" src="/sites/default/files/wu_logo_mmfb.png" />
+        <img  alt="" width="116" src="/sites/default/files/kongsberg_logo.png" />
     </div>
     <div class="sponsor-right" style="display:inline-block;width:120px;vertical-align:top;padding-left:14px;">
         <img  alt="" width="116" src="/sites/default/files/WIGI_Logo_Master_P.png" />
         <img  alt="" width="116" src="/sites/default/files/print_paperStacked.png" />
         <img  alt="" width="116" src="/sites/default/files/arc_financial_updated.png" />
+        <img  alt="" width="116" src="/sites/default/files/wu_logo_mmfb.png" />
+        <img  alt="" width="116" src="/sites/default/files/global_rehab.png" />
     </div>
 </div>
 <?php } ?>
