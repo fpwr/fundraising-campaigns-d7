@@ -116,7 +116,7 @@
 
 <form method="post">
     <p><?php echo t('Enter a Zip code, or a City, State below'); ?></p> 
-    <?php echo t('Searching From '); ?><input type="text" name="query" class="location-search" value="<? echo htmlentities($search_terms);?>">
+    <?php echo t('Searching From '); ?><input type="text" name="query" class="location-search" value="<?php echo htmlentities($search_terms);?>">
     <input type="submit" value="<?php echo t('Find Distance'); ?>">
 </form>
 
