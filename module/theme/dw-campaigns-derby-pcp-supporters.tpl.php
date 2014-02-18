@@ -9,7 +9,6 @@
 
     $supporters = dw_campaigns_pcp_get_supporters($pcp);
 
-    $states         = _dw_civicrm_pseudoconstant_stateprovince();
 
     if($mode_type != 'walking') {
         $headers        = array(
@@ -90,6 +89,10 @@
     $rows = '';
 
     $contributions = dw_campaigns_get_contributions_by_pageid($pcp->contribution_page_id, TRUE);
+
+    if(count($supporters) > 0) {
+        $states         = _dw_civicrm_pseudoconstant_stateprovince();
+    }
 
     foreach($supporters as $key => $supporter) {
 /*

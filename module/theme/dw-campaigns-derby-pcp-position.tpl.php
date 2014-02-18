@@ -61,7 +61,7 @@
         } elseif($position > 1 && $totalBehind == 0) {
 ?>
         <span class="behind">Tied with <?php echo position_to_name($position - 1); ?> place<br>
-<?
+<?php
         }
     ?>
     </div>

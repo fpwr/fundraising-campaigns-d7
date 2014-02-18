@@ -137,59 +137,61 @@ if($theme_type == 'walking') {
 
     $no_image       = '/sites/all/themes/dw_campaigns_' . $theme_type . '/images/no-image.gif';
 
-    $states             = _dw_civicrm_pseudoconstant_stateprovince();
-
-    foreach($offlines as $offline) {
-        if($offline->contribution_id != -1) {
-            continue;
+    if(count($offlines) > 0) {
+        $states             = _dw_civicrm_pseudoconstant_stateprovince();
+    
+        foreach($offlines as $offline) {
+            if($offline->contribution_id != -1) {
+                continue;
+            }
+    
+            if($offline->include_in_honor_roll == 1) {
+                $pcp_roll_nickname = ucfirst($offline->first_name) . substr(ucfirst($offline->last_name), 0, 1) . ".";
+            } else {
+                $pcp_roll_nickname = 'Anonymous';
+            }
+    
+            $name       = $offline->first_name . " " . $offline->last_name;
+    
+            
+            $name       .= " ($pcp_roll_nickname)";
+    
+            $state      = isset($states[$offline->state]) ? $states[$offline->state] : '';
+    
+            $photo      = $no_image;
+            $email      = isset($offline->email) ? $offline->email : '';
+            $amount     = (float)$offline->donation_amount;
+    
+            $location   = (isset($offline->city) ? $offline->city . ", " : '') . $state;
+    
+            $date       = $offline->receive_date . ' 00:00:00';
+    
+            $note       = '';
+    
+            if($offline->contribution_id == -1) {
+                $note       = sprintf('<a href="/dw/offline/%d/edit?destination=dw/user/donations">Edit</a> <a href="/dw/offline/%d/delete?destination=dw/user/donations">Delete</a>', $offline->offline_id, $offline->offline_id);
+            }
+    
+            $pay_later  = 1;
+    
+            if(empty($donation_date)) {
+                $date = date('Y-m-d') . ' 00:00:00';
+            }
+    
+            db_query("insert into {$table} (name, contribution_id, photo, email, amount, location, donationdate, note, is_pay_later) VALUES (:name, :contribution_id, :photo, :email, :amount, :location, :donationdate, :note, :pay_later)", array(
+                ':name'         => $name, 
+                ':contribution_id'  => $offline->contribution_id, 
+                ':photo'        => $photo, 
+                ':email'        => $email, 
+                ':amount'       => $amount, 
+                ':location'     => $location, 
+                ':donationdate' => $date, 
+                ':note'         => $note, 
+                ':pay_later'    => $pay_later)
+            );
+    
         }
-
-        if($offline->include_in_honor_roll == 1) {
-            $pcp_roll_nickname = ucfirst($offline->first_name) . substr(ucfirst($offline->last_name), 0, 1) . ".";
-        } else {
-            $pcp_roll_nickname = 'Anonymous';
-        }
-
-        $name       = $offline->first_name . " " . $offline->last_name;
-
-        
-        $name       .= " ($pcp_roll_nickname)";
-
-        $state      = isset($states[$offline->state]) ? $states[$offline->state] : '';
-
-        $photo      = $no_image;
-        $email      = isset($offline->email) ? $offline->email : '';
-        $amount     = (float)$offline->donation_amount;
-
-        $location   = (isset($offline->city) ? $offline->city . ", " : '') . $state;
-
-        $date       = $offline->receive_date . ' 00:00:00';
-
-        $note       = '';
-
-        if($offline->contribution_id == -1) {
-            $note       = sprintf('<a href="/dw/offline/%d/edit?destination=dw/user/donations">Edit</a> <a href="/dw/offline/%d/delete?destination=dw/user/donations">Delete</a>', $offline->offline_id, $offline->offline_id);
-        }
-
-        $pay_later  = 1;
-
-        if(empty($donation_date)) {
-            $date = date('Y-m-d') . ' 00:00:00';
-        }
-
-        db_query("insert into {$table} (name, contribution_id, photo, email, amount, location, donationdate, note, is_pay_later) VALUES (:name, :contribution_id, :photo, :email, :amount, :location, :donationdate, :note, :pay_later)", array(
-            ':name'         => $name, 
-            ':contribution_id'  => $offline->contribution_id, 
-            ':photo'        => $photo, 
-            ':email'        => $email, 
-            ':amount'       => $amount, 
-            ':location'     => $location, 
-            ':donationdate' => $date, 
-            ':note'         => $note, 
-            ':pay_later'    => $pay_later));
-
     }
-
 
     $sql_count = "select count(*) from $table";
 
