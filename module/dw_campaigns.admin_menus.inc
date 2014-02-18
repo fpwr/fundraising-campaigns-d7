@@ -21,7 +21,7 @@ function dw_campaigns_currency_config(){
         ),
         'currency_service_provider_get_data' => array(
             '#type'             => 'submit',
-            '#value'            => t('Sync Exchange Rates Now'),
+            '#value'            => t('Sync Exchange Rates Now / Save Configuration'),
             '#submit'           => array('dw_campaigns_admin_grab_exchange_rate_data_submit')
         )
     );

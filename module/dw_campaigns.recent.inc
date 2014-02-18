@@ -3396,6 +3396,9 @@ function dw_campaigns_admin_grab_exchange_rate_data(){
 
 function dw_campaigns_admin_grab_exchange_rate_data_submit($form, $form_state){
     dw_campaigns_admin_grab_exchange_rate_data();
+
+    variable_set( 'currency_service_provider_api_key', $form['currency_service_provider_api_key']['#value'] );
+
     return $form;
 }
 
