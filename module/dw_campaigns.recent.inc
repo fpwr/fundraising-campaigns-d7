@@ -3382,7 +3382,7 @@ function dw_campaigns_admin_contact_hosts($selected = NULL) {
     return theme('dw_campaigns_admin_contact_hosts', array('form' => $form));
 }
 
-function dw_campaigns_admin_grab_exchange_rate_data(){
+function dw_campaigns_admin_grab_exchange_rate_data_cron() {
     // we want to run at most once per day
 
     $last_date  = variable_get('dw_campaigns_cron_hosts_process_last_run', 0);
@@ -3395,15 +3395,36 @@ function dw_campaigns_admin_grab_exchange_rate_data(){
 
     $dates      = dw_campaigns_get_campaign_dates();
 
-    if($day > $last_date || variable_get('exchangeRates') === NULL) {
-        $apiKey = variable_get('currency_service_provider_api_key');
-
-        if(!is_null($apiKey)) {
-            variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
-        }
-
+    if($day > $last_date) {
+        dw_campaigns_admin_grab_exchange_rate_data();
     }
 
+}
+
+function dw_campaigns_admin_grab_exchange_rate_data() {
+
+    $apiKey = variable_get('currency_service_provider_api_key');
+
+    if(is_null($apiKey)) {
+
+        drupal_set_message(t('Exchange rate apiKey not set'), 'error');
+
+    } else {
+
+        $result = file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true );
+
+        $data   = json_decode($result);
+
+        if(!isset($data->rates)) {
+
+            drupal_set_message(t('Exchange rates update failed - invalid data returned'), 'error');
+
+        } else {
+            drupal_set_message(t('Exchange rates have been updated'));
+            variable_set("exchangeRates", $data->{'rates'} );
+
+        }
+    }
 }
 
 function dw_campaigns_admin_grab_exchange_rate_data_submit($form, $form_state){

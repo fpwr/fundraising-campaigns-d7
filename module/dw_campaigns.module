@@ -97,10 +97,8 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
-    //$items['admin/settings/dw_campaigns_currency_setup'] = component('Currency')->get_admin_form();
-
     $items['admin/settings/dw_campaigns_currency_setup'] = array(
-        'title'                 => "Currency",
+        'title'                 => "DW Currency (Exchange Rates)",
         'description'           => "Use this to configure the way you want to handle currency.",
         'page callback'         => "drupal_get_form",
         'page arguments'        => array("dw_campaigns_currency_config"),
@@ -1905,7 +1903,7 @@ window.setTimeout(function() {
 function dw_campaigns_cron() {
     dw_campaigns_admin_contact_hosts_process();
     dw_campaigns_admin_generate_cdn_receipts();
-    dw_campaigns_admin_grab_exchange_rate_data();
+    dw_campaigns_admin_grab_exchange_rate_data_cron();
 }
 
 function dw_campaigns_homepage_goto() {
