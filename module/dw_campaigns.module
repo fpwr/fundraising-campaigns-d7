@@ -4730,11 +4730,9 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
                 //a bit of caching, so we don\'t hammer google\'s map server with redundant requests.
                 if( donations_address_to_validate !== currentAddress ){
                     donations_address_to_validate = currentAddress;
-                    donations_address_vaid = undefined;
+                    donations_address_valid = undefined;
 
                     var xhrRequestString = "https://maps-api-ssl.google.com/maps/api/geocode/json?address="+currentAddress.replace(/ /g, "+")+"&sensor=false";
-
-                    //console.log( xhrRequestString );
 
                     var xhr = new XMLHttpRequest();
                         xhr.open("GET", xhrRequestString, false);
@@ -4743,23 +4741,45 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
 
                         var response = JSON.parse( xhr.responseText );
-                        //console.log( response );
 
                         response.results = response.results ? response.results : [];
 
+console.log( response );
+
                         if( response.results.length !== 1 ){
-                            document.getElementById("donations-form-address-validation-notice").innerHTML = "We can not validate your address! Please review it to ensure it is correct.";
+                            donations_address_valid = false;
+
                         }else{
-                            document.getElementById("donations-form-address-validation-notice").innerHTML = "";
 
-                            map.setCenter(
-                                response.results[0].geometry.location
-                            );
+                            var formatted_address = response.results[0].formatted_address;
 
-                            map.setZoom(14);
+                            var numCommas = formatted_address.match(/,/g).length;
 
+                            var numComponents = response.results[0].address_components.length;
+
+                            if( numCommas > 2 && numComponents > 5 ){
+
+                                map.setCenter(
+                                    response.results[0].geometry.location
+                                );
+
+                                map.setZoom(14);
+
+                                donations_address_valid = true;
+                            }else{
+                                donations_address_valid = false;
+
+                            }
                         }
 
+                        //notify user of invalid address
+                        if( donations_address_valid ){
+                            document.getElementById("donations-form-address-validation-notice").innerHTML = "";
+
+                        }else{
+                            document.getElementById("donations-form-address-validation-notice").innerHTML = "We could not validate your address! Please review it to ensure it is correct.";
+
+                        }
                 }
 
                 setTimeout( addressValidationFunction, 2000 );
