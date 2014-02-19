@@ -4390,10 +4390,6 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
     //donations form map javascript
     drupal_add_js('
-
-
-
-
         //state codes to string names
         //1039 = canada
         var state_codes = {
@@ -4738,7 +4734,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
                     var xhrRequestString = "https://maps-api-ssl.google.com/maps/api/geocode/json?address="+currentAddress.replace(/ /g, "+")+"&sensor=false";
 
-                    console.log( xhrRequestString );
+                    //console.log( xhrRequestString );
 
                     var xhr = new XMLHttpRequest();
                         xhr.open("GET", xhrRequestString, false);
@@ -4747,6 +4743,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
 
 
                         var response = JSON.parse( xhr.responseText );
+                        //console.log( response );
 
                         response.results = response.results ? response.results : [];
 
@@ -4754,6 +4751,13 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
                             document.getElementById("donations-form-address-validation-notice").innerHTML = "We can not validate your address! Please review it to ensure it is correct.";
                         }else{
                             document.getElementById("donations-form-address-validation-notice").innerHTML = "";
+
+                            map.setCenter(
+                                response.results[0].geometry.location
+                            );
+
+                            map.setZoom(14);
+
                         }
 
                 }
