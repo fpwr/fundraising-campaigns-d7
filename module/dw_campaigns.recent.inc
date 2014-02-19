@@ -928,8 +928,7 @@ function dw_campaigns_offline_permissions($offline_id) {
         $permission     = TRUE;
     }
 
-//var_dump($user);die;
-            $ids = dw_campaigns_get_hosts_for_uid($user->uid);
+    $ids = dw_campaigns_get_hosts_for_uid($user->uid);
 
     $primary_id = isset($campaign->field_dw_host_primary['und']['0']['value']) ? $campaign->field_dw_host_primary['und']['0']['value'] : -1;
     $secondary_id = isset($campaign->field_dw_host_secondary['und']['0']['value']) ? $campaign->field_dw_host_secondary['und']['0']['value'] : -1;
@@ -3396,9 +3395,12 @@ function dw_campaigns_admin_grab_exchange_rate_data(){
 
     $dates      = dw_campaigns_get_campaign_dates();
 
-    if($day > $last_date) {
+    if($day > $last_date || variable_get('exchangeRates') === NULL) {
         $apiKey = variable_get('currency_service_provider_api_key');
-        variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
+
+        if(!is_null($apiKey)) {
+            variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
+        }
 
     }
 

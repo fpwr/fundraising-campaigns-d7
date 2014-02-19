@@ -468,7 +468,6 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
     );
 
     if($user->uid == 0) {
-        $dummy   = array();
         $in_form = dw_campaigns_user_register_form(NULL, $form_state, 'pcp-photo', $pcp->id, NULL, FALSE);
     
         $form = array_merge($form, $in_form);
@@ -701,6 +700,17 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             '#options'          => $ages,
             '#default_value'    => 30
         );
+
+/*RJ - february 18 2014 1600 - [#begin
+    'add gender option to the register pledge form.
+    add the gender selection element to the form.']
+*/
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'select',
+            '#title'            => t('What is the gender of the runner?'),
+            '#options'          => array('m'=>'Male', 'f'=>'Female'),
+            '#default_value'    => 'm'
+        );
     } else {
 
         $form['contribution-heading']['children'] = array(
@@ -720,6 +730,11 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
         $form['amount-fieldset']['age'] = array(
             '#type'             => 'hidden',
             '#value'            => 0
+        );
+
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'hidden',
+            '#value'            => ''
         );
     }
 
@@ -1200,7 +1215,17 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
     } 
 
     $values['num_attending'] = $values['children'] + $values['adults'];
-    dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'pcpId' => $pcp->id, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => $values['age'], 'participation_type' => $values['participation_type']));
+
+    $participant_params = array('campaignId' => $campaign->nid,
+        'pcpId' => $pcp->id,
+        'children'           => $values['children'],
+        'adults'             => $values['adults'],
+        'age'                => $values['age'],
+        'gender'             => $values['gender'],
+        'participation_type' => $values['participation_type']
+    );
+
+    dw_campaigns_set_event_participants_count($participant_params);
 
     $event_data = new stdClass();
     $event_data->participants_old = $participants_old;
@@ -1407,8 +1432,8 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
         $form['amount-fieldset']['gender'] = array(
             '#type'             => 'select',
             '#title'            => t('What is the gender of the runner?'),
-            '#options'          => array('male'=>'male', 'female'=>'female'),
-            '#default_value'    => 'male'
+            '#options'          => array('m'=>'Male', 'f'=>'Female'),
+            '#default_value'    => 'm'
         );
     }
 
@@ -2021,7 +2046,17 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
             $values['gender'] = null;
         }
 
-        dw_campaigns_set_event_participants_count(array('campaignId' => $campaign->nid, 'children' => $values['children'], 'adults' => $values['adults'], 'age' => $values['age'], 'participation_type' => $values['participation_type'], 'contactId' => $values['contact_id']));
+        $participant_params = array(
+            'campaignId'         => $campaign->nid,
+            'children'           => $values['children'],
+            'adults'             => $values['adults'],
+            'age'                => $values['age'],
+            'gender'             => $values['gender'],
+            'participation_type' => $values['participation_type'],
+            'contactId'          => $values['contact_id']
+        );
+
+        dw_campaigns_set_event_participants_count($participant_params);
     }
 
 

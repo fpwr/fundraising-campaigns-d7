@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS `dw_campaigns_event_participants` (
   `children` int(11) NOT NULL default '0',
   `adults` int(11) NOT NULL default '0',
   `age` int(11) NOT NULL default '0',
+  `gender` ENUM( 'M', 'F' ) NULL DEFAULT NULL COMMENT 'Null / Male / Female',
   KEY `campaign_id` (`campaign_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

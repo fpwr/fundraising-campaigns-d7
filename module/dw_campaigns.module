@@ -1984,6 +1984,9 @@ function dw_campaigns_user_register_page() {
 }
 
 function dw_campaigns_address_form_fields($contact, $include_phone = FALSE, $form_country = 1228) {
+
+    $countries = _dw_civicrm_pseudoconstant_country();
+
     $countryId = ($contact['country_id'] > 0) ? $contact['country_id'] : $form_country;
     
     $states = _dw_civicrm_pseudoconstant_statesProvinceForCountry($countryId);
@@ -2221,7 +2224,6 @@ function dw_campaigns_user_register_form($form, &$form_state, $type = 'user-phot
             '#weight'           => -10
         );
     }
-
 
     // FIXME - I don't like fixing this problem this way 
     $in_country = isset($form_state['input']['country']) ? $form_state['input']['country'] : 1228;

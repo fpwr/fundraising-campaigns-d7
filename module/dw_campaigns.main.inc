@@ -454,6 +454,12 @@ function dw_campaigns_set_event_participants_count($params) {
         $age    = 0;
     }
 
+    $gender = strtolower($gender);
+
+    if($gender != 'm' && $gender != 'f') {
+        $gender    = null;
+    }
+
     $campaignId  = intval($campaignId);
     $pcpId       = intval($pcpId);
     $contactId   = intval($contactId);
@@ -477,7 +483,7 @@ function dw_campaigns_set_event_participants_count($params) {
 
     $num_attending = $children + $adults;
 
-    db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age)", array(
+    db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age, gender) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age, :gender)", array(
         ':campaignid'       => $campaignId, 
         ':pcpid'            => $pcpId, 
         ':participants'     => $num_attending, 
@@ -485,7 +491,8 @@ function dw_campaigns_set_event_participants_count($params) {
         ':contactid'        => $contactId,
         ':children'         => $children,
         ':adults'           => $adults,
-        ':age'              => $age
+        ':age'              => $age,
+        ':gender'           => $gender
     ));
 }
 
@@ -1938,6 +1945,7 @@ function _dw_campaigns_all_leaders_list($campaignList) {
                     $totals[$idx]   = $res['total'];
                     $counts[$idx]   = $res['count'];
                     $in_usd[$idx]   = dw_campaigns_convert_to_usd($currency, $res['total']);
+
                 }
                 
             }
@@ -2514,6 +2522,11 @@ function dw_campaigns_force_decimal($in, $currency = 'USD', $always_show_usd = f
 function dw_campaigns_convert_to_usd($currency, $in) {
 
     $exchangeRates = variable_get("exchangeRates");
+
+    if(is_null($exchangeRates)) {
+        drupal_set_message(t('You must set the exchange rates!'));
+        return $in;
+    }
 
     $rate = 1/$exchangeRates->{ $currency };
 
