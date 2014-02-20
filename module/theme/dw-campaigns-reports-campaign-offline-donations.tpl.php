@@ -51,6 +51,7 @@ if($mode == 'SCREEN') {
                 array('data' => ($donation->include_in_honor_roll) ? t('YES') : t('NO') , 'class' => array('honorroll')),
                 /*array('data' => $status, 'class' => array('status')),*/
                 array('data' => $donation->trxn_id, 'class' => array('trxnid')),
+                array('data' => $donation->non_deductible , 'class' => array('nondeductible')),
                 array('data' => $edit_link, 'class' => array('action')),
             )    
         );

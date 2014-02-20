@@ -363,8 +363,6 @@ function _dw_civicrm_contact_get_from_user($user) {
         return NULL;
     }
 
-    file_put_contents("/tmp/contact_from_user", "$contactId : " . $user->uid . "\n" , FILE_APPEND);
-
     $params = array(
         'contact_id'    => $contactId,
         'returnFirst'   => 1
@@ -394,10 +392,7 @@ function _dw_civicrm_contact_get($params) {
     } else {
         $return = $res->values;
         if($returnOne) {
-            foreach($return as $key => $value) {
-                $return = $value;
-                break; // don't break if we want the last match
-            }
+            return current($return);
         }
     }
 
@@ -623,7 +618,11 @@ echo $back[2]['function'] . '<br>';
     if(_dw_check_error($res)) {
         return $res->error_data;
     } 
-        
+       
+    if(isset($params['returnFirst'])) {
+        return current($res->values);
+    }
+ 
     return $res->values;
 
 }

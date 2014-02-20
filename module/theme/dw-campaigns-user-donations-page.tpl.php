@@ -1,3 +1,4 @@
+<h2><?php echo t('Donations');?></h2>
 <?php
     $num_per_page   = 40;
 
