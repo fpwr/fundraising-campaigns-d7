@@ -666,6 +666,7 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
     $form['non_deductible'] = array(
         '#type'             => 'checkbox',
         '#title'            => t('Non-deductible'),
+        '#description'      => t('Check this box if this contribution does NOT require a tax receipt.'),
         '#default_value'    => 0,
     );
 
@@ -893,6 +894,7 @@ function dw_campaigns_get_offline_donations_for_pcp($pcpId) {
 
 function dw_campaigns_offline_permissions($offline_id) {
     global $user;
+
     $permission         = FALSE;
 
     $offline_donation   = dw_campaigns_get_offline_donation($offline_id);

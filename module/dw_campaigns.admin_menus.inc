@@ -46,6 +46,14 @@ function dw_campaigns_civicrm_config() {
         '#maxlength'        => 250,
         '#default_value'    => variable_get('dw_campaigns_cfg_sitekey', '')           
     );
+
+    $form['civi_settings']['dw_campaigns_cfg_apikey'] = array(
+        '#title'            => 'REST API Key (is tied to a user)',
+        '#type'             => 'textfield',
+        '#description'      => t('Civi REST API Key'),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_cfg_apikey', '')           
+    );
     
     $form['civi_settings']['dw_campaigns_cfg_loginname'] = array(
         '#title'            => 'REST Interface Login Name',
@@ -1534,6 +1542,9 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
             'data' => t('Trxn ID'),
         ),
         array(
+            'data' => t('Non Ded?'),
+        ),
+        array(
             'data' => t('Action')
         )
     );
@@ -1739,9 +1750,6 @@ function dw_campaigns_offline_donation_post($row) {
 
     $values['invoice_serial'] = $invoice_serial;
 
-    if($values['non_deductible'] == 1) {
-        $params['non_deductible_amount'] = $values['donation_amount'];
-    }
 
     $params['amount']                           = $values['donation_amount'];
     $params['amount_other']                     = $values['donation_amount'];
@@ -1805,6 +1813,11 @@ function dw_campaigns_offline_donation_post($row) {
     }
 
     $params                             = array();
+
+    if($values['non_deductible'] == 1) {
+        $params['non_deductible_amount'] = $values['donation_amount'];
+    }
+
     $params['contact_id']               = $values['contact_id'];
     $params['contribution_page_id']     = $contributionPage->id;
     $params['contribution_type_id']     = $contributionType->id;

@@ -18,21 +18,13 @@ include_once($dw_campaign_module_path . 'dw_campaigns.admin_menus.inc');
 global $accepted_currencies;
 global $currency_processor;
 include_once($dw_campaign_module_path . 'dw_campaigns_currency_multi_config.inc');
+    
 
 
 global $ignore_node_update;
 $ignore_node_update = FALSE;
 
 $debug = FALSE;
-
-global $dw_settings;
-$dw_settings = array(
-    'apiKey'	=> NULL,
-    'restUrl'	=> '',
-    'siteKey'	=> '',
-    'loginName'	=> 'admin',
-    'loginPass'	=> 'adminpassword',
-);
 
 
 function dw_campaigns_permission() {
@@ -47,24 +39,6 @@ function dw_campaigns_permission() {
             'title' => t('Valid user of DW Pages')
         )
     );
-}
-
-function dw_campaigns_civicrm_rest_settings_load() {
-    global $dw_settings;
-
-    static $loaded = FALSE;
-
-    if($loaded) {
-        return;
-    }
-
-
-    $dw_settings['restUrl']     = variable_get('dw_campaigns_cfg_rest_url', '');
-    $dw_settings['siteKey']     = variable_get('dw_campaigns_cfg_sitekey', '');
-    $dw_settings['loginName']   = variable_get('dw_campaigns_cfg_loginname', '');
-    $dw_settings['loginPass']   = variable_get('dw_campaigns_cfg_loginpass', '');
-
-    $loaded = TRUE;
 }
 
 function dw_campaigns_menu() {
@@ -1842,7 +1816,6 @@ function dw_campaigns_init() {
         drupal_goto('dw');
         return;
     }
-    dw_campaigns_civicrm_rest_settings_load();
 
     $js_file    = $dw_campaign_module_path . '/js/dw_campaigns.js';
 /*
@@ -4155,6 +4128,7 @@ function dw_campaigns_users_donate_co_page($username, $campaignPath, $account = 
 }
 
 function dw_campaigns_users_donate_co_page_form($form, &$form_state, $campaign, $pcp, $include_donation_conf = TRUE) {
+
     $form = dw_campaigns_users_donate_page_form($form, $form_state, $campaign, $pcp, $include_donation_conf);
 
     unset($form['donation-currency']);
@@ -4171,64 +4145,12 @@ function dw_campaigns_users_donate_co_page_form($form, &$form_state, $campaign, 
 
     $countryId  = isset($values['country2']) ? $values['country2'] : 1228;
     $stateId    = isset($values['state2']) ? $values['state2'] : '';
-/*
-    unset($form['donor-information']['state']);
-    unset($form['donor-information']['country']);
-    unset($form['pws_relationship']);
-
-//zelda
-    $countries = _dw_civicrm_pseudoconstant_country();
-    $form['country2']        = array(
-        '#type'             => 'select',
-        '#title'            => t('Country'),
-        '#options'          => $countries,
-        '#default_value'    => $countryId,
-        '#required'         => true,
-        '#ajax' => array(
-            'event'    => 'change',
-            'callback' => 'dw_campaigns_country_select_callback',
-            'wrapper'  => 'country_replace',
-        ),
-    );
-
-
-    $form['state2']        = array(
-        '#type'             => 'select',
-        '#title'            => t('State'),
-        //'#options'          => array(''=>'Select State/Province') + $states,
-        '#options'          => dw_campaigns_get_state_by_country($countryId),
-        '#default_value'    => $stateId,
-        '#required'         => true,
-        '#prefix'           => '<div id="country_replace">',
-        '#suffix'           => '</div>',
-    );
-*/
 
     return $form;
 }
 
 function dw_campaigns_country_select_callback($form, $form_state) {
     return $form['state2'];
-}
-
-function dw_campaigns_get_state_by_country($country = NULL) {
-    global $dw_settings;
-
-    $parsed = parse_url($dw_settings['restUrl']);
-    $target = sprintf("http://%s/civicrm/ajax/jqState?_id=address_1_country_id&_name=address%%5B1%%5D%%5Bcountry_id%%5D&_value=%s", $parsed['host'], $country);
-
-    $states = array();
-
-    $data = file_get_contents($target);
-    $ball = json_decode($data);
-    foreach($ball as $state_obj) {
-        $value = $state_obj->value;
-        $name  = $state_obj->name;
-
-        $states[$value] = $name;
-    }
-
-    return $states;
 }
 
 function dw_campaigns_users_donate_co_page_form_validate(&$form, &$form_state) {

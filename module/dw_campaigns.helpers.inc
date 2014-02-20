@@ -2,6 +2,35 @@
 
 define('CACHE_LENGTH', 7200);
 
+// this can probably be removed in the future
+$dw_settings = array(
+    'apiKey'	=> NULL,
+    'restUrl'	=> '',
+    'siteKey'	=> '',
+    'loginName'	=> 'admin',
+    'loginPass'	=> 'adminpassword',
+);
+
+
+function dw_campaigns_civicrm_rest_settings_load() {
+    global $dw_settings;
+
+    static $loaded = FALSE;
+
+    if($loaded) {
+        return;
+    }
+
+    $dw_settings['restUrl']     = variable_get('dw_campaigns_cfg_rest_url', '');
+    $dw_settings['siteKey']     = variable_get('dw_campaigns_cfg_sitekey', '');
+    $dw_settings['apiKey']      = variable_get('dw_campaigns_cfg_apikey', '');
+    $dw_settings['loginName']   = variable_get('dw_campaigns_cfg_loginname', '');
+    $dw_settings['loginPass']   = variable_get('dw_campaigns_cfg_loginpass', '');
+
+    $loaded = TRUE;
+}
+
+
 function dw_campaigns_cache_get_filename($page, $params) {
 
     global $dw_campaign_module_path;
@@ -106,7 +135,11 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
     global $debug;
     global $dw_settings;
     global $dw_campaign_module_path;
-   
+
+  
+    dw_campaigns_civicrm_rest_settings_load();
+
+ 
     $api_call_implemented = false;
  
     static $dirtied_in_request = 0;
@@ -119,9 +152,6 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
     
     $query    = '';
    
-    $dw_settings['siteKey'] = '7a20825d96b3e4c1a78aac6625c5a712';
-    $dw_settings['apiKey'] = '2feeddeef';
- 
     $params['key'] = $dw_settings['siteKey'];
     $params['json'] = 1;
 
