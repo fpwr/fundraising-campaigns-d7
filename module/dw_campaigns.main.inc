@@ -1717,6 +1717,11 @@ function  _dw_campaigns_campaigns_campaign_total() {
 function _dw_campaigns_campaign_leaders_list($campaign) {
     static $leaders = array();
 
+    if(!isset($campaign->nid)) {
+        drupal_set_message(t('We can not generate a list of campaign leaders if no campaign is specified'), 'error');
+        return $leaders;
+    }
+
     if(!isset($leaders[$campaign->nid])) {
         
         $pcps                           = _dw_campaigns_get_pcps_for_campaign($campaign);
@@ -2163,7 +2168,15 @@ function dw_campaigns_user_get_pcp_url($forUser = NULL, $campaign = NULL, $inclu
  */
 function dw_campaigns_campaign_get_id_from_url($campaignPath) {
     $campaignId         = NULL;
-    
+
+    $count = preg_match('/^node-(\d*)$/', $campaignPath, $matches);
+
+    if($count > 0) {
+        if(isset($matches[1])) {
+            return $matches[1];
+        }
+    }
+
     // I know some people don't use a prefix (fpwr did not) - or they may use more complicated paths
     $path               = drupal_lookup_path('source', $campaignPath, 'en');
    
@@ -2186,9 +2199,11 @@ function dw_campaigns_campaign_get_id_from_url($campaignPath) {
 function dw_campaigns_get_campaign_path($campaignId, $prefix = '/dw/campaign', $suffix = '') {
     $path_alias = drupal_get_path_alias("node/" . $campaignId);
 
+    // this now makes us have a problem if a place is named node- - that's okay for now
+    $path_alias = str_replace('node/', 'node-', $path_alias);
+
     // remove the content/ prefix
     $path_alias = str_replace('content/', '', $path_alias);
-    
     $path = $prefix . '/' . $path_alias . '/' . $suffix;
     // remove the dupes
     $path = preg_replace('/\/\/*/', '/', $path);

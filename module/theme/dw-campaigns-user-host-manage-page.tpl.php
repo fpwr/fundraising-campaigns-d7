@@ -101,10 +101,15 @@
     <div class="hidmenu menu-event_request">
 
         <?php //Request Services
-            $tshirts_and_services_node = explode('/', drupal_lookup_path("source", 'tshirts_and_services') );       //this is horrible!
-            $RequestServicesNode = node_load( $tshirts_and_services_node );
+            $shirt_node = drupal_lookup_path("source", 'tshirts_and_services');
+            if(!$shirt_node) {
+               drupal_set_message(t('You must have a drupal (page) node with a path of "tshirts_and_services"'), 'error');
+            } else {
+                $tshirts_and_services_node = explode('/', $shirt_node);       //this is horrible!
+                $RequestServicesNode = node_load( $tshirts_and_services_node[1] );
 
-            echo $RequestServicesNode->{'body'}['und'][0]['value'];
+                echo $RequestServicesNode->{'body'}['und'][0]['value'];
+            }
         ?>
 
     </div>

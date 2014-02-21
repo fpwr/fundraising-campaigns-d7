@@ -3425,7 +3425,8 @@ function dw_campaigns_pcp_page_mail($key, &$message, $params) {
 
 function dw_campaigns_user_profile() {
     $html = '<h2 class="title">' . t('Account Information') . '</h2>';
-    $html.= drupal_render(drupal_get_form('dw_campaigns_user_profile_form'));
+    $form = drupal_get_form('dw_campaigns_user_profile_form');
+    $html.= drupal_render($form);
     return $html;
 }
 
@@ -3828,6 +3829,7 @@ function dw_campaigns_campaign_page($campaignPath) {
 
     return $return;
 }
+
 function dw_campaigns_top_fundraisers_page($campaignPath) {
     $campaign       = NULL;
 
@@ -4033,8 +4035,10 @@ function dw_campaigns_user_set_notify_settings($uid, $n) {
 }
 
 function dw_campaigns_user_notify_settings_page() {
+    $form = drupal_get_form('dw_campaigns_user_notify_settings_form');
+
     $html = '<h2>Notification Settings</h2>';
-    $html .= drupal_render(drupal_get_form('dw_campaigns_user_notify_settings_form'));
+    $html .= drupal_render($form);
     return $html;
 }
 
@@ -4852,7 +4856,7 @@ console.log( response );
     drupal_add_js(
         array(
             'donations_form' => array(
-                'language' => $_SESSION['language']->language ? $_SESSION['language']->language : 'en'  //default to english, just in case :P
+                'language' => isset($_SESSION['language']->language) ? $_SESSION['language']->language : 'en'  //default to english, just in case :P
             )
         ),
         'setting'

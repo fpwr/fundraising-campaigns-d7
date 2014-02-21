@@ -1566,7 +1566,8 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
         $found = TRUE;
     }
 
-    $donations  = array();
+    $donations      = array();
+    $donation_ids   = array();
 
     if($found) {
         if($selected == 'ALL') {

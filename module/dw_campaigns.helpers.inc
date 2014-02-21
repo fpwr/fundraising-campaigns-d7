@@ -609,9 +609,10 @@ echo $back[2]['function'] . '<br>';
         'contribution_recur_id'   => 1,
         'amount_level'            => 1,
         'contribution_note'       => 1
-    ); 
-*/
+    );
+ 
     $params['return'] = $return;
+*/
 
     $res = civicrm_query('/contribution/get', $params, TRUE, FALSE, FALSE, TRUE);
 

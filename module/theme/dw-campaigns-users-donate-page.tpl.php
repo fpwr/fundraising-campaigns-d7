@@ -48,8 +48,9 @@ drupal_set_title('Make a Donation');
     $include_donation_conf = ($mode_type == 'walking') ? TRUE : FALSE;
     $include_donation_conf = TRUE;
 
-    $form   = drupal_render(drupal_get_form('dw_campaigns_users_donate_page_form', $campaign, $pcp, $include_donation_conf));
-    echo $form; 
+    $form   = drupal_get_form('dw_campaigns_users_donate_page_form', $campaign, $pcp, $include_donation_conf);
+    $html   = drupal_render($form);
+    echo $html; 
 ?>
 <div style="display:none">
 	<a href="#hidden-words" id="show-words"></a>
