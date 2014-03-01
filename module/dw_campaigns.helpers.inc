@@ -221,10 +221,6 @@ if(!$v3) {
 
 
 
-    if(strstr($data, 'error_mess') !== FALSE) {
-        echo "errror message fail";
-        //var_dump(json_decode($data));
-    } 
 }
 
 file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($queryString) . "\n", FILE_APPEND);
@@ -238,7 +234,13 @@ file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($querySt
         //file_put_contents($cache_file, $data);
     }
     
-    return json_decode($data);
+    $result = json_decode($data);
+
+    if(isset($result->error_message)) {
+        drupal_set_message(t("civi error_message - :message", array(':message' => $result->error_message)) );
+    } 
+
+    return $result;
 }
 
 function do_curl($url) {
