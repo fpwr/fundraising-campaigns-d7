@@ -1478,7 +1478,6 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
     return $form;
 }
 
-
 function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id) {
 
     $node_mapping = array(
@@ -1587,13 +1586,13 @@ function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id)
             '#type'             => 'markup',
             '#markup'           => '<div id="event-image-wrapper"><img style="width:692px" src="/' . $imageSrc . '" /></div><div style="clear:both"></div><div class="dimensions">692px x 356px</div>'
         );
-
+// FIXME - this entire form should be done differently
         $form['event_details']['field_dw_campaign_image_und_0']    = array(
-            '#type'             => 'file',
+            '#type'             => 'managed_file',
             '#title'            => t('Photo'),
             '#attributes'       => array(
                 'size'          => ''
-            )
+            ), 
         );
     }
 
@@ -3625,6 +3624,7 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
 
     $defaults                   = new stdClass();
     $defaults->schedule_type    = 'before_event';
+    $defaults->target_type   = 'all';
     $defaults->day_offset       = 0;
     $defaults->action_date      = '';
     $defaults->from_name        = '';
@@ -3655,6 +3655,26 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
         '#options'          => $type_options,
         '#default_value'    => $defaults->schedule_type
     );
+
+    $target_filter_options = array(
+        'all' => t('All'),
+        'upcoming' => 'Upcoming Events',
+        'completed' => 'Completed Events',
+    );
+
+    $countries = dw_campaigns_event_countries_get();
+    foreach($countries as $short => $country) {
+        $target_filter_options['country-' . $short] = t('By Country - !title', array('!title' => $country->title));
+    } 
+   
+    $form['target_filter'] = array(
+        '#type'             => 'select',
+        '#title'            => t('Target Filter'),
+        '#description'      => t('Please select'),
+        '#options'          => $target_filter_options,
+        '#default_value'    => $defaults->target_type
+    );
+
 
     $form['day_offset'] = array(
         '#type'             => 'textfield',
@@ -3719,6 +3739,7 @@ function dw_campaigns_admin_contact_hosts_form_validate($form, &$form_state) {
 
 }
 
+// NOTE - SCHEMA CHANGE: ALTER TABLE `dw_campaigns_scheduled_host_contacts` ADD `target_filter` CHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_bin NULL AFTER `schedule_type` 
 function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
     global $user;
     
@@ -3727,7 +3748,7 @@ function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
     $values['email_text']   = $email_text;
     $values['day_offset']   = intval($values['day_offset']);
 
-    $db_keys = array('schedule_type', 'day_offset', 'action_date', 'from_name', 'email_subject', 'email_text');
+    $db_keys = array('schedule_type', 'day_offset', 'action_date', 'from_name', 'email_subject', 'email_text', 'target_filter');
  
     $db_values = array(); 
     foreach($db_keys as $key) {
