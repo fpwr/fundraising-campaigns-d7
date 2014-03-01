@@ -206,6 +206,14 @@ function dw_campaigns_settings() {
         '#title'            => t('Default Personal Campaign Goal'),
         '#description'      => t('This is the initial value for a new Personal Campaign Goal'),
         '#default_value'    => variable_get('dw_campaign_default_pcp_goal', '100.00')
+    )
+;
+    $form['mode_settings']['dw_campaigns_show_fireworks'] = array(
+        '#type'             => 'select',
+        '#title'            => t('Show fireworks effect when raised amount is higher than goal'),
+        '#description'      => t('This is for all pages with a thermometer'),
+        '#options'          => array('1' => 'Yes', '0' => 'No'),
+        '#value'            => variable_get('dw_campaigns_show_fireworks', '1')
     );
 
     $form['mode_settings']['dw_campaigns_allow_youtube'] = array(

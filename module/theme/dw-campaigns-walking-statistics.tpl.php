@@ -81,21 +81,22 @@
     }
 
 
-    //if($goalTotal > 500000 || $_SERVER['REMOTE_ADDR'] == '67.177.136.8') {
-    if(1==1 && ($goalProgress_raw > $goalTotal_raw || isset($_REQUEST['t']))) {
+    $show_fireworks = variable_get('dw_campaigns_show_fireworks', '1'); 
+
+    if($show_fireworks && ($goalProgress_raw > $goalTotal_raw || isset($_REQUEST['t']))) {
         drupal_add_js(drupal_get_path('module', 'dw_campaigns') . '/fireworks/script/fireworks.js');
         drupal_add_js('
           var runCnt = 0;
           function doFW() {
               runCnt++;
-              if(runCnt<30) {
+              if(runCnt < 30) {
                   createFirework(66,191,6,4,null,null,null,null,false,true);
               }
           }
-          //setInterval("createFirework(66,191,6,4,null,null,null,null,false,true)", 2000);
-          //setInterval("createFirework(66,191,6,4,null,null,null,null,false,true)", 4500);
+
           setInterval("doFW()", 2000);
           setInterval("doFW()", 4500);
+
         ', 'inline');
     }
 ?>

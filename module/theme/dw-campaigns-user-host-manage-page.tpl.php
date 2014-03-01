@@ -158,7 +158,6 @@
 
                     foreach( $supporters as $supporter ){
                         echo('<div class="tr">');
-                        //var_dump( $supporter);
                         $pcp_contact = _dw_civicrm_contact_get(array(
                                 'contact_id'  => $supporter->contact_id,
                                 'returnFirst' => 1
