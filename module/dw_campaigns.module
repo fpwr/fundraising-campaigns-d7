@@ -450,6 +450,17 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
+    $items['admin/theme_blocks'] = array(
+        'title'                 => "DW Init theme blocks",
+        'description'           => "",
+        'page callback'         => 'dw_campaigns_set_block_default_pages',
+        'page arguments'        => array(),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.install',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+
     $items['dw'] = array(
         'title'                 => 'Fundraising',
         'page callback'         => 'dw_campaigns_homepage_goto',
