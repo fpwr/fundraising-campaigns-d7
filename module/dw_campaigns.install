@@ -1,4 +1,137 @@
 <?php
+        
+global $dw_campaign_module_path;
+
+function dw_campaigns_install() {
+
+}
+
+/**
+* Sets default values for theme blocks,
+* adds flickr integration fields to campaign
+**/
+function dw_campaigns_update_7001() {
+    dw_campaigns_set_block_default_pages();
+    dw_campaigns_add_flickr_fields();   
+    
+
+}
+
+function dw_campaigns_add_flickr_fields() {
+    $field_name = 'flickr_gallery_id';
+
+    if (!field_info_field($field_name)) {
+
+        $field = array(
+            'field_name' => $field_name,
+            'type' => 'text',
+            'settings' => array( 'max_length' => 254),
+        );
+
+        field_create_field($field);
+
+        $instance = array( 'field_name' => $field_name,
+            'entity_type' => 'node',
+            'bundle' => 'dw_campaigns_derby',
+            'label' => 'Flicker Gallery Id',
+            'description' => 'Id of Flicker Gallery',
+            'required' => TRUE,
+        );
+
+        field_create_instance($instance);
+        watchdog('dw_campaigns', t('added fields for :field_name', array(':field_name' => $field_name)));
+    }
+
+    $field_name = 'flickr_gallery_photoset_id';
+
+    if (!field_info_field($field_name)) {
+
+        $field = array(
+            'field_name' => $field_name,
+            'type' => 'text',
+            'settings' => array( 'max_length' => 254),
+        );
+
+        field_create_field($field);
+
+        $instance = array( 'field_name' => $field_name,
+            'entity_type' => 'node',
+            'bundle' => 'dw_campaigns_derby',
+            'label' => 'Flicker Gallery Photo Set Id',
+            'description' => 'Id of Flicker Gallery photo set to show',
+            'required' => TRUE,
+        );
+
+        field_create_instance($instance);
+        watchdog('dw_campaigns', t('added fields for :field_name', array(':field_name' => $field_name)));
+    }
+
+}
+
+function dw_campaigns_set_block_default_pages() {
+    global $dw_campaign_module_path;
+
+    $file = $dw_campaign_module_path . '/dw_campaigns_default_block.json';
+
+    $blocks = json_decode(file_get_contents($file));
+
+    foreach($blocks as $block) {
+
+        $block->module = 'dw_campaigns';
+
+        $result = db_select('block','block')
+                    ->fields('block')
+                    ->condition('module', $block->module)
+                    ->condition('delta',  $block->delta)
+                    ->condition('theme',  $block->theme)
+                    ->execute();
+
+        if($result->rowCount() == 0) {
+
+            db_insert('blocks')->fields((array)$block)
+              ->execute();
+
+        } else {
+
+            db_update('block')->fields((array)$block)
+              ->condition('module', $block->module)
+              ->condition('delta', $block->delta)
+              ->condition('theme',  $block->theme)
+              ->execute();
+        }
+    }
+
+    $file = $dw_campaign_module_path . '/dw_campaigns_default_block_class.json';
+
+    $blocks = json_decode(file_get_contents($file));
+
+    foreach($blocks as $block) {
+
+        $block->module = 'dw_campaigns';
+
+        $result = db_select('block_class', 'block')
+                    ->fields('block')
+                    ->condition('module', $block->module)
+                    ->condition('delta',  $block->delta)
+                    ->execute();
+
+        if($result->rowCount() == 0) {
+
+            db_insert('blocks_class')->fields((array)$block)
+              ->execute();
+
+        } else {
+
+            db_update('block_class')->fields((array)$block)
+              ->condition('module', $block->module)
+              ->condition('delta', $block->delta)
+              ->execute();
+        }
+    }
+
+
+}
+
 /*
 function dw_campaigns_install() {
 	dw_campaigns_try_adding_derby();
