@@ -60,7 +60,6 @@ font-size:9pt;
       <td><a href="http://tracking.fpwr.org/tracking/click?msgid=lggi4j-8t030a4g&target=http%3a%2f%2fwww.fpwr.ca"><img border="0" height="40" src="http://www.fpwr.ca/wp-content/themes/karmatheme/images/header-logo.gif"></a></td>
       <td><a href="http://tracking.fpwr.org/tracking/click?msgid=lggi4j-8t030a4g&target=http%3a%2f%2fwww.prader-willi.be%2f"><img border="0" height="40" src="http://www.fpwr.ca/wp-content/uploads/2011/04/logo-belgium.png"></a></td>
       <td><a href="http://tracking.fpwr.org/tracking/click?msgid=lggi4j-8t030a4g&target=http%3a%2f%2fwww.prader-willi.fr%2f"><img border="0" height="40" src="http://onesmallstep.fpwr.org/sites/default/files/logoPWF.jpg"></a></td>
-      <td><a href="http://tracking.fpwr.org/tracking/click?msgid=lggi4j-8t030a4g&target=http%3a%2f%2fwww.pwsausa.org"><img border="0" height="40" a="42" src="http://www.pwsausa.org/images/PWSA_2c_US.jpg"></a></td>
       <td><a href="http://tracking.fpwr.org/tracking/click?msgid=lggi4j-8t030a4g&target=http%3a%2f%2fwww.fpwr.co.uk">FPWR UK</a></td>
     </tr></table>
   </div>

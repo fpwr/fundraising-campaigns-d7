@@ -309,6 +309,54 @@ function dw_campaigns_user_register_oss_create_pcp_page($campaignId, $signup_typ
 
 }
 
+function dw_campaigns_fboauth_actions_alter(&$actions) {
+    //we're going to override the default fboauth 'connect' action callback, and replace it with our own.
+    $actions['connect']['callback'] = 'dw_campaigns_fboauth_action_connect';
+
+}
+
+//an override to the fboauth action connect hook,
+//we have to do this because our drupal site does not allow the type of account creation fboauth expects.
+function dw_campaigns_fboauth_action_connect( $app_id, $access_token ){
+    global $user;
+
+    $fbuser = fboauth_graph_query('me', $access_token);
+    $uid = fboauth_uid_load($fbuser->id);
+
+
+
+    // If the user has logged in before, load their account and login.
+    if (!$user->uid && $uid && ($account = user_load($uid))) {
+        fboauth_login_user($account);
+
+    }elseif( !empty($fbuser->email) && ($account = user_load_by_mail($fbuser->email)) ){
+        // If the user is already logged in, associate the two accounts.
+        if ($user->uid) {
+            fboauth_save($user->uid, $fbuser->id);
+            drupal_set_message(t('You\'ve connected your account with Facebook.'));
+
+        }elseif( fboauth_login_user($account) ){
+            fboauth_save($account->uid, $fbuser->id);
+            drupal_set_message(t('You\'ve connected your account with Facebook.'));
+
+        }
+
+    }else{
+        // If the user is already logged in, associate the two accounts.
+        if ($user->uid) {
+            fboauth_save($user->uid, $fbuser->id);
+            drupal_set_message(t('You\'ve connected your account with Facebook.'));
+
+        }else {
+            //create the user account, business as usual!
+            dw_campaigns_create_oss_user_from_fbuser_object($fbuser);
+            fboauth_login_user(user_load(fboauth_uid_load($fbuser->id)));
+        }
+
+    }
+
+}
+
 // $pcp_id is the "old" pcp that we are importing from
 function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state, $campaignId, $signup_type, $pcp_id = NULL) {
 
@@ -864,6 +912,77 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_validate(&$form, &$
 }
 
 /**
+ *
+ */
+function dw_campaigns_create_oss_user_from_fbuser_object( $fbuser ){
+    global $user;
+
+    //some assumptions, if the user selects the facebook connect button while not logged in, we try to log the user in using the drupal account that has been associated with the facebook account.
+    //if there is no association, we try to associate the currently logged in user with the facebook connect link
+    //if there is no current user, then we attempt creating a drupal user account using the information provided by the facebook graph import.
+    //that's this method!
+    //we also assume that the user is going to be logging into the drupal site with the facebook connect link, so we assume the user won't have to deal with a user account password,
+    //but since the drupal user accounts require a password, we're going to fill the field with a randomly generated hash of some variety.
+
+    //@todo: figure out how to allow the user to change their password if their logged in under a facebook connected user account. (currently there is no way for the user to know their password if they created an account through the facebook connect feature)
+
+    global $user;
+
+
+    $params                     = array();
+
+    $params['mail']             = $fbuser->{'email'};
+    $params['roles']            = array();
+    $params['status']           = 1;
+    $params['name']             = $fbuser->{'username'};
+    //since it's a facebook connect login, we don't really need a password, but we really should fill it with something so other people can't gain access to the account if they happen to see this in the public repo.
+    $params['pass']             = md5($values['email'] . rand(1111111111, 9999999999) . microtime());
+    $params['data']             = array('displayname' => $fbuser->{'name'});
+
+    user_save('', $params);
+
+    $uid = user_authenticate($params['name'], $params['pass']);
+    $user = user_load($uid);
+
+    var_dump( $uid );exit;
+
+    $_SESSION['created_user'] = 1;
+
+    //@todo: implement facebook user photos
+    //upload photo if they gave one
+    //if($values['user-photo-tmp']) {
+    //    _dw_campaigns_save_user_photo($user->uid, basename($values['user-photo-tmp']));
+    //}
+
+    //blegh.. transform the fbuser object into a values array so we can interface with other parts of this process...
+
+    $values = array(
+        'participation_type'    => 'adult_pledge',     //Is this one necessary?  I don't like adding this arbitrarily! but I'm out of facebook accounts to test against.
+        'displayname'           => $params['data']['displayname'],
+        'username'              => $params['name'],
+        'password'              => $params['pass'],
+        'password2'             => $params['pass'],
+        'first_name'            => $fbuser->{'first_name'},
+        'last_name'             => $fbuser->{'last_name'}
+    );
+
+    $contact = _dw_campaigns_update_civicrm_contact($user, $values);
+
+    $params = array(
+        'contact_id'    => $contact->contact_id,
+        'returnFirst'   => 1
+    );
+
+    $contact        = _dw_civicrm_contact_get($params);
+
+    _dw_save_user_to_contact_glue($user, $contact);
+
+    return array('contact' => $contact, 'user' => $user);
+
+}
+
+
+/**
  * create / update their user and civicrm contact, then create the personal contribution page with their
  * donation amount and welcome text
  * 
@@ -891,7 +1010,7 @@ function dw_campaigns_create_civi_contact_from_form_helper($values) {
             $params['data']             = array('displayname' => $values['displayname']);
 
             $authenticate               = TRUE;
-        }  else {
+        } else {
             $placeholder                = 'PH' . microtime(TRUE);
 
             $params['name']             = $placeholder;
@@ -905,8 +1024,8 @@ function dw_campaigns_create_civi_contact_from_form_helper($values) {
         // save the user so drupals happy
         $user_       = user_save('', $params);
    
-        if($authenticate) { 
-            $uid    = user_authenticate($params['name'], $params['pass']);
+        if($authenticate) {
+            $uid     = user_authenticate($params['name'], $params['pass']);
             if($uid) {
                 $user   = user_load($uid);
             }
@@ -951,7 +1070,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
 
     $contact    = $res['contact'];   
 
-    $campaign = NULL;
+    $campaign   = NULL;
     
     $campaignId =  $values['location']; 
 
@@ -1270,7 +1389,16 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
             '#default_value'    => 30
         );
 
-
+/*JFN - january 10 2014 0800 - [#begin
+    'add gender option to the register for payment form.
+    add the gender selection element to the form.']
+*/
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'select',
+            '#title'            => t('What is the gender of the runner?'),
+            '#options'          => array('male'=>'male', 'female'=>'female'),
+            '#default_value'    => 'male'
+        );
     }
 
 
@@ -1279,8 +1407,8 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
         '#title'            => t('Would you like to make an additional donation to FPWR?'),
         '#options'          => $oss_donation_options,
         '#attributes'       => array('class'=> array('additional_donation')),
-	'#prefix'           => '<div class="additional-donation-wrapper">',
-	'#suffix'           => '</div>',
+	    '#prefix'           => '<div class="additional-donation-wrapper">',
+	    '#suffix'           => '</div>',
         '#default_value'    => 0,
         '#required'         => true
     );
@@ -1435,7 +1563,12 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
         '100'  => '$100',
         '-1'   => 'Other Amount'
     );
-    
+
+    /* JFN january 10 2014 0830 [#reminder]
+        during a conference with Ryan, we decided that it would be a good idea to normalize this form submission validation process.
+        can we try to normalize all form validation somewhere else?  Maybe, don't spend too much time on this, we just need it to work to client spec for now.
+        notes: form_state contains the data used to fill the form as a reference, we NEED to migrate any aliases back into this variable for it to produce any effect.
+    */
 
     $multi = FALSE;
 
@@ -1692,11 +1825,9 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
             11  => 'General decline code, may have different reasons for each card type. Please have your client call customer service.',
             12  => 'Incorrect CVV2 or Expiry date',
             14  => 'This means that the credit card is over the limit.',
-            15  => 'Decline code, may have different reasons for each card type. Please have your client call customer s
-ervice.',
+            15  => 'Decline code, may have different reasons for each card type. Please have your client call customer service.',
             16  => 'Invalid charge card number. Verify and re-enter credit card information.',
-            17  => 'Unable to authorize transaction. Verify card information with customer and re-enter. Could be invali
-d name or expiry date.',
+            17  => 'Unable to authorize transaction. Verify card information with customer and re-enter. Could be invalid name or expiry date.',
             18  => 'Card not supported by institution.',
             19  => 'Incorrect CVV2.',
             22  => 'Bank Timeout. Bank lines may be down or busy. Re-try transaction later.',
@@ -1794,7 +1925,7 @@ d name or expiry date.',
                 case 100:
                     form_set_error('', t('Failed to charge card - please try a different card'));
                     break;
-		case 42:
+		        case 42:
                     form_set_error('cvv', t('CVV2 (number on back) required'));
                     break;
                 default:
@@ -1808,6 +1939,7 @@ d name or expiry date.',
 }
 
 function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form, &$form_state) {
+
     global $user;
     global $dw_campaign_module_path;
 
@@ -1829,7 +1961,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_submit(&$form,
     $contributionType   = dw_campaigns_create_contribution_type_for_campaign($campaign);
     $contributionPage   = dw_campaigns_get_contribution_page_for_campaign($campaign);
 
-    $params                             = array();   
+    $params                             = array();
     $params['contact_id']               = $values['contact_id'];
     $params['contribution_page_id']     = $contributionPage->id;
     $params['contribution_type_id']     = $contributionType->id;

@@ -1,3 +1,5 @@
+<a href="/admin/reports/dw_activepages/<?= $selected ?>/csv">Download CSV</a>
+
 <?php
 
 function pcp_sort($a, $b) {

@@ -39,7 +39,12 @@ if($mode == 'SCREEN') {
                 array('data' => $donation->first_name, 'class' => array('donor-first-name')),
                 array('data' => $donation->last_name, 'class' => array('donorr-last-name')),
                 array('data' => $donation->email, 'class' => array('email')),
-                array('data' => $address, 'class' => array('address')),
+                //array('data' => $address, 'class' => array('full-address')),
+                array('data' => $donation->address_1, 'class' => array('street-address')),
+                array('data' => $donation->city, 'class' => array('city')),
+                array('data' => $states[$donation->state], 'class' => array('state')),
+                array('data' => $donation->postal_code, 'class' => array('postal')),
+
                 array('data' => $donation->payment_check_number, 'class' => array('check-number')),
                 array('data' => $donation->donation_amount, 'class' => array('donation-amount')),
                 array('data' => $donation->pcp_id, 'class' => array('pcp-id')),

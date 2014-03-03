@@ -19,7 +19,7 @@ function dw_campaigns_get_group_names($includeUnassigned = TRUE) {
     foreach($results as $result) {
         $rows[$result->group_id] = $result->group_name;
 
-    } 
+    }
  
     return $rows;
 }
@@ -68,17 +68,16 @@ function dw_campaigns_campaign_id_to_contribution_page_id($id, $by_id = TRUE) {
 
 }
 
-
-
 function dw_campaigns_host_event_create_page() {
     global $user;
 
-$email_dupe = FALSE;
+    $email_dupe = FALSE;
+
     $form = drupal_get_form('dw_campaigns_host_event_create_form');
     return theme('dw_campaigns_host_event_create_page_theme', array('form' => $form));
 }
 
-function dw_campaigns_host_event_create_form(&$form, &$form_state, $include_contact = TRUE, $include_hidden = FALSE) {
+function dw_campaigns_host_event_create_form($form, &$form_state, $include_contact = TRUE, $include_hidden = FALSE) {
     global $user;
     global $accepted_currencies;
 
@@ -332,7 +331,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
         $contact    = $res['contact'];
         $user       = $res['user'];
     } else {
-        $contact    = _dw_civicrm_contact_get_from_user($user);    
+        $contact    = _dw_civicrm_contact_get_from_user($user);
     }
 
     $host_record    = dw_campaigns_lookup_host_record($user->uid);
@@ -408,7 +407,6 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
 */
     node_save($node);
 
-
     $node_event = dw_campaigns_create_extended_event($node->nid);
 
     // copy over values
@@ -418,8 +416,6 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
     $node_event->body['und']['0']['value']                         = isset($values['event-details']) ? $values['event-details'] : '';
 
     node_save($node_event);
-
-
 
     $to     = variable_get('dw_campaigns_host_submit_email', '');
     $from   = variable_get('dw_campaigns_default_receipt_from_email', 'root@');
@@ -435,16 +431,20 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
 
     }
 
-    if(strncmp($user->name, 'PH1', 3) == 0) {
+    if(strncmp($user->name, 'PH1', 3) == 0)
+    {
         module_invoke_all('user_logout', $user);
         session_destroy();
     }
 
     $alias = sprintf("%s.%s@%s", $contact->first_name, $contact->last_name, 'onesmallstep.fpwr.org');
 
-    try { 
+    try
+    {
         db_query('insert into postfix.forwardings VALUES(:from, :to)', array(':from' => $alias, ':to' => $user->mail));
-    } catch (Exception $e) {
+
+    }
+    catch (Exception $e) {
 
     }
 
@@ -459,7 +459,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
    
 }
 
-function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
+function dw_campaigns_host_event_create_alert_mail($key, &$message, $params){
     global $user;
 
     $contact_fields = array(
@@ -471,11 +471,11 @@ function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
         'country'               => 'Country',
         'postal_code'           => 'Postal Code',
         'email'                 => 'Email',
-        'phone'                 => 'Phone',
+        'phone'                 => 'Phone'
     );
 
-    switch($key)
-    {
+    switch($key){
+
         case 'event_create_alert':
             $subject            = 'New Event Created';
 
@@ -493,11 +493,10 @@ function dw_campaigns_host_event_create_alert_mail($key, &$message, $params) {
             $message['body'][]  = $body;
             break;
     }
+
 }
 
-
 function dw_campaigns_host_event_set_variables($node, $values) {
-
     $fund_goal  = isset($values['fundraising-goal']) ? $values['fundraising-goal'] : 0;
     $fund_goal  = preg_replace('/[^0-9\.]/', '', $fund_goal);
     $fund_goal  = round($fund_goal);
@@ -521,7 +520,7 @@ function dw_campaigns_host_event_set_variables($node, $values) {
         $node->field_dw_currency['und']['0']['value']       = !empty($values['fundraising-currency']) ? $values['fundraising-currency'] : 'USD';
     }
 
-    $node->body['und']['0']['value']                        = isset($values['event-description']) ? $values['event-description']       : '';
+    $node->body['und']['0']['value']                        = isset($values['event-description']) ? $values['event-description'] : '';
 
 
     return $node;
@@ -573,14 +572,13 @@ function dw_campaigns_user_donations_add_page_new_host($campaignId = NULL, $pcp_
     return theme('dw_campaigns_user_donations_add_theme', array('form' => $form, 'campaign' => $campaign, 'pcp' => $pcp));
 }
 
-
-function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign, $pcp) {
+function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign, $pcp){
     $form = array();
-    $form['#attributes']    = array(
+
+    $form['#attributes']    =  array(
         'class'             => array('dw_campaigns-profile-form'),
-        'enctype'           => "multipart/form-data"
+        'enctype'           => 'multipart/form-data'
     );
-   
 
     $multi = FALSE;
 
@@ -599,7 +597,6 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
         '#title'            => t('Donation Amount') . ' ' . $currency,
         '#default_value'    => variable_get('default_contribution_amount', '100.00')
     );
-    
 
 
     if($multi) {
@@ -637,27 +634,27 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
     $form['city']['#suffix']        = '</div>';
     $form['postal_code']['#suffix'] = '</div>';
     
-    unset($form['address_2']);
+    unset( $form['address_2'] );
 
   
     $form['payment_instrument'] = array(
         '#type'             => 'select',
         '#title'            => t('Payment Instrument'),
-        '#options'          => array('check' => 'Check', 'cash' => 'Cash'),
-    );  
+        '#options'          => array('check' => 'Check', 'cash' => 'Cash')
+    );
     
     $form['payment_check_number'] = array(
         '#type'             => 'textfield',
-        '#title'            => t('Check Number'),
+        '#title'            => t('Check Number')
     );
     
  
     $form['include_in_honor_roll'] = array(
         '#type'             => 'checkbox',
         '#title'            => t('Show First and Last name on donation list (will show anonymous otherwise)'),
-        '#default_value'    => 1,
-    )
-;
+        '#default_value'    => 1
+    );
+
     $form['non_deductible'] = array(
         '#type'             => 'checkbox',
         '#title'            => t('Non-deductible'),
@@ -676,7 +673,7 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
         $form['trxn_id'] = array(
             '#type'             => 'textfield',
             '#title'            => t('Transaction Id'),
-            '#default_value'    => NULL,
+            '#default_value'    => NULL
         );
     }
 
@@ -700,7 +697,6 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
     return $form;
 }
 
-
 function dw_campaigns_user_donations_add_form_new_validate(&$form, &$form_state) {
     global $user;
 
@@ -709,7 +705,8 @@ function dw_campaigns_user_donations_add_form_new_validate(&$form, &$form_state)
 
     $form_state['values']['donation_amount']    = preg_replace("/[^0-9\.]/", '', $form_state['values']['donation_amount']);
     
-    $values             = $form_state['values']; 
+    $values             = $form_state['values'];
+ 
     $campaign           = node_load($values['campaign']);
 
     // $campaign is the drupal node, not an id
@@ -886,7 +883,6 @@ function dw_campaigns_get_offline_donations_for_pcp($pcpId) {
     return $offlines;
 }
 
-
 function dw_campaigns_offline_permissions($offline_id) {
     global $user;
     $permission         = FALSE;
@@ -989,7 +985,7 @@ function dw_campaigns_offline_edit($offline_id) {
     return drupal_render($form);
 }
 
-function dw_campaigns_offline_edit_form(&$form, &$form_state, $pcp, $offline_donation) {
+function dw_campaigns_offline_edit_form($form, &$form_state, $pcp, $offline_donation) {
 
     $dummy      = new stdClass;
     $dummy->id  = $pcp->contribution_page_id;
@@ -1167,8 +1163,6 @@ function dw_campaigns_get_hosts_for_uid($uid) {
     return $hosts[$uid];   
 }
 
-
-
 function dw_campaigns_get_hosts_assignment_array() {
     $hosts  = dw_campaigns_get_hosts();
 
@@ -1261,12 +1255,29 @@ function dw_campaigns_user_host_page() {
     }
 
     $result = db_select("node", "n")->fields("n")->condition("nid", $keys, "IN")->execute();
-   
+
+
+
+    $campaigns_sort_array = array();
+
     foreach($result as $row) {
-        $campaigns[$row->nid] = $row->title;
+        $event = node_load( $row->nid );
+
+        $event_title = $event->title;
+        $event_date = substr( $event->field_dw_date_range['und'][0]['value'], 0, 10 );
+
+        //array of campaign titles with added date
+        $campaigns_sort_array[ $event_title . ' (' . $event_date . ')' ] = $event;
+
     }
 
-    asort($campaigns);
+    //sort by newly formatted title/date
+    ksort( $campaigns_sort_array );
+
+    //transform list into an array that can be used by dw_campaigns_user_host_page_form
+    foreach( $campaigns_sort_array as $campaign_title => $campaign ){
+        $campaigns[ $campaign->nid ] = $campaign_title;
+    }
 
     $form = drupal_get_form('dw_campaigns_user_host_page_form', $campaigns);
 
@@ -1299,6 +1310,210 @@ function dw_campaigns_user_host_page_form($form, &$form_state, $campaigns) {
     return $form;
 }
 
+function dw_campaigns_host_event_donors_active($event_id){
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+    $event = node_load($event_id);
+
+    $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
+
+    foreach( $pcps as $id => $pcp ){
+
+        $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+        foreach( $supporters as $supporter ){
+            $pcp_contact = _dw_civicrm_contact_get(array(
+                    'contact_id'  => $supporter->contact_id,
+                    'returnFirst' => 1
+                ));
+
+            $csvData = array(
+                $pcp_contact->display_name,
+                $pcp_contact->email,
+                $pcp_contact->street_address,
+                $pcp_contact->city,
+                $pcp_contact->state_province_name,
+                $pcp_contact->postal_code
+            );
+
+            $csvDataArray[] = $csvData;
+        }
+
+    }
+
+    return output_csv( 'host_event_donors_active_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
+function dw_campaigns_host_event_donors_pending($event_id){
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+    $event = node_load($event_id);
+
+    $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
+
+    foreach( $pcps as $id => $pcp ){
+
+        $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+        foreach( $supporters as $supporter ){
+            $contribution_id = $supporter->contribution_id;
+            $contribution = dw_campaigns_get_contribution_by_id( $contribution_id );
+
+            if( $contribution->contribution_status_id == 2 ){   //status 2 for pending
+                $pcp_contact = _dw_civicrm_contact_get(array(
+                        'contact_id'  => $supporter->contact_id,
+                        'returnFirst' => 1
+                    ));
+
+                $csvData = array(
+                    $pcp_contact->display_name,
+                    $pcp_contact->email,
+                    $pcp_contact->street_address,
+                    $pcp_contact->city,
+                    $pcp_contact->state_province_name,
+                    $pcp_contact->postal_code
+                );
+
+                $csvDataArray[] = $csvData;
+            }
+
+        }
+
+    }
+
+    return output_csv( 'host_event_donors_pending_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
+function dw_campaigns_host_event_donors_csv($event_title, $event_date, $output_type){
+    global $user;
+    //get the event id for the title and date provided.
+
+    $hosts = dw_campaigns_host_find_campaigns( $user->uid );
+    $keys = array_keys( $hosts );
+
+    foreach( $keys as $index => $nodeId ){
+        $thisEvent = node_load( $nodeId );
+
+        $thisEventTitle = $thisEvent->title;
+        $thisEventDate = substr( $thisEvent->field_dw_date_range['und'][0]['value'], 0, 10 );
+
+        if( $thisEventTitle == $event_title && $thisEventDate == $event_date ){
+            $csvDataArray = array();
+
+            $header = array(
+                'name',
+                'email',
+                'street',
+                'city',
+                'state',
+                'postal'
+            );
+
+            $csvDataArray[] = $header;
+
+            $pcps = _dw_campaigns_get_pcps_for_campaign( $thisEvent );
+
+            foreach( $pcps as $id => $pcp ){
+                $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+                foreach( $supporters as $supporter ){
+                    $contribution_id = $supporter->contribution_id;
+
+                    $pcp_contact = _dw_civicrm_contact_get(array(
+                            'contact_id'  => $supporter->contact_id,
+                            'returnFirst' => 1
+                        ));
+
+                    $csvData = array(
+                        $pcp_contact->display_name,
+                        $pcp_contact->email,
+                        $pcp_contact->street_address,
+                        $pcp_contact->city,
+                        $pcp_contact->state_province_name,
+                        $pcp_contact->postal_code
+                    );
+
+                    $csvDataArray[] = $csvData;
+
+                }
+
+            }
+
+            return output_csv( 'host_event_donors_for_date_'.$event_date.'.csv', $csvDataArray );
+        }
+
+    }
+
+
+
+}
+
+function dw_campaigns_host_event_participants_csv($event_id){
+
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+
+    $participants = dw_campaign_get_event_participants_by_campaign($event_id);
+
+    foreach( $participants as $participant ){
+        $participant = $participant['contact'];
+        $participant_name   = $participant->display_name;
+        $participant_email  = $participant->email;
+        $participant_street = $participant->street_address . ' ' .$participant->supplemental_address_1;
+        $participant_city   = $participant->city;
+        $participant_state  = $participant->state_province_name;
+        $participant_postal = $participant->postal_code;
+
+
+        $csvData = array(
+            $participant_name,
+            $participant_email,
+            $participant_street,
+            $participant_city,
+            $participant_state,
+            $participant_postal
+        );
+
+        $csvDataArray[] = $csvData;
+
+        return output_csv( 'host_event_participants'.date('Y_m_d').'.csv', $csvDataArray );
+    }
+
+}
+
 function dw_campaigns_user_host_page_form_validate($form, &$form_state) {
     $values = $form_state['values'];
 
@@ -1307,20 +1522,19 @@ function dw_campaigns_user_host_page_form_validate($form, &$form_state) {
     }
 }
 
-
 function dw_campaigns_user_host_page_form_submit($form, &$form_state) {
     $values = $form_state['values'];
 
     drupal_goto('dw/user/host/' . $values['event_id']);
 }
 
-
 function dw_campaigns_user_host_manage_page($event_id) {
     global $user;
 
     $manage_form  = drupal_get_form('dw_campaigns_user_host_manage_page_form', $event_id);
 
-    $request_form = drupal_get_form('dw_campaigns_user_host_request_services_form', $event_id);
+    //$request_form = drupal_get_form('dw_campaigns_user_host_request_services_form', $event_id);
+    $request_form = array();
 
     //$reports_form = drupal_get_form('dw_campaigns_user_host_reports_form', $event_id);
 $reports_form = array();
@@ -1332,10 +1546,12 @@ $reports_form = array();
 
     $document_form = drupal_get_form('dw_campaigns_user_host_manage_files_form', $event_id);
 
-    return theme('dw_campaigns_user_host_manage_page_theme', array('manage_form' => $manage_form, 'totals_form' => $totals_form, 'request_form' => $request_form, 'reports_form' => $reports_form, 'totals' => $totals, 'event_id' => $event_id, 'fundraisers_form' => $fundraisers_form));
+    $event_gallery_form = drupal_get_form( 'flickr_event_gallery_form', $event_id );
+
+    return theme('dw_campaigns_user_host_manage_page_theme', array('manage_form' => $manage_form, 'totals_form' => $totals_form, 'request_form' => $request_form, 'reports_form' => $reports_form, 'totals' => $totals, 'event_id' => $event_id, 'fundraisers_form' => $fundraisers_form, 'event_gallery_form' => $event_gallery_form));
 }
 
-function dw_campaigns_user_host_totals_form(&$form, &$form_state, $event_id, $totals) {
+function dw_campaigns_user_host_totals_form($form, &$form_state, $event_id, $totals) {
 
     $form = array();
 
@@ -1352,14 +1568,14 @@ function dw_campaigns_user_host_totals_form(&$form, &$form_state, $event_id, $to
         t('Total Offline Donations'),
         t('Total Online Donations'),
         t('# Personal Pages'),
-        t('# Donations'),
+        t('# Donations')
     );
 
     $values = array(
         dw_campaigns_force_decimal($totals['offline'], $campaign->field_dw_currency['und']['0']['value']),
         dw_campaigns_force_decimal($totals['online'], $campaign->field_dw_currency['und']['0']['value']),
         $totals['pcp_count'],
-        $totals['count'],
+        $totals['count']
     );
 
     $headers    = '<tr><th>' . implode('</th><th>', $headings) . '</th></tr>';
@@ -1374,7 +1590,7 @@ function dw_campaigns_user_host_totals_form(&$form, &$form_state, $event_id, $to
     return $form;
 }
 
-function dw_campaigns_user_host_fundraisers_form(&$form, &$form_state, $event_id) {
+function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id) {
 
     $form = array();
 
@@ -1390,7 +1606,7 @@ function dw_campaigns_user_host_fundraisers_form(&$form, &$form_state, $event_id
     $headings = array(
         t('Name'),
         t('Page Link'),
-        t('Manage Offline Donations'),
+        t('Manage Offline Donations')
     );
     
     $res = _dw_campaigns_get_pcps_for_campaign($campaign);
@@ -1430,7 +1646,8 @@ function dw_campaigns_user_host_fundraisers_form(&$form, &$form_state, $event_id
 
     return $form;
 }
-function dw_campaigns_user_host_manage_page_form(&$form, &$form_state, $event_id) {
+
+function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id) {
 
     $node_mapping = array(
         'location-city'         => 'node|field_dw_campaign_location',
@@ -1801,13 +2018,11 @@ function dw_campaigns_user_history_page_form_validate($form, &$form_state) {
     }
 }
 
-
 function dw_campaigns_user_history_page_form_submit($form, &$form_state) {
     $values = $form_state['values'];
 
     drupal_goto('dw/user/history/' . $values['pcp_id']);
 }
-
 
 function dw_campaigns_user_history_manage_page($pcp_id) {
     global $user;
@@ -1822,7 +2037,6 @@ function dw_campaigns_user_history_manage_page($pcp_id) {
     return theme('dw_campaigns_user_history_manage_page_theme', array('campaign' => $campaign, 'pcp' => $pcp));
 }
 
-        
 function dw_campaigns_create_extended_event($event_id) {
 
     $node_event_id  = db_query('select entity_id from {field_data_field_dw_eventdetails_node} where field_dw_eventdetails_node_value = :nid', array(':nid' => $event_id))->fetchColumn();
@@ -1847,6 +2061,13 @@ function dw_campaigns_create_extended_event($event_id) {
 
 function dw_campaigns_user_host_request_services_form($form, &$form_state, $event_id) {
 
+    $form = array();
+
+    return $form;
+
+
+
+    //JFN - request for removal/replacement, delete below this line sometime in the near future (september 30)
     $values = dw_campaigns_get_host_request_data($event_id);
 
     $form   = array();
@@ -2050,7 +2271,6 @@ function dw_campaigns_user_host_request_services_form_submit(&$form, &$form_stat
 
 }
 
-
 function dw_campaigns_host_request_services_mail($key, &$message, $params) {
 
     $mapping    = array(
@@ -2100,7 +2320,6 @@ function dw_campaigns_host_request_services_mail($key, &$message, $params) {
     }
 }
 
-
 function dw_campaigns_user_host_request_defaults() {
     return array( 
         'ins_location'                  => '', 
@@ -2131,8 +2350,7 @@ function dw_campaigns_get_host_request_data($event_id) {
     return $row;
 }
 
-
-function dw_campaigns_user_host_reports_form(&$form, &$form_state, $event_id) {
+function dw_campaigns_user_host_reports_form($form, &$form_state, $event_id) {
 
     $form = array();
 
@@ -2283,7 +2501,6 @@ function dw_campaigns_add_address_book($user, $email, $name) {
     return $res;
 }
 
-
 function __dw_campaigns_address_book_cache($user, $add = FALSE) {
     static $emails      = array();
     static $by_email    = array();
@@ -2305,7 +2522,6 @@ function __dw_campaigns_address_book_cache($user, $add = FALSE) {
 
     return $by_email; 
 }
-
 
 function dw_campaigns_get_address_book($user, $pcp_id, $index_by_email = FALSE, $hide_hidden = TRUE) {
     $addresses  = array();
@@ -2393,7 +2609,6 @@ function dw_campaigns_get_thankyous($pcp_id) {
     return $thankyous;
 }
 
-
 function dw_campaigns_thankyou_page($target_id, $contribution_id) {
     return drupal_get_form('dw_campaigns_thankyou_form', $target_id, $contribution_id);
 }
@@ -2434,7 +2649,7 @@ function dw_campaigns_thankyou_validate_params($target_id, $contribution_id) {
     return array('target' => $target, 'pcp' => $pcp);
 }
 
-function dw_campaigns_thankyou_form(&$form, &$form_state, $target_id, $contribution_id) {
+function dw_campaigns_thankyou_form($form, &$form_state, $target_id, $contribution_id) {
     global $user;
 
     $ret = dw_campaigns_thankyou_validate_params($target_id, $contribution_id);
@@ -2451,7 +2666,7 @@ function dw_campaigns_thankyou_form(&$form, &$form_state, $target_id, $contribut
         'enctype'           => "multipart/form-data"
     );
 
-    $form['offline'] = arraY(
+    $form['offline'] = array(
         '#type'             => 'markup',
         '#markup'           => '<div class="offline-thanks"><a href="/dw/user/send_thankyou/' . $target_id . '/' . $contribution_id . '/thanked" onclick="confirm(\'' . t('Clicking OK will mark this person as thanked, this can not be changed') . '\')">' . t('Click here to mark this person as thanked without sending an email') . '</a></div>',
     );
@@ -2569,7 +2784,6 @@ function dw_campaigns_thankyou_form_submit(&$form, &$form_state) {
     die;
 }
 
-
 function dw_campaigns_thankyou_mail($key, &$message, $params) {
 
     $language = $message['language'];
@@ -2582,7 +2796,6 @@ function dw_campaigns_thankyou_mail($key, &$message, $params) {
             break;
     }
 }
-
 
 function dw_campaigns_thankyou_thanked($target_id, $contribution_id) {
 
@@ -2796,7 +3009,7 @@ function dw_campaigns_donor_participation_page($username, $campaignPath) {
     return drupal_render($form);
 }
 
-function dw_campaigns_donor_participation_form(&$form, &$form_state, $campaign, $pcp, $contact_id) {
+function dw_campaigns_donor_participation_form($form, &$form_state, $campaign, $pcp, $contact_id) {
 
   //echo '<a href="/dw/test/1?ajax=1" class="fb">fancy</a>';
     $form = array();
@@ -2854,7 +3067,8 @@ function dw_campaigns_donor_participation_form(&$form, &$form_state, $campaign, 
     return $form;
 }
 
-function dw_campaigns_donor_participation_form_validate(&$form, &$form_state) {
+function dw_campaigns_donor_participation_form_validate(&$form, &$form_state){
+
 }
 
 function dw_campaigns_donor_participation_form_submit(&$form, &$form_state) {
@@ -2951,7 +3165,6 @@ function dw_campaigns_host_event_contact_mail($key, &$message, $params) {
             break;
     }
 }
-
 
 function dw_campaigns_host_contact_page($host_id) {
     $_REQUEST['ajax']   = 1; 
@@ -3121,8 +3334,6 @@ echo $id;
     die;
 }
 
-
-
 function dw_campaigns_get_active_campaigns_host_list() {        
     $matches_by_campaign    = array();
     $matches                = array();
@@ -3185,7 +3396,6 @@ function dw_campaigns_user_host_contact_fundraisers($campaign_id) {
 
     return; 
 }
-
 
 function dw_campaigns_user_host_contact_fundraisers_form($form, &$form_state, $rows) {
 
@@ -3339,6 +3549,35 @@ function dw_campaigns_admin_contact_hosts($selected = NULL) {
     }
 
     return theme('dw_campaigns_admin_contact_hosts', array('form' => $form));
+}
+
+function dw_campaigns_admin_grab_exchange_rate_data(){
+    // we want to run at most once per day
+
+    $last_date  = variable_get('dw_campaigns_cron_hosts_process_last_run', 0);
+    $day        = date("Ymd", REQUEST_TIME);
+    $day_dashed = date("Y-m-d", REQUEST_TIME);
+    $d_year     = date('Y', REQUEST_TIME);
+    $d_month    = date('m', REQUEST_TIME);
+    $d_day      = date('d', REQUEST_TIME);
+
+
+    $dates      = dw_campaigns_get_campaign_dates();
+
+    if($day > $last_date) {
+        $apiKey = variable_get('currency_service_provider_api_key');
+        variable_set("exchangeRates", json_decode( file_get_contents("http://openexchangerates.org/api/latest.json?app_id=".$apiKey, true ) )->{'rates'} );
+
+    }
+
+}
+
+function dw_campaigns_admin_grab_exchange_rate_data_submit($form, $form_state){
+    dw_campaigns_admin_grab_exchange_rate_data();
+
+    variable_set( 'currency_service_provider_api_key', $form['currency_service_provider_api_key']['#value'] );
+
+    return $form;
 }
 
 function dw_campaigns_admin_contact_hosts_process() {
@@ -3598,11 +3837,10 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
         '#default_value'    => $defaults->email_text
     );
 
-    $form['contact_hosts_id'] = array( 
+    $form['contact_hosts_id'] = array(
         '#type'             => 'hidden',
         '#value'            => $selected
     );
-
 
     $form['submit']         = array(
         '#type'             => 'submit',
@@ -3623,7 +3861,6 @@ function dw_campaigns_admin_contact_hosts_form_validate($form, &$form_state) {
 
 }
 
-
 function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
     global $user;
     
@@ -3634,7 +3871,7 @@ function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
 
     $db_keys = array('schedule_type', 'day_offset', 'action_date', 'from_name', 'email_subject', 'email_text');
  
-    $db_values = array(); 
+    $db_values = array();
     foreach($db_keys as $key) {
         if(isset($values[$key])) {
             $db_values[$key] = $values[$key];
@@ -3647,7 +3884,7 @@ function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
         $db_values['enabled']   = 0;
     }
 
-    if($values['contact_hosts_id'] > 0) { 
+    if($values['contact_hosts_id'] > 0) {
         db_update('dw_campaigns_scheduled_host_contacts')->fields($db_values)->condition('eid', $values['contact_hosts_id'], '=')->execute();
     } else {
         db_insert('dw_campaigns_scheduled_host_contacts')->fields($db_values)->execute();
@@ -3758,7 +3995,6 @@ function dw_campaigns_admin_contact_hosts_mail($key, &$message, $params) {
     }
 }
 
-
 function _dw_campaigns_get_userid_by_hostid($hostid) {
     static $mapping = NULL;
 
@@ -3779,7 +4015,6 @@ function _dw_campaigns_get_userid_by_hostid($hostid) {
 
     return NULL;
 }
-
 
 function dw_campaigns_get_campaign_hosts($campaign, $only_titles = FALSE) {
     $hosts          = array();
@@ -4013,7 +4248,6 @@ function dw_campaigns_get_tag_id_by_name($name, $used_for = 'civicrm_contact') {
     return $res->tag_id;
 }
 
-
 function dw_campaigns_tag_contact($tag_id = NULL, $contact_list = array()) {
 
     $tag_id = (int) $tag_id;
@@ -4047,8 +4281,7 @@ function dw_campaigns_relationship_tag_list() {
     return $types;
 }
 
-
-function dw_campaigns_user_host_manage_files_form(&$form, &$form_state, $extended_data) {
+function dw_campaigns_user_host_manage_files_form($form, &$form_state, $extended_data) {
     global $user;
 
     $form = array();
@@ -4164,7 +4397,6 @@ function dw_campaigns_user_host_manage_files_row($delta, $doc) {
     return $form; 
 }
 
-
 function dw_campaigns_user_host_manage_files_form_validate(&$form, &$form_state) {
     global $user;
 
@@ -4216,6 +4448,62 @@ function dw_campaigns_user_host_manage_files_form_file_upload($name, $validators
         return TRUE;
     }
 }
+
+function flickr_event_gallery_form( $form, &$form_state, $event_id ){
+    global $user;
+
+    $event = node_load( $event_id );
+
+
+    $form = array();
+
+    $form['flickr_user_name'] = array(
+        '#type'         => 'textfield',
+        '#title'        => 'User Id',
+        '#description'  => 'Your Flickr User Name',
+        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value']
+    );
+
+    $form['flickr_photoset_id'] = array(
+        '#type'         => 'textfield',
+        '#title'        => 'Photoset Id',
+        '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
+        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value']
+    );
+
+    $form['flickr_help_link'] = array(
+        '#type'         => 'markup',
+        '#markup'       => '<a href="/dw/help/tutorials/flickr_event_gallery">Need Help?</a><br><br>'
+    );
+
+    $form['submit']         = array(
+        '#type'             => 'submit',
+        '#value'            => t('Submit'),
+        '#attributes'       => array('class'=> array('btn'))
+    );
+
+
+    return $form;
+}
+
+function flickr_event_gallery_form_validate($form, &$form_state){
+
+}
+
+function flickr_event_gallery_form_submit($form, &$form_state){
+    global $user;
+
+    $event_id = $form_state['build_info']['args'][0];
+
+    $event = node_load( $event_id );
+
+    $event->field_flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
+    $event->field_flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
+
+    node_save( $event );
+
+}
+
 
 function dw_campaigns_finallyfull() {
     return theme('dw_campaigns_finallyfull_page_theme');
@@ -4316,4 +4604,3 @@ padding:10px;
 </p><div id="thermoBlock">' . theme('dw_campaigns_walking_statistics', array('campaign' => NULL, 'terse' => FALSE)) . '</div></div>';
     die;
 }
-

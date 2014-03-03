@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ResultSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Result>
+    <_21391>
+        <contact_id>21391</contact_id>
+        <contact_type>Individual</contact_type>
+        <sort_name>Strong, Terry</sort_name>
+        <display_name>Terry Strong</display_name>
+        <do_not_email>0</do_not_email>
+        <do_not_phone>0</do_not_phone>
+        <do_not_mail>0</do_not_mail>
+        <do_not_sms>0</do_not_sms>
+        <do_not_trade>0</do_not_trade>
+        <is_opt_out>0</is_opt_out>
+        <preferred_mail_format>Both</preferred_mail_format>
+        <first_name>Terry</first_name>
+        <last_name>Strong</last_name>
+        <is_deceased>0</is_deceased>
+        <address_id>33594</address_id>
+        <street_address>4320 E. Ford Avenue</street_address>
+        <city>Gilbert</city>
+        <postal_code>85234</postal_code>
+        <geo_code_1>33.369796</geo_code_1>
+        <geo_code_2>-111.698065</geo_code_2>
+        <state_province_id>1002</state_province_id>
+        <state_province_name>Arizona</state_province_name>
+        <state_province>AZ</state_province>
+        <country_id>1228</country_id>
+        <country>United States</country>
+        <email_id>33509</email_id>
+        <email>terrystrongtw@aol.com</email>
+        <on_hold>0</on_hold>
+        <worldregion_id>2</worldregion_id>
+        <world_region>America South, Central, North and Caribbean</world_region>
+    </_21391>
+</Result>
+</ResultSet>

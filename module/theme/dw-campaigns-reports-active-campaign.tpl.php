@@ -1,3 +1,4 @@
+<a href="/admin/reports/active_campaigns/csv">Download CSV</a><br>
 <table class="active-campaigns-report">
 <tr><th>Campaign Name</th><th>Action</th></tr>
 <?php

@@ -870,7 +870,7 @@ function dw_campaigns_get_contribution_by_id($contribution_id, $nocache = FALSE)
  * @return array the contributions if any were found
  */
 function dw_campaigns_get_contributions_for_pcp($pcp, $by_id = FALSE) {
-    
+
     static $contributions          = array();
     static $by_id_contributions    = array();
     static $grabbed_all            = FALSE;
@@ -2200,7 +2200,7 @@ function dw_campaigns_campaign_search_pcp_search($campaign, $in_query) {
 }
 
 
-function dw_campaigns_search_form(&$form, &$form_state, $in_query = NULL) {
+function dw_campaigns_search_form($form, &$form_state, $in_query = NULL) {
 
     $form = array();
     $mode           = dw_campaigns_get_selected_type();
@@ -2472,9 +2472,26 @@ function dw_campaigns_force_decimal($in, $currency = 'USD', $always_show_usd = f
     return $fmt;
 }
 
+//dw_campaigns_admin_grab_exchange_rate_data();
+//exit;
+//dw_campaigns_convert_to_usd("AUD", 10.00);
+
 function dw_campaigns_convert_to_usd($currency, $in) {
-    
-// prices according to xe.com  Live rates at 2011.04.01 18:47:00 UTC
+
+    $exchangeRates = variable_get("exchangeRates");
+
+    $rate = 1/$exchangeRates->{ $currency };
+
+    if( !$rate ){
+        //@todo we should write a log, and redirect to a fail page.
+    }
+
+    $converted = $in * $rate;
+
+    return $converted;
+
+    //JFN - january 24 2014 0746 - [#todo "below is the old static code for currency exchange. above is the new currency exchange stuff. remove the old stuff in february 2014"]
+    // prices according to xe.com  Live rates at 2011.04.01 18:47:00 UTC
     switch($currency) {
         case 'AUD':
             //$in = $in * 1.03861;
@@ -2504,6 +2521,20 @@ function dw_campaigns_convert_to_usd($currency, $in) {
 }
 
 function dw_campaigns_convert_from_usd($currency, $in) {
+
+    $exchangeRates = variable_get("exchangeRates");
+
+    $rate = $exchangeRates->{ $currency };
+
+    if( !$rate ){
+        //@todo should redirect to error page, and log/email error to admins
+    }
+
+    $converted = $in * $rate;
+
+    return $converted;
+    //JFN - january 24 2014 0758 - [#todo "below is the old static code for currency exchange. above is the new currency exchange stuff. remove the old stuff in february 2014"]
+
     switch($currency) {
         case 'AUD':
             $in = $in * 0.97322;
@@ -2967,8 +2998,6 @@ function dw_campaigns_build_receipt_merge($campaign, $pcp_id, $contact_id, $cont
     return $mergeObjects;
 }
 
-
-
 function dw_campaign_receipt_report($arg) {
     global $dw_campaign_module_path;
 
@@ -3052,7 +3081,6 @@ function dw_campaigns_admin_send_receipt_mail($key, &$message, $params) {
 
 
 }
-
 
 function dw_campaign_receipt_report_pdf($arg, $noreply = FALSE) {
 

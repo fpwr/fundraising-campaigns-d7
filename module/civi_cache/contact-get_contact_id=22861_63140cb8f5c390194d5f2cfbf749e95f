@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ResultSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Result>
+    <_22861>
+        <contact_id>22861</contact_id>
+        <contact_type>Individual</contact_type>
+        <sort_name>Anderson, winieka</sort_name>
+        <display_name>winieka Anderson</display_name>
+        <do_not_email>0</do_not_email>
+        <do_not_phone>0</do_not_phone>
+        <do_not_mail>0</do_not_mail>
+        <do_not_sms>0</do_not_sms>
+        <do_not_trade>0</do_not_trade>
+        <is_opt_out>0</is_opt_out>
+        <preferred_mail_format>Both</preferred_mail_format>
+        <first_name>winieka</first_name>
+        <last_name>Anderson</last_name>
+        <is_deceased>0</is_deceased>
+        <address_id>36341</address_id>
+        <street_address>17146 NE Sandy Blvd c/o HKW-DRGQ</street_address>
+        <city>portland</city>
+        <postal_code>97230</postal_code>
+        <geo_code_1>45.5507889</geo_code_1>
+        <geo_code_2>-122.5057403</geo_code_2>
+        <state_province_id>1036</state_province_id>
+        <state_province_name>Oregon</state_province_name>
+        <state_province>OR</state_province>
+        <country_id>1228</country_id>
+        <country>United States</country>
+        <email_id>36232</email_id>
+        <email>jdosjfo@aol.com</email>
+        <on_hold>0</on_hold>
+        <worldregion_id>2</worldregion_id>
+        <world_region>America South, Central, North and Caribbean</world_region>
+    </_22861>
+</Result>
+</ResultSet>

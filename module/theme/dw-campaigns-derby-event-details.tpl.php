@@ -138,6 +138,7 @@ $(document).ready(function() {
 
     $hosts          = dw_campaigns_get_campaign_hosts($node);
     $host           = implode(', ', $hosts);
+
 ?>
 <div class="derby-event-details"><div class="inside">
 <h2 class="block-title clearfix">Event Details</h2>
@@ -206,14 +207,15 @@ $(document).ready(function() {
         if(count($docs)>0) {
             foreach($docs as $doc) {
 ?>
-        <tr class="document">
-            <th><?php echo $doc['title']; ?></th>
-            <td><a href="<?php echo $doc['url']; ?>"><?php echo t('Download');?></a></td>
-        </tr>
+                <tr class="document">
+                    <th><?php echo $doc['title']; ?></th>
+                    <td><a href="<?php echo $doc['url']; ?>"><?php echo t('Download');?></a></td>
+                </tr>
 
 <?php
             }
         }
+
         if($mode_type == 'walking') {
             $country = dw_campaigns_get_event_country_by_campaign($campaign);
             $pledge_document = isset($country->field_dw_country_pledge_form['und']['0']['uri']) ? $country->field_dw_country_pledge_form['und']['0']['uri'] : NULL;
@@ -238,6 +240,20 @@ $(document).ready(function() {
 <?php
         }
 ?>
+            <?php
+                $flickr_user_id = $node->field_flickr_gallery_id['und'][0]['value'];//flickr_user_find_by_identifier( $host_flickrId );
+                $flickr_photoset_id = $node->field_flickr_gallery_photoset_id['und'][0]['value'];//user_load($user->uid)->field_flickrphotosetid['und'][0]['value'];
+
+                if( $flickr_user_id && $flickr_photoset_id ){
+                    echo('<tr><th>Event Gallery</th><td class="event-gallery-container">');
+
+                    $block = _flickr_block_photoset_random($flickr_user_id, 3, 's', 'all', $flickr_photoset_id);
+
+                    echo( $block );
+
+                    echo('</td></tr>');
+                }
+            ?>
     </table>
 </div>
 </div>

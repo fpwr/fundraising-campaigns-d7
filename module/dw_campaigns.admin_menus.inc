@@ -1,5 +1,32 @@
 <?php
 
+//JFN todo - I really don't like the inconsistency here.  Consider consolidating related functionality into it's own set of include files, and possibly auto loading them at some point to clean up the routing system a bit-  That's going to be a considerable amount of work that no one will want to pay for, so consider it weekend practice when you get around to it.
+
+function dw_campaigns_currency_config(){
+    return array(
+        'currency_service_provider' =>  array(
+            '#title'            => 'Exchange Rate Data Provider',
+            '#type'             => 'select',
+            '#options'          => Array('openexchangerates.org'),
+            '#description'      => t('Links your site to an external data provider for currency conversion rates. To ensure you have the most up to date currency values possible.'),
+            '#maxlength'        => 250,
+            '#default_value'    => 0
+        ),
+        'currency_service_provider_api_key' => array(
+            '#title'            => 'Account API key',
+            '#type'             => 'textfield',
+            '#description'      => t('data providers usually require an api key, get one and enter it here!'),
+            '#maxlength'        => 250,
+            '#default_value'    => variable_get('currency_service_provider_api_key')
+        ),
+        'currency_service_provider_get_data' => array(
+            '#type'             => 'submit',
+            '#value'            => t('Sync Exchange Rates Now / Save Configuration'),
+            '#submit'           => array('dw_campaigns_admin_grab_exchange_rate_data_submit')
+        )
+    );
+}
+
 function dw_campaigns_civicrm_config() {
     
     $form = array();
@@ -866,6 +893,16 @@ function dw_campaigns_settings() {
         '#default_value'    => variable_get('dw_campaigns_livedocx_password', '')           
     );
 
+    $form['donors_forms'] = array(
+        '#type'             => 'fieldset',
+        '#title'            => t('Donor Forms')
+    );
+
+        $form['donors_forms']['dw_campaigns_donors_attending'] = array(
+            '#type'             => 'checkbox',
+            '#title'            => 'enable attendance questions',
+            '#default_value'    => variable_get('dw_campaigns_donors_attending', '')
+        );
 
 
 
@@ -892,6 +929,7 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         'dw_campaigns_user_thankyou_text',
         'dw_campaigns_runner_signup_email',
         'dw_campaigns_canadian_receipt_email',
+        'splashr_html'
     );
 
     foreach($possibles as $key) {
@@ -900,8 +938,6 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         }
     }
 }
-
-
 
 function dw_campaigns_groups_admin_page() {
     $form           = drupal_get_form('dw_campaigns_groups_admin_form');
@@ -936,7 +972,6 @@ function dw_campaigns_groups_admin_form($form, &$form_state) {
     return $form;
 }
 
-
 function dw_campaigns_groups_admin_form_submit(&$form, &$form_state) {
     $values = $form_state['values'];
 
@@ -968,8 +1003,6 @@ function dw_campaigns_groups_admin_form_submit(&$form, &$form_state) {
 
     }
 }
-
-
 
 function dw_campaigns_groups_admin_campaigns_form($form, &$form_state) {
 
@@ -1122,7 +1155,6 @@ function template_preprocess_dw_campaigns_groups_admin_campaigns_form(&$variable
     $variables['form_submit']   = drupal_render_children($variables['form']);
 }
 
-
 function getEmailTokens() {
     return nl2br(
 '
@@ -1265,6 +1297,13 @@ ORG - Organization values (From admin module)
     
 }
 
+
+/**
+ DW Campaigns Emails
+ * admin/reports/dw_emails/
+ * admin/reports/dw_emails/csv/
+
+ */
 function dw_campaigns_reports_email() {
 
     $all = array();
@@ -1283,9 +1322,46 @@ function dw_campaigns_reports_email() {
 
     $emails = implode("\n", $all);
 
-    return nl2br($emails);
+    return '<a href="/admin/reports/dw_emails/csv">Download CSV</a><br><br>'.nl2br($emails);
 }
 
+function dw_campaigns_reports_email_csv(){
+
+    $csvDataArray = array();
+
+    $header = array(
+        'userName',
+        'emailAddress'
+    );
+
+    $csvDataArray[] = $header;
+
+    $result = db_query("SELECT * FROM users");
+    foreach($result as $users){
+        $clean_email = trim($users->mail);
+        if(strstr($clean_email, "@") === FALSE) {
+            continue;
+        }
+
+        $csvData = array(
+            $users->name,
+            $clean_email
+        );
+
+        $csvDataArray[] = $csvData;
+    }
+
+    return output_csv('user_email_addresses_'.date('Y_m_d').'.csv', $csvDataArray );
+
+}
+
+
+
+
+/**
+ DW Active Campaigns
+ *
+*/
 function dw_campaigns_active_campaigns() {
 
     $campaigns  = dw_campaigns_get_active_campaigns(FALSE);
@@ -1293,48 +1369,84 @@ function dw_campaigns_active_campaigns() {
     return theme('dw_campaigns_reports_active_campaign', array('campaigns' => $campaigns));
 }
 
+function dw_campaigns_active_campaigns_csv(){
+    //prepare data for csv output.
+    $campaigns = dw_campaigns_get_active_campaigns();
+    $csvDataArray = array();
 
-function dw_campaigns_offline_donations_select_form(&$form, &$form_state, $options, $selected = NULL) {
-    $form = array();
-
-    $t = array();
-    $t[''] = '-- Please Select a Location--';
-
-    $t['ALL'] = 'All';
-
-    asort($options);
-
-    $form['options']     = array(
-        '#type'             => 'select',
-        '#title'            => t('Event Location'),
-        '#options'          => $t + $options,
-        '#default_value'    => $selected
+        //order matters! This is the order in which field data is expected.
+    $header = array(
+        'title',
+        'location',
+        'city',
+        'state',
+        'status',
+        'dateFrom',
+        'dateTo',
+        'hostName',
+        'hostEmail',
+        'hostPhone',
+        'hostAddress',
+        'currency',
+        'otherDonations',
+        'goal'
     );
 
-    $form['mode']        = array(
-        '#type'             => 'select',
-        '#title'            => t('Output Type'),
-        '#options'          => array('SCREEN' => 'Table', 'CSV' => 'CSV'),
-    );
+    $csvDataArray[] = $header;
 
-    $form['submit']      = array(
-        '#type'             => 'submit',
-        '#value'            => t('Submit'),
-        '#attributes'       => array('class'=> array('btn'))
-    );
- 
-    return $form;
+    //and this is where we generate the field date for the csv, the order here should reflect the order of the headers above.
+    foreach( $campaigns as $campaign ){
+        $hostNodeId = $campaign->{'field_dw_host_primary'}['und'][0]['value'];
+
+        //get the host's information for this campaign
+        $hostData   = node_load( $hostNodeId );
+
+        $hostName   = $hostData->{'field_dw_host_name'}['und'][0]['value'];
+        $hostPhone  = $hostData->{'field_dw_host_phone'}['und'][0]['value'];
+        $hostEmail  = $hostData->{'field_dw_host_email'}['und'][0]['value'];
+        $hostPostal = $hostData->{'field_dw_host_postal'}['und'][0]['value'];
+        $hostState  = $hostData->{'field_dw_host_province'}['und'][0]['value'];
+        $hostCity   = $hostData->{'field_dw_host_city'}['und'][0]['value'];
+        $hostStreet = $hostData->{'field_dw_host_street'}['und'][0]['value'];
+
+
+        $csvData = array(
+            $campaign->title,
+            $campaign->{'field_dw_event_location'}['und'][0]['value'],
+            $campaign->{'field_dw_address_city'}['und'][0]['value'],
+            $campaign->{'field_dw_address_province'}['und'][0]['value'],
+            $campaign->{'field_dw_campaign_status'}['und'][0]['value'],
+            $campaign->{'field_dw_date_range'}['und'][0]['value'],
+            $campaign->{'field_dw_date_range'}['und'][0]['value2'],
+            $hostName,
+            $hostEmail,
+            $hostPhone,
+            $hostStreet.' '.$hostCity.', '.$hostState.' '.$hostPostal,
+            $campaign->{'field_dw_currency'}['und'][0]['value'],
+            $campaign->{'field_dw_other_donations'}['und'][0]['value'],
+            $campaign->{'field_dw_fundraising_goal'}['und'][0]['value'],
+        );
+
+        $csvDataArray[] = $csvData;
+    }
+
+    //send csv to browser as a download
+    return output_csv('active_campaigns_'.date("Y_m_d").'.csv', $csvDataArray );
 }
 
-function dw_campaigns_offline_donations_select_form_validate(&$form, &$form_state) {
-}
 
-function dw_campaigns_offline_donations_select_form_submit(&$form, &$form_state) {
-    $values = $form_state['values'];
 
-    drupal_goto('admin/reports/dw_offline/' . $values['options'] . '/' . $values['mode']);
-    die;
-}
+
+
+/**
+ DW Offline Donations
+ *  admin/reports/dw_offline
+ *  admin/reports/dw_offline/%
+ *  admin/reports/dw_offline/%/%
+        -> dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN')
+            when selected == null, display a selection form ( dw_campaigns_offline_donations_select_form )
+            which provides us a way to select an event, and an output format. (screen or csv)
+*/
 
 function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
 
@@ -1448,10 +1560,83 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
         return drupal_render($form);
     }
 
+
+
+
+
+    //this provides the 'select all' functionality requested for importing offline donation data from this report.
+    drupal_add_js('
+        var all_selected = false;
+
+        function select_all_donations(){
+                    var contents = document.getElementsByClassName("offline-donations")[0].children[1].children[1];
+
+                    all_selected = !all_selected;
+
+                    for( var i = 0; i < contents.children.length; i++ ){
+
+                        contents.children[i].children[0].children[0].children[0].checked = all_selected;
+                    }
+        }
+
+        window.addEventListener("load", function(){
+            var select_header = document.getElementsByClassName("offline-donations")[0].children[1].children[0].children[0].children[0]
+                select_header.innerHTML = "<a href=\"#\" onclick=\"select_all_donations()\">ALL</a>";
+
+    });','inline');
+
+
+
+
+
+
     return theme('dw_campaigns_reports_campaign_offline_donations', array('campaign' => $campaign, 'form' => $form, 'donations' => $donations, 'selform' => $selform, 'headers' => $headers, 'mode' => $mode));
 }
 
-function dw_campaigns_reports_campaign_offline_donations_form(&$form, &$form_state, $donation_ids, $campaign) {
+function dw_campaigns_offline_donations_select_form($form, &$form_state, $options, $selected = NULL) {
+    $form = array();
+
+    $t = array();
+    $t[''] = '-- Please Select a Location--';
+
+    $t['ALL'] = 'All';
+
+    asort($options);
+
+    $form['options']     = array(
+        '#type'             => 'select',
+        '#title'            => t('Event Location'),
+        '#options'          => $t + $options,
+        '#default_value'    => $selected
+    );
+
+    $form['mode']        = array(
+        '#type'             => 'select',
+        '#title'            => t('Output Type'),
+        '#options'          => array('SCREEN' => 'Table', 'CSV' => 'CSV'),
+    );
+
+    $form['submit']      = array(
+        '#type'             => 'submit',
+        '#value'            => t('Submit'),
+        '#attributes'       => array('class'=> array('btn'))
+    );
+
+    return $form;
+}
+
+function dw_campaigns_offline_donations_select_form_validate(&$form, &$form_state) {
+
+}
+
+function dw_campaigns_offline_donations_select_form_submit(&$form, &$form_state) {
+    $values = $form_state['values'];
+
+    drupal_goto('admin/reports/dw_offline/' . $values['options'] . '/' . $values['mode']);
+    die;
+}
+
+function dw_campaigns_reports_campaign_offline_donations_form($form, &$form_state, $donation_ids, $campaign) {
     $form   = array();
 
     $form['nid'] = array(
@@ -1532,7 +1717,6 @@ function dw_campaigns_reports_campaign_offline_donations_form_submit(&$form, &$f
     }
 
 }
-
 
 function dw_campaigns_offline_donation_post($row) {
     $values             = (array) $row;
@@ -1687,6 +1871,20 @@ function dw_campaigns_offline_donation_post($row) {
     
     return $ret;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function dw_campaigns_reports_event_summary($campaign_id = NULL, $mode = 'SCREEN') {
     $report_rows    = array();
@@ -1976,7 +2174,7 @@ function dw_campaigns_reports_event_registration_from_list($list, $mode, $campai
     }
 }
 
-function dw_campaigns_reports_event_registration_form(&$form, &$form_state, $options, $arg, $mode) {
+function dw_campaigns_reports_event_registration_form($form, &$form_state, $options, $arg, $mode) {
     $form = array();
 
     $form['options']     = array(
@@ -2009,7 +2207,17 @@ function dw_campaigns_reports_event_registration_form_submit(&$form, &$form_stat
     die;
 }
 
-function dw_campaigns_reports_event_emails($arg = '') {
+
+
+
+
+/**
+ DW Campaigns Emails
+ * admin/reports/dw_event_emails
+ * admin/reports/dw_event_emails/%
+ * admin/reports/dw_event_emails/%/CSV
+ */
+function dw_campaigns_reports_event_emails($arg = '', $csvOutput = false) {
 
     global $dw_campaign_module_path;
 
@@ -2063,11 +2271,38 @@ function dw_campaigns_reports_event_emails($arg = '') {
 
     } 
 
-    return theme('dw_campaigns_reports_event_emails', array('headers' => $headers, 'rows' => $rows, 'form' => $form));
+    if( $csvOutput ){
+        //prepare date for csv output
+        $csvDataArray = array();
+
+        $header = array(
+            'first_name',
+            'last_name',
+            'email'
+        );
+
+        $csvDataArray[] = $header;
+
+        foreach($rows as $row){
+
+            $csvData = array(
+                $row['first_name'],
+                $row['last_name'],
+                $row['email']
+            );
+
+            $csvDataArray[] = $csvData;
+
+        }
+
+        return output_csv( 'event_emails_'.date('Y_m_d').'.csv', $csvDataArray );
+    }
+
+    return theme('dw_campaigns_reports_event_emails', array('headers' => $headers, 'rows' => $rows, 'form' => $form, 'selected' => $arg));
 
 }
 
-function dw_campaigns_reports_event_emails_form(&$form, &$form_state, $options, $arg) {
+function dw_campaigns_reports_event_emails_form($form, &$form_state, $options, $arg) {
     $form = array();
 
     $t = array();
@@ -2100,11 +2335,35 @@ function dw_campaigns_reports_event_emails_form_submit(&$form, &$form_state) {
     die;
 }
 
+function dw_campaigns_reports_event_emails_csv($arg = ''){
+    //this is a slightly round-about way of doing this, but it does save duplicate code, and the interface remains consistent enough to justify it.
+    return dw_campaigns_reports_event_emails($arg, true);
+}
+
+
+
+
+
+
+
+
+
+
 function dw_campaigns_report_host_panel() {
     drupal_goto('dw/user/host');
 }
 
-function dw_campaigns_reports_activepages_select_form(&$form, &$form_state, $options, $selected = NULL) {
+
+
+
+
+/**
+ DW Active PCPs
+ * admin/reports/dw_activepages -> dw_campaigns_report_activepages_csv (no selection, will output a selection form [dw_campaigns_reports_activepages_select_form])
+ * admin/reports/dw_activepages/% -> dw_campaigns_report_activepages (with selection)
+ * admin/reports/dw_activepages/%/csv -> dw_campaigns_report_activepages_csv
+ */
+function dw_campaigns_reports_activepages_select_form($form, &$form_state, $options, $selected = NULL) {
     $form = array();
 
     $t = array();
@@ -2126,11 +2385,12 @@ function dw_campaigns_reports_activepages_select_form(&$form, &$form_state, $opt
         '#value'            => t('Submit'),
         '#attributes'       => array('class'=> array('btn'))
     );
- 
+
     return $form;
 }
 
 function dw_campaigns_reports_activepages_select_form_validate(&$form, &$form_state) {
+
 }
 
 function dw_campaigns_reports_activepages_select_form_submit(&$form, &$form_state) {
@@ -2197,8 +2457,81 @@ function dw_campaigns_reports_activepages($selected = NULL) {
     }
 
 
-    return theme('dw_campaigns_reports_activepages', array('selform' => $selform, 'headers' => $headers, 'campaigns' => $campaigns, 'data' => $data));
+    return theme('dw_campaigns_reports_activepages', array('selform' => $selform, 'headers' => $headers, 'campaigns' => $campaigns, 'data' => $data, 'selected' => $selected ));
 }
+
+function dw_campaigns_report_activepages_csv($selected = NULL ){
+    //$selected come come as a nodeId, or 'ALL'.
+    //ensure that we account for the 'ALL' flag appropriately!
+
+    $campaigns = dw_campaigns_get_active_campaigns(TRUE);
+
+
+    if( $selected !== 'ALL' ){
+        //then we're looking for a single campaign in the list, lets extract it and overwrite the campaigns variable with it! :D
+        foreach( $campaigns as $campaign ){
+            if( $selected == $campaign->nid ){
+                //this is the one and only campaign we need to export as a csv!
+                $campaigns = array($campaign);
+                continue;
+            }
+        }
+    }
+
+    $csvDataArray = array();
+
+    //we've normalized our $campaigns variable now.. just prepare the csv data now. mmkay?
+    $header = array(
+        'title',
+        'url',
+        'contactName',
+        'contactEmail',
+        'contactAddress'
+    );
+
+
+
+    $csvDataArray[] = $header;
+
+    foreach( $campaigns as $campaign ){
+        $pcps            = _dw_campaigns_get_pcps_for_campaign($campaign);
+
+        foreach( $pcps as $pcp ){
+            $title          = $pcp->title;
+            $pageId         = $pcp->contribution_page_id;
+
+            $drupal_id      = _dw_campaigns_contact_id_get_user($pcp->contact_id);
+            $fake_user      = dw_campaigns_cache_simple_user_data($drupal_id);
+            $url            = 'http://'.$_SERVER['SERVER_NAME'].dw_campaigns_user_get_pcp_url($fake_user, $campaign);
+            $contact        = _dw_civicrm_contact_get( array('contact_id' => $pcp->contact_id, 'returnFirst' => 1 ) );
+            $contactName    = $contact->display_name;
+            $contactAddress = $contact->street_address;
+            $contactCity    = $contact->city;
+            $contactState   = $contact->state_province;
+            $contactPostal  = $contact->postal_code;
+            $contactCountry = $contact->country;
+            $contactEmail   = $contact->email;
+
+
+            $csvData = array(
+                $title,
+                $url,
+                $contactName,
+                $contactEmail,
+                $contactAddress.' '.$contactCity.', '.$contactState.' '.$contactPostal.' '.$contactCountry,
+
+            );
+
+            $csvDataArray[] = $csvData;
+        }
+
+    }
+
+
+    return output_csv('active_pcps_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
+
 
 
 
@@ -2209,7 +2542,15 @@ function dw_campaigns_reports_hosts() {
     return theme('dw_campaigns_reports_hosts', array('hosts' => $hosts));
 }
 
-function dw_campaigns_reports_shirtorders($ref_nid = NULL, $option = NULL) {
+
+/**
+ DW Shirt Orders
+ * admin/reports/dw_shirtorders/
+ * admin/reports/dw_shirtorders/csv
+ * admin/reports/dw_shirtorders/%
+ * admin/reports/dw_shirtorders/%/%
+ */
+function dw_campaigns_reports_shirtorders($ref_nid = NULL, $option = NULL, $outputCsv = false) {
     $rows       = array();
 
     if(!is_null($ref_nid)) {
@@ -2226,10 +2567,57 @@ function dw_campaigns_reports_shirtorders($ref_nid = NULL, $option = NULL) {
         $rows[]             = $row;
     }
 
+    if( $outputCsv ){
+        $csvDataArray = array();
+
+        $header = array(
+            'DeliveryBy',
+            'Location',
+            'EventDate',
+            'ShippingAddress',
+            'NumberOfShirtsNeeded',
+            'SizeRequest',
+            'Status'
+        );
+
+        $csvDataArray[] = $header;
+
+        foreach( $rows as $row ){
+            $row = get_object_vars($row);
+
+            $csvData = array(
+                $row['shirt_latest_delivery_date'],
+                $row['node_title'],
+                $row['shirt_event_date'],
+                $row['shirt_shipping_address'],
+                $row['shirt_quantity'],
+                $row['shirt_special_requests'],
+                $row['shipping_status'] ? 'Ordered' : 'Pending'
+            );
+
+            $csvDataArray[] = $csvData;
+        }
+
+        return output_csv('shirt_orders_'.date('Y_m_d').'.csv', $csvDataArray );
+    }
+
     return theme('dw_campaigns_reports_shirtorders', array('rows' => $rows));
 }
 
-function dw_campaigns_reports_eventinsurance($ref_nid = NULL, $option = NULL) {
+function dw_campaigns_reports_shirtorders_csv(){
+    dw_campaigns_reports_shirtorders( null, null, true );
+}
+
+
+
+
+
+/**
+ DW Event Insurance
+ * admin/reports/dw_eventinsurance
+ * admin/reports/dw_eventinsurance/csv
+ */
+function dw_campaigns_reports_eventinsurance($ref_nid = NULL, $option = NULL, $csvOutput = false) {
     $rows       = array();
 /*
     if(!is_null($ref_nid)) {
@@ -2272,16 +2660,64 @@ function dw_campaigns_reports_eventinsurance($ref_nid = NULL, $option = NULL) {
         $rows[]             = $row;
     }
 
+    if( $csvOutput ){
+        //prepare data for csv output
+        $csvDataArray = array();
+
+        $header = array(
+            'hostName',
+            'location',
+            'eventDate',
+            'pcpCount',
+            'additionalInsuredName',
+            'additionalInsuredAddress',
+            'status'
+        );
+
+        $csvDataArray[] = $header;
+
+        foreach( $rows as $row ){
+            $row = get_object_vars($row);
+
+            $csvData = array(
+                $row['host_names'],
+                $row['ins_location'],
+                $row['ins_event_date'],
+                $row['pcp_count'],
+                $row['ins_ai_name'],
+                $row['ins_ai_address'],
+                $row['ins_status']
+            );
+
+            $csvDataArray[] = $csvData;
+        }
+
+        return output_csv('event_insurance_'.date('Y_m_d').'.csv', $csvDataArray);
+    }
+    //Host Name, Location, Event Date, # PCPs, Name of Additional Insured, Address of Additional Insured, Status
     return theme('dw_campaigns_reports_eventinsurance', array('rows' => $rows));
 }
 
+function dw_campaigns_reports_eventinsurance_csv(){
+    //calling the report function, with $outputCsv set to true.
+    dw_campaigns_reports_eventinsurance(null, null, true);
+}
+
+
+
+
+/**
+ DW Personal Page Fundraising Totals
+ * admin/reports/dw_pp_fundraising_total
+    -> dw_campaigns_pp_fundraising_total()
+
+   @todo normalize!  I want consistency here, make it feel like all the others (focus on the csv output, for now)
+ */
 function dw_campaigns_pp_fundraising_total() {
     global $dw_campaign_module_path;
 
-
     $report_rows    = array();
-
-    $campaigns                 = dw_campaigns_get_active_campaigns('nodeid');
+    $campaigns      = dw_campaigns_get_active_campaigns('nodeid');
 
 //    $campaigns_by_contribution_page_id  = dw_campaigns_get_active_campaigns(TRUE);
 
@@ -2385,11 +2821,13 @@ function dw_campaigns_pp_fundraising_total() {
         header("Content-Disposition: attachment; filename=\"$outfile\"");
         header("Content-Transfer-Encoding: binary");
         header("Content-Length: $fsize");
-        header("Content-type: text/csv");   
+        header("Content-type: text/csv");
+
         echo file_get_contents($file);
+
         die;
     } else {
+
         return theme('dw_campaigns_reports_pp_fundraising_total', array('headers' => $headers, 'rows' => $report_rows, 'filename' => $file));
     }
 }
-?>
