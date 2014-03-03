@@ -1,0 +1,17 @@
+[
+ {"module": "dw_campaigns","delta": 1,"css_class": "race-statistics homepage-box"},
+ {"module": "dw_campaigns","delta": 13,"css_class": "race-statistics"},
+ {"module": "dw_campaigns","delta": 15,"css_class": "join-the-race-block"},
+ {"module": "dw_campaigns","delta": 17,"css_class": "blue-box after-donation"},
+ {"module": "dw_campaigns","delta": 2,"css_class": "current-leaders homepage-box"},
+ {"module": "dw_campaigns","delta": 20,"css_class": "walking-header"},
+ {"module": "dw_campaigns","delta": 25,"css_class": "home-support-block"},
+ {"module": "dw_campaigns","delta": 28,"css_class": "walking-navigation"},
+ {"module": "dw_campaigns","delta": 3,"css_class": "event-details homepage-box"},
+ {"module": "dw_campaigns","delta": 4,"css_class": "home-support-block"},
+ {"module": "dw_campaigns","delta": 41,"css_class": "offline-mailing"},
+ {"module": "dw_campaigns","delta": 5,"css_class": "derby-navigation"},
+ {"module": "dw_campaigns","delta": 6,"css_class": "derby-header"},
+ {"module": "dw_campaigns","delta": 7,"css_class": "blue-box my-position"},
+ {"module": "dw_campaigns","delta": 9,"css_class": "supporters"}
+]
