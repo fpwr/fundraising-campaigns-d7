@@ -974,7 +974,7 @@ function _dw_civicrm_jq_state($country) {
     global $dw_settings;
     
     $parsed = parse_url($dw_settings['restUrl']);
-    
+
     $target = sprintf("http://%s/civicrm/ajax/jqState?_id=address_1_country_id&_name=address%%5B1%%5D%%5Bcountry_id%%5D&_value=%s", $parsed['host'], $country);
 
     $res = file_get_contents($target);

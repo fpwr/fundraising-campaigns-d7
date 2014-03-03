@@ -1560,6 +1560,36 @@ function dw_campaigns_offline_donations($selected = NULL, $mode = 'SCREEN') {
         return drupal_render($form);
     }
 
+
+
+
+
+    //this provides the 'select all' functionality requested for importing offline donation data from this report.
+    drupal_add_js('
+        var all_selected = false;
+
+        function select_all_donations(){
+                    var contents = document.getElementsByClassName("offline-donations")[0].children[1].children[1];
+
+                    all_selected = !all_selected;
+
+                    for( var i = 0; i < contents.children.length; i++ ){
+
+                        contents.children[i].children[0].children[0].children[0].checked = all_selected;
+                    }
+        }
+
+        window.addEventListener("load", function(){
+            var select_header = document.getElementsByClassName("offline-donations")[0].children[1].children[0].children[0].children[0]
+                select_header.innerHTML = "<a href=\"#\" onclick=\"select_all_donations()\">ALL</a>";
+
+    });','inline');
+
+
+
+
+
+
     return theme('dw_campaigns_reports_campaign_offline_donations', array('campaign' => $campaign, 'form' => $form, 'donations' => $donations, 'selform' => $selform, 'headers' => $headers, 'mode' => $mode));
 }
 
