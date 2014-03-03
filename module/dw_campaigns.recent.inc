@@ -19,7 +19,7 @@ function dw_campaigns_get_group_names($includeUnassigned = TRUE) {
     foreach($results as $result) {
         $rows[$result->group_id] = $result->group_name;
 
-    } 
+    }
  
     return $rows;
 }
@@ -1264,12 +1264,29 @@ function dw_campaigns_user_host_page() {
     }
 
     $result = db_select("node", "n")->fields("n")->condition("nid", $keys, "IN")->execute();
-   
+
+
+
+    $campaigns_sort_array = array();
+
     foreach($result as $row) {
-        $campaigns[$row->nid] = $row->title;
+        $event = node_load( $row->nid );
+
+        $event_title = $event->title;
+        $event_date = substr( $event->field_dw_date_range['und'][0]['value'], 0, 10 );
+
+        //array of campaign titles with added date
+        $campaigns_sort_array[ $event_title . ' (' . $event_date . ')' ] = $event;
+
     }
 
-    asort($campaigns);
+    //sort by newly formatted title/date
+    ksort( $campaigns_sort_array );
+
+    //transform list into an array that can be used by dw_campaigns_user_host_page_form
+    foreach( $campaigns_sort_array as $campaign_title => $campaign ){
+        $campaigns[ $campaign->nid ] = $campaign_title;
+    }
 
     $form = drupal_get_form('dw_campaigns_user_host_page_form', $campaigns);
 
@@ -1302,7 +1319,7 @@ function dw_campaigns_user_host_page_form($form, &$form_state, $campaigns) {
     return $form;
 }
 
-function dw_campaigns_host_event_donors($event_id){
+function dw_campaigns_host_event_donors_active($event_id){
     $csvDataArray = array();
 
     $header = array(
@@ -1344,7 +1361,166 @@ function dw_campaigns_host_event_donors($event_id){
 
     }
 
-    return output_csv( 'host_event_donors_'.date('Y_m_d').'.csv', $csvDataArray );
+    return output_csv( 'host_event_donors_active_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
+function dw_campaigns_host_event_donors_pending($event_id){
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+    $event = node_load($event_id);
+
+    $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
+
+    foreach( $pcps as $id => $pcp ){
+
+        $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+        foreach( $supporters as $supporter ){
+            $contribution_id = $supporter->contribution_id;
+            $contribution = dw_campaigns_get_contribution_by_id( $contribution_id );
+
+            if( $contribution->contribution_status_id == 2 ){   //status 2 for pending
+                $pcp_contact = _dw_civicrm_contact_get(array(
+                        'contact_id'  => $supporter->contact_id,
+                        'returnFirst' => 1
+                    ));
+
+                $csvData = array(
+                    $pcp_contact->display_name,
+                    $pcp_contact->email,
+                    $pcp_contact->street_address,
+                    $pcp_contact->city,
+                    $pcp_contact->state_province_name,
+                    $pcp_contact->postal_code
+                );
+
+                $csvDataArray[] = $csvData;
+            }
+
+        }
+
+    }
+
+    return output_csv( 'host_event_donors_pending_'.date('Y_m_d').'.csv', $csvDataArray );
+}
+
+function dw_campaigns_host_event_donors_csv($event_title, $event_date, $output_type){
+    global $user;
+    //get the event id for the title and date provided.
+
+    $hosts = dw_campaigns_host_find_campaigns( $user->uid );
+    $keys = array_keys( $hosts );
+
+    foreach( $keys as $index => $nodeId ){
+        $thisEvent = node_load( $nodeId );
+
+        $thisEventTitle = $thisEvent->title;
+        $thisEventDate = substr( $thisEvent->field_dw_date_range['und'][0]['value'], 0, 10 );
+
+        if( $thisEventTitle == $event_title && $thisEventDate == $event_date ){
+            $csvDataArray = array();
+
+            $header = array(
+                'name',
+                'email',
+                'street',
+                'city',
+                'state',
+                'postal'
+            );
+
+            $csvDataArray[] = $header;
+
+            $pcps = _dw_campaigns_get_pcps_for_campaign( $thisEvent );
+
+            foreach( $pcps as $id => $pcp ){
+                $supporters = dw_campaigns_pcp_get_supporters($pcp);
+
+                foreach( $supporters as $supporter ){
+                    $contribution_id = $supporter->contribution_id;
+
+                    $pcp_contact = _dw_civicrm_contact_get(array(
+                            'contact_id'  => $supporter->contact_id,
+                            'returnFirst' => 1
+                        ));
+
+                    $csvData = array(
+                        $pcp_contact->display_name,
+                        $pcp_contact->email,
+                        $pcp_contact->street_address,
+                        $pcp_contact->city,
+                        $pcp_contact->state_province_name,
+                        $pcp_contact->postal_code
+                    );
+
+                    $csvDataArray[] = $csvData;
+
+                }
+
+            }
+
+            return output_csv( 'host_event_donors_for_date_'.$event_date.'.csv', $csvDataArray );
+        }
+
+    }
+
+
+
+}
+
+function dw_campaigns_host_event_participants_csv($event_id){
+
+    $csvDataArray = array();
+
+    $header = array(
+        'name',
+        'email',
+        'street',
+        'city',
+        'state',
+        'postal'
+    );
+
+    $csvDataArray[] = $header;
+
+
+    $participants = dw_campaign_get_event_participants_by_campaign($event_id);
+
+    foreach( $participants as $participant ){
+        $participant = $participant['contact'];
+        $participant_name   = $participant->display_name;
+        $participant_email  = $participant->email;
+        $participant_street = $participant->street_address . ' ' .$participant->supplemental_address_1;
+        $participant_city   = $participant->city;
+        $participant_state  = $participant->state_province_name;
+        $participant_postal = $participant->postal_code;
+
+
+        $csvData = array(
+            $participant_name,
+            $participant_email,
+            $participant_street,
+            $participant_city,
+            $participant_state,
+            $participant_postal
+        );
+
+        $csvDataArray[] = $csvData;
+
+        return output_csv( 'host_event_participants'.date('Y_m_d').'.csv', $csvDataArray );
+    }
+
 }
 
 function dw_campaigns_user_host_page_form_validate($form, &$form_state) {
@@ -1379,7 +1555,9 @@ $reports_form = array();
 
     $document_form = drupal_get_form('dw_campaigns_user_host_manage_files_form', $event_id);
 
-    return theme('dw_campaigns_user_host_manage_page_theme', array('manage_form' => $manage_form, 'totals_form' => $totals_form, 'request_form' => $request_form, 'reports_form' => $reports_form, 'totals' => $totals, 'event_id' => $event_id, 'fundraisers_form' => $fundraisers_form));
+    $event_gallery_form = drupal_get_form( 'flickr_event_gallery_form', $event_id );
+
+    return theme('dw_campaigns_user_host_manage_page_theme', array('manage_form' => $manage_form, 'totals_form' => $totals_form, 'request_form' => $request_form, 'reports_form' => $reports_form, 'totals' => $totals, 'event_id' => $event_id, 'fundraisers_form' => $fundraisers_form, 'event_gallery_form' => $event_gallery_form));
 }
 
 function dw_campaigns_user_host_totals_form($form, &$form_state, $event_id, $totals) {
@@ -1399,14 +1577,14 @@ function dw_campaigns_user_host_totals_form($form, &$form_state, $event_id, $tot
         t('Total Offline Donations'),
         t('Total Online Donations'),
         t('# Personal Pages'),
-        t('# Donations'),
+        t('# Donations')
     );
 
     $values = array(
         dw_campaigns_force_decimal($totals['offline'], $campaign->field_dw_currency['und']['0']['value']),
         dw_campaigns_force_decimal($totals['online'], $campaign->field_dw_currency['und']['0']['value']),
         $totals['pcp_count'],
-        $totals['count'],
+        $totals['count']
     );
 
     $headers    = '<tr><th>' . implode('</th><th>', $headings) . '</th></tr>';
@@ -1437,7 +1615,7 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
     $headings = array(
         t('Name'),
         t('Page Link'),
-        t('Manage Offline Donations'),
+        t('Manage Offline Donations')
     );
     
     $res = _dw_campaigns_get_pcps_for_campaign($campaign);
@@ -3714,11 +3892,10 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
         '#default_value'    => $defaults->email_text
     );
 
-    $form['contact_hosts_id'] = array( 
+    $form['contact_hosts_id'] = array(
         '#type'             => 'hidden',
         '#value'            => $selected
     );
-
 
     $form['submit']         = array(
         '#type'             => 'submit',
@@ -3750,7 +3927,7 @@ function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
 
     $db_keys = array('schedule_type', 'day_offset', 'action_date', 'from_name', 'email_subject', 'email_text', 'target_filter');
  
-    $db_values = array(); 
+    $db_values = array();
     foreach($db_keys as $key) {
         if(isset($values[$key])) {
             $db_values[$key] = $values[$key];
@@ -3763,7 +3940,7 @@ function dw_campaigns_admin_contact_hosts_form_submit($form, &$form_state) {
         $db_values['enabled']   = 0;
     }
 
-    if($values['contact_hosts_id'] > 0) { 
+    if($values['contact_hosts_id'] > 0) {
         db_update('dw_campaigns_scheduled_host_contacts')->fields($db_values)->condition('eid', $values['contact_hosts_id'], '=')->execute();
     } else {
         db_insert('dw_campaigns_scheduled_host_contacts')->fields($db_values)->execute();
@@ -4327,6 +4504,62 @@ function dw_campaigns_user_host_manage_files_form_file_upload($name, $validators
         return TRUE;
     }
 }
+
+function flickr_event_gallery_form( $form, &$form_state, $event_id ){
+    global $user;
+
+    $event = node_load( $event_id );
+
+
+    $form = array();
+
+    $form['flickr_user_name'] = array(
+        '#type'         => 'textfield',
+        '#title'        => 'User Id',
+        '#description'  => 'Your Flickr User Name',
+        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value']
+    );
+
+    $form['flickr_photoset_id'] = array(
+        '#type'         => 'textfield',
+        '#title'        => 'Photoset Id',
+        '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
+        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value']
+    );
+
+    $form['flickr_help_link'] = array(
+        '#type'         => 'markup',
+        '#markup'       => '<a href="/dw/help/tutorials/flickr_event_gallery">Need Help?</a><br><br>'
+    );
+
+    $form['submit']         = array(
+        '#type'             => 'submit',
+        '#value'            => t('Submit'),
+        '#attributes'       => array('class'=> array('btn'))
+    );
+
+
+    return $form;
+}
+
+function flickr_event_gallery_form_validate($form, &$form_state){
+
+}
+
+function flickr_event_gallery_form_submit($form, &$form_state){
+    global $user;
+
+    $event_id = $form_state['build_info']['args'][0];
+
+    $event = node_load( $event_id );
+
+    $event->field_flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
+    $event->field_flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
+
+    node_save( $event );
+
+}
+
 
 function dw_campaigns_finallyfull() {
     return theme('dw_campaigns_finallyfull_page_theme');

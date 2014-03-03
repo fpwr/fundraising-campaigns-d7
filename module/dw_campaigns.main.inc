@@ -3061,8 +3061,6 @@ function dw_campaigns_build_receipt_merge($campaign, $pcp_id, $contact_id, $cont
     return $mergeObjects;
 }
 
-
-
 function dw_campaign_receipt_report($arg) {
     global $dw_campaign_module_path;
 
@@ -3146,7 +3144,6 @@ function dw_campaigns_admin_send_receipt_mail($key, &$message, $params) {
 
 
 }
-
 
 function dw_campaign_receipt_report_pdf($arg, $noreply = FALSE) {
 

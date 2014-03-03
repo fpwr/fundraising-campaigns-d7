@@ -853,10 +853,37 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
-    $items['dw/user/host/%/donors/csv'] = array(
+    $items['dw/user/host/%/donors/active/csv'] = array(
         'title'                 => 'Host Management',
-        'page callback'         => 'dw_campaigns_host_event_donors',
-        'page arguments'        => array(3,5),
+        'page callback'         => 'dw_campaigns_host_event_donors_active',
+        'page arguments'        => array(3,6),
+        'access callback'       => 'dw_campaigns_host_permission_check',
+        'access arguments'      => array(3),
+        'type'                  => MENU_CALLBACK
+    );
+
+    $items['dw/user/host/%/donors/pending/csv'] = array(
+        'title'                 => 'Host Management',
+        'page callback'         => 'dw_campaigns_host_event_donors_pending',
+        'page arguments'        => array(3,6),
+        'access callback'       => 'dw_campaigns_host_permission_check',
+        'access arguments'      => array(3),
+        'type'                  => MENU_CALLBACK
+    );
+
+    $items['dw/event/%/donors/%/csv'] = array( //2: $event_title, 4: $event_date, 5: $output_format
+        'title'                 => 'Host Management',
+        'page callback'         => 'dw_campaigns_host_event_donors_csv',
+        'page arguments'        => array(2,4,5),
+        'access callback'       => 'dw_campaigns_host_permission_check',
+        'access arguments'      => array(3),
+        'type'                  => MENU_CALLBACK
+    );
+
+    $items['dw/event/%/participants/csv'] = array( //2: $event_id
+        'title'                 => 'Host Management',
+        'page callback'         => 'dw_campaigns_host_event_participants_csv',
+        'page arguments'        => array(2),
         'access callback'       => 'dw_campaigns_host_permission_check',
         'access arguments'      => array(3),
         'type'                  => MENU_CALLBACK
@@ -1403,7 +1430,7 @@ function dw_campaigns_theme() {
         ),
         'dw_campaigns_user_host_manage_page_theme' => array(
             'template'  => 'theme/dw-campaigns-user-host-manage-page',
-            'variables' => array('manage_form' => NULL, 'totals_form' => NULL, 'request_form' => NULL, 'reports_form' => NULL, 'totals' => NULL, 'event_id' => NULL, 'fundraisers_form' => NULL)
+            'variables' => array('manage_form' => NULL, 'totals_form' => NULL, 'request_form' => NULL, 'reports_form' => NULL, 'totals' => NULL, 'event_id' => NULL, 'fundraisers_form' => NULL )
         ),
         'dw_campaigns_user_history_page_theme' => array(
             'template'  => 'theme/dw-campaigns-user-history-page',
@@ -4678,8 +4705,6 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
                         var response = JSON.parse( xhr.responseText );
 
                         response.results = response.results ? response.results : [];
-
-console.log( response );
 
                         if( response.results.length !== 1 ){
                             donations_address_valid = false;
