@@ -2383,7 +2383,7 @@ function dw_campaigns_walking_contact_block_form_submit(&$form, &$form_state) {
    
     $values['question'] = $question; 
 
-    $target = 'onesmallstep@fpwr.org';   
+    $target = variable_get('dw_campaign_contact_block_email', 'root');
  
     drupal_mail('dw_campaigns_contact', 'contact', $target, NULL, $values);
 

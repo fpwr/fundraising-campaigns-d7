@@ -278,7 +278,7 @@ if($enabled && $theme_type != 'derby') {
     <table class="donation_key">
         <tr class="heading"><td class="lable">Offline Donation Key:</td></tr>
         <tr class="is_pay_later"><td class="amount">Offline Donation - Pending</td></tr>
-        <tr class="is_pay_later_paid"><td class="amount">Offline Donation - Received and Deposited by FPWR</td></tr>
+        <tr class="is_pay_later_paid"><td class="amount">Offline Donation - Received and Deposited by <?php echo variable_get('dw_campaigns_organization_name', 'our cause'); ?></td></tr>
     <table>
 </div>
 <!-- style="width:765px;margin-left:-135px;"> -->

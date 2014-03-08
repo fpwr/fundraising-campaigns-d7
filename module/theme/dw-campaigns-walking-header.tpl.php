@@ -177,7 +177,4 @@ if(!$no_location) {
 ?>
 </div>
 <div class="facebook-header"> 
-<!--
-    <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fonesmallstep.fpwr.org%2F&amp;send=false&amp;layout=button_count&amp;width=120&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:120px; height:21px;" allowTransparency="true"></iframe>
--->
 </div>

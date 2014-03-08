@@ -26,6 +26,7 @@ $return = implode("/", $pieces) . '/donated';
 $row = $result->fetchObject();
 $values = unserialize($row->data);
 
+// FIXME - this needs to be handled differently
 $pp = array(
     'currency' => 'EUR',
     'business' => 'L8XWDK9MLMWME',
@@ -92,9 +93,9 @@ if(!isset($french[$campaign])) {
 	<input type="hidden" value="1" name="no_shipping">
 	<input type="hidden" value="0" name="tax">
 	<input type="hidden" value="2" name="rm">
-	<input type="hidden" value="http://onesmallstep.fpwr.org/<?php echo $return;?>" name="return">
-	<input type="hidden" value="http://onesmallstep.fpwr.org/<?php echo $cancel;?>" name="cancel_return">
-	<input type="hidden" value="http://onesmallstep.fpwr.org/dw/co/pp_ipncatch" name="notify_url">
+	<input type="hidden" value="http://<?php echo $_SERVER['HTTP_HOST']; ?>/<?php echo $return;?>" name="return">
+	<input type="hidden" value="http://<?php echo $_SERVER['HTTP_HOST']; ?>/<?php echo $cancel;?>" name="cancel_return">
+	<input type="hidden" value="http://<?php echo $_SERVER['HTTP_HOST']; ?>/co/pp_ipncatch" name="notify_url">
 	<input type="hidden" name="custom" value="<?php echo $hash;?>">
 	<input type="hidden" value="co_transaction_code" name="on1">
 	<input type="hidden" value="<?php echo $hash;?>" name="os1">

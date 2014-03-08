@@ -32,7 +32,6 @@
     
     
     if($mode_type == 'walking') {
-        //$get_more_info_url  = 'http://www.fpwr.ca/get-involved/';
         $volunteer_email    = variable_get('dw_campaigns_host_submit_email');
 
         if(!empty($campaign->field_dw_contact_email['und']['0']['value'])) {

@@ -231,6 +231,13 @@ function dw_campaigns_settings() {
         '#default_value'    => variable_get('dw_campaign_auto_bcc', '')
     );
 
+    $form['mode_settings']['dw_campaign_contact_block_email']= array(
+        '#type'             => 'textfield',
+        '#title'            => t('Site Contact Email'),
+        '#description'      => t('Address to email if the dw_campaigns contact form is used'),
+        '#default_value'    => variable_get('dw_campaign_contact_block_email', '')
+    );
+
 
     
     $form['derby_specific'] = array(
@@ -307,6 +314,14 @@ function dw_campaigns_settings() {
         '#description'      => t('FPWR assigns hosts fpwr.org emails which it forwards to themr primary - leave empty if you don\'t want/need this'),
         '#default_value'    => variable_get('dw_campaigns_host_forward_database_table', '')
     );
+
+    $form['walking_specific']['dw_campaigns_host_forward_domain_name'] = array(
+        '#title'            => 'first.last@[this domain] will be the alias',
+        '#type'             => 'textfield',
+        '#description'      => t('if empty HTTP_HOST will be used'),
+        '#default_value'    => variable_get('dw_campaigns_host_forward_domain_name', '')
+    );
+
 
     $form['walking_specific']['dw_campaigns_fundraising_goal_override'] = array(
         '#title'            => 'Fundraising Goal Override',

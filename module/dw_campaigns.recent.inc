@@ -442,7 +442,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
         session_destroy();
     }
 
-    $alias = sprintf("%s.%s@%s", $contact->first_name, $contact->last_name, 'onesmallstep.fpwr.org');
+    $alias = sprintf("%s.%s@%s", $contact->first_name, $contact->last_name, variable_get('dw_campaigns_host_forward_domain_name', $_SERVER['HTTP_HOST']));
 
     $dbtable = variable_get('dw_campaigns_host_forward_database_table', '');
 
@@ -2433,6 +2433,7 @@ function dw_campaigns_event_countries_get() {
    return $countries;
 }
 
+// FIXME - we should document that this "other" is always an option even if a country group does not exist 
 function dw_campaigns_event_countries_get_options() {
     $options    = array();
     $have_other = FALSE;
@@ -2762,10 +2763,7 @@ function dw_campaigns_thankyou_form_submit(&$form, &$form_state) {
 
     $result = db_query('select * from {dw_campaigns_thankyou} where pcp_id = :pcp_id and contribution_id = :contribution_id', array(':pcp_id' => $values['pcp_id'], ':contribution_id' => $values['contribution_id']));
 
-    $params['from_email']   = variable_get('dw_campaigns_user_thankyou_from_email_address', '');
-    if(empty($params['from_email'])) {
-        $params['from_email'] = 'onesmallstep@fpwr.org';
-    }
+    $params['from_email']   = variable_get('dw_campaigns_user_thankyou_from_email_address', 'no-reply');
 
     if($result->rowCount() > 0) {
         drupal_set_message(t('A thank you had already been sent for this donation'));
@@ -3255,7 +3253,7 @@ function dw_campaigns_host_contact_page_form_submit($form, &$form_state) {
     $host_email = isset($host->field_dw_host_email['und']['0']['value']) ? $host->field_dw_host_email['und']['0']['value'] : '';
 
     if(empty($host_email)) {
-        $host_email = 'ohno@jemeznet.com';
+        $host_email = 'no-reply';
     }
 
     $message    = is_array($values['message']) ? ( isset($values['message']['value']) ? $values['message']['value'] : '' ) : $values['message'];
@@ -3352,6 +3350,68 @@ function dw_campaigns_get_active_campaigns_host_list() {
 
     $keys               = array_keys($active_campaigns);
  
+
+    $result = db_select('field_data_field_dw_host_primary', 'n')->fields('n')->condition('bundle', 'dw_campaigns_derby', '=')->condition('entity_id', $keys, 'IN')->execute();
+            
+    foreach($result as $row) {
+        if(!isset($matches_by_campaign[$row->entity_id])) {
+            $matches_by_campaign[$row->entity_id] = array();
+        }
+        $matches_by_campaign[$row->entity_id][] = $row->field_dw_host_primary_value;
+
+        $matches[$row->field_dw_host_primary_value] = $row->field_dw_host_primary_value;
+    }
+        
+    $result = db_select('field_data_field_dw_host_secondary','n')->fields('n')->condition('bundle', 'dw_campaigns_derby', '=')->condition('entity_id', $keys, 'IN')->execute();
+         
+    foreach($result as $row) {
+        if(!isset($matches_by_campaign[$row->entity_id])) {
+            $matches_by_campaign[$row->entity_id] = array();
+        }
+        $matches_by_campaign[$row->entity_id][] = $row->field_dw_host_secondary_value;
+
+        $matches[$row->field_dw_host_secondary_value] = $row->field_dw_host_secondary_value;
+    }
+
+    return $matches;
+}
+/**
+FIXME - we may want to actually replace the above one with the version that handles filtering  - leaving the old one for now
+**/
+function dw_campaigns_get_active_campaigns_host_list_filtered($filter) {        
+
+    $matches_by_campaign    = array();
+    $matches                = array();
+
+    $active_campaigns   = dw_campaigns_get_active_campaigns('nodeid');
+   
+    $filtered_active_campaigns = array();
+ 
+    foreach($active_campaigns as $nid => $node) {
+
+        if($filter == 'upcoming') {
+            if($node->field_dw_campaign_status['und']['0']['value'] == 'enabled') {
+                $filtered_active_campaigns[$nid] = $node;
+            }
+        }
+
+        if($filter == 'completed') {
+            if($node->field_dw_campaign_status['und']['0']['value'] == 'completed') {
+                $filtered_active_campaigns[$nid] = $node;
+            }
+        }
+
+        if(strncmp($filter, 'country-', 8) === 0) {
+
+            $country = substr($filter,8);
+
+            if($node->field_dw_country_grouping['und']['0']['value'] == $country) {
+                $filtered_active_campaigns[$nid] = $node;
+            }
+        }
+    }
+
+    $keys               = array_keys($filtered_active_campaigns);
 
     $result = db_select('field_data_field_dw_host_primary', 'n')->fields('n')->condition('bundle', 'dw_campaigns_derby', '=')->condition('entity_id', $keys, 'IN')->execute();
             
@@ -3837,14 +3897,18 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
     $target_filter_options = array(
         'all' => t('All'),
         'upcoming' => 'Upcoming Events',
-        'completed' => 'Completed Events',
+        'completed' => 'Completed Events'
     );
 
     $countries = dw_campaigns_event_countries_get();
     foreach($countries as $short => $country) {
         $target_filter_options['country-' . $short] = t('By Country - !title', array('!title' => $country->title));
     } 
-   
+
+    if(!isset($target_filter_options['country-other'])) {
+        $target_filter_options['country-other'] = 'By Country - Other (default)';
+    }
+ 
     $form['target_filter'] = array(
         '#type'             => 'select',
         '#title'            => t('Target Filter'),
@@ -3986,9 +4050,16 @@ function dw_campaigns_admin_contact_hosts_send_mails($values) {
     if(!empty($default_cc)) {
         $targets[]  = $default_cc;
     }
-        
+
     if(!isset($values['hosts'])) { 
-        $hosts = dw_campaigns_get_active_campaigns_host_list();
+        if(!isset($values['target_filter']) || is_null($values['target_filter']) || $values['target_filter'] == 'all') {
+//REMOVE
+echo "nope";
+die;
+            $hosts = dw_campaigns_get_active_campaigns_host_list();
+        } else {
+            $hosts = dw_campaigns_get_active_campaigns_host_list_filtered($values['target_filter']);
+        }
     } else {
         $hosts = $values['hosts'];
     }
@@ -4573,90 +4644,5 @@ function dw_campaigns_get_involved_page() {
 }
 
 function dw_campaigns_themometer_only() {
-    $css = "
-<style type='text/css' media='all'>
- .location-raised .location-label {
-        color: #5DA0CD;
-        font-size: 18px;
-        font-style:bold;
-        left: 120px;
-        position: absolute;
-        top: 4px;
-}
-
- .have-raised .dollar-label {
-        color: #2E2E2E;
-        font-size: 18px;
-        left: 120px;
-        position: absolute;
-        text-transform: uppercase;
-        top: 55px;
-}
-
- .have-raised .dollar-amount {
-        font-size: 18px;
-        left: 122px;
-        line-height: 47px;
-        position: absolute;
-        text-align: center;
-        top: 82px;
-        width: 125px;
-}
-
- .toward-goal .dollar-label {
-        color: #70706F;
-        font-size: 17px;
-        font-weight: normal;
-        left: 122px;
-        position: absolute;
-        top: 139px;
-}
-
- .toward-goal .dollar-amount {
-        color: #897B00;
-        font-size: 18px;
-        left: 122px;
-        position: absolute;
-        top: 160px;
-}
-
- .thermoEmpty {
-        height: 126px;
-        left: 30px;
-        position: absolute;
-        top: 21px;
-        width: 60px;
-        background-image:url('/sites/all/themes/dw_campaigns_walking/images/thermoEmptyHome.gif');
-}
-
- .thermoFull {
-position: relative;
-bottom: -34px;
-        left: 0px;
-        right:0px;
-        background:transparent url('/sites/all/themes/dw_campaigns_walking/images/thermoFullHome.gif') no-repeat scroll center bottom;
-}
-li {
-list-style:none;
-}
-
-#thermoBlock {
-padding: 10px;
-position: relative;
-height:230px;
-width:290px;
-background: #E8F1F7 url('/sites/all/themes/dw_campaigns_walking/images/thermoRight.gif') no-repeat scroll 1px 0px;
-left:100px;
-}
-
-#words {
-background-color: #E8F1F7;
-padding:10px;
-}
-</style>";
-    echo $css . '<div id="words">
-<p>
-100% of proceeds from One SMALL Step events go towards funding Prader-Willi Research as described in the Prader-Willi Research plan.  Our goal for 2012 is to raise $1 million dollars for PWS Research.</p><p>Funds raised in 2012 and 2013 will be specifically designated to investigate hyperphagia and mental illness in PWS.  You can learn more about research funded from previous One SMALL Step campaigns <a href="http://onesmallstep.fpwr.org/node/451" target="_blank">here</a>.
-</p><div id="thermoBlock">' . theme('dw_campaigns_walking_statistics', array('campaign' => NULL, 'terse' => FALSE)) . '</div></div>';
-    die;
+    return theme('dw_campaigns_thermometer_only', array());
 }

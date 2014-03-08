@@ -6,15 +6,6 @@ version = 7.x-0.0.3
 ; 0.0.3 + 
 
 package = dw_campaigns
-//dependencies[] = civicrm
-;dependencies[] = filefield
-;dependencies[] = imagefield
 
-; this is cck
-;dependencies[] = content 
 dependencies[] = date
 dependencies[] = token
-;dependencies[] = install_profile_api
-
-;dependencies[] = path
-;dependencies[] = pathauto
