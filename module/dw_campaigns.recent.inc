@@ -3054,6 +3054,20 @@ function dw_campaigns_donor_participation_form($form, &$form_state, $campaign, $
         '#options'          => $attending,
         '#default_value'    => $adults
     );
+
+    if(variable_get('dw_campaigns_walking_children_attending_prompt_enabled', 1) == 0) {
+        $form['event-participants']['children'] = array(
+            '#type'             => 'hidden',
+            '#value'            => 0
+        );
+    }
+
+    if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
+        $form['event-participants']['children'] = array(
+            '#type'             => 'hidden',
+            '#value'            => 0
+        );
+    }
     
     $form['contact_id']     = array(
         '#type'             => 'hidden',

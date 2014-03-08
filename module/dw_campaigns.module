@@ -2855,8 +2855,9 @@ function dw_campaigns_user_create_pcp_page_form($form, &$form_state, $campaignId
         $pcp          = dw_campaigns_user_get_pcp_for_walking($user);
 
 	if(is_null($pcp) || is_null($pcp->id)) {
-drupal_goto('dw/user/register_oss');
-die;
+            drupal_goto('dw/user/register_oss');
+            die;
+
             // -1 means we are on a create a page which doesn't know where we are coming from
             if($campaignId != -1) {
                 $campaign = node_load($campaignId);
@@ -3143,7 +3144,23 @@ die;
             '#default_value'    => $adults
         );
 
-          if(is_null($pcp_id)) {
+        if(variable_get('dw_campaigns_walking_children_attending_prompt_enabled', 1) == 0) {
+            $form['event-fields']['children'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+        if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
+            $form['event-fields']['adults'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+
+
+        if(is_null($pcp_id)) {
             $tos_words = t($campaign->field_dw_event_tos['und']['0']['value']);
 
             $form['event-fields']['tos_words'] = array(
@@ -5059,6 +5076,21 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
             '#default_value'    => $adults
         );
 
+        if(variable_get('dw_campaigns_walking_children_attending_prompt_enabled', 1) == 0) {
+            $form['event-participants']['children'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+        if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
+            $form['contribution-heading']['adults'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+
         $form['contact_id']     = array(
             '#type'             => 'hidden',
             '#value'            => $contact_id
@@ -5762,7 +5794,6 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
 
     //JFN - january 20 2014 1208 - [#migration "dw_campaigns_donor_participation_form_submit to here"]
     if( isset($values['campaign_id']) && isset($values['children']) && isset($values['adults']) && $values['contact_id']){
-        //dvr($values);exit;
 
         dw_campaigns_set_event_participants_count($values['campaign_id'], 0, $values['children'], $values['adults'], 0, 'donator', $values['contact_id']);
 

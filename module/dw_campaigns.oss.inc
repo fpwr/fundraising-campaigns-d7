@@ -679,6 +679,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
 
 // LOOK I'm sure the logic table for how we are handling runner/adult/family pledge/purchase will change - for now adult and family pledge can set # of attendies
     if($signup_type == 'runner_pledge') { 
+
         $form['contribution-heading']['children'] = array(
             '#type'             => 'hidden',
             '#value'            => 0
@@ -713,6 +714,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
         );
     } else {
 
+        // hide them below if disabled
         $form['contribution-heading']['children'] = array(
             '#type'             => 'select',
             '#title'            => t(variable_get('dw_campaigns_walking_children_attending_prompt', 'How many children will be attending the event')),
@@ -727,6 +729,23 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             '#default_value'    => $adults
 
         );
+
+
+        if(variable_get('dw_campaigns_walking_children_attending_prompt_enabled', 1) == 0) {
+            $form['contribution-heading']['children'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+    
+        if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
+            $form['contribution-heading']['adults'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+
         $form['amount-fieldset']['age'] = array(
             '#type'             => 'hidden',
             '#value'            => 0
@@ -737,6 +756,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             '#value'            => ''
         );
     }
+
 
     if($mode_type == 'walking') {
    
@@ -1392,6 +1412,22 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
             '#options'          => $attending,
             '#default_value'    => '1'
         );
+
+
+        if(variable_get('dw_campaigns_walking_children_attending_prompt_enabled', 1) == 0) {
+            $form['amount-fieldset']['children'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 0
+            );
+        }
+
+        if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
+            $form['amount-fieldset']['adults'] = array(
+                '#type'             => 'hidden',
+                '#value'            => 1
+            );
+        }
+
     } else {
 // RUNNER PURCHASE
         $form['amount-fieldset']['initial_payment'] = array(
