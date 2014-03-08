@@ -5028,12 +5028,15 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         $form['payment-fieldset']['exp-year']['#default_value']     = 5; // 2016 is 2011 + 5
     }
 
-    $form['pws_relationship'] = array(
-            '#type'             => 'select',
-            '#title'            => t('What is your relationship to PWS?'),
-            '#options'          => dw_campaigns_relationship_tag_list(),
-            '#required'         => true
-    );
+// FIXME - verify that this actually gets "tagged" on the user
+    if(variable_get('dw_campaigns_walking_pws_relationship', 1) == 1) {
+        $form['pws_relationship'] = array(
+                '#type'             => 'select',
+                '#title'            => t('What is your relationship to PWS?'),
+                '#options'          => dw_campaigns_relationship_tag_list(),
+                '#required'         => true
+        );
+    }
 
     //JFN - january 20 2014 0924 - [#todo "add in child and adult form fields from dw_campaigns_donor_participation_form"]
     //migrate the form fields, and the form validation here.

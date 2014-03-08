@@ -783,12 +783,14 @@ global $language;
 
     }
 
-    $form['pws_relationship'] = array(
+    if(variable_get('dw_campaigns_walking_pws_relationship', 1) == 1) {
+        $form['pws_relationship'] = array(
             '#type'             => 'select',
             '#title'            => t('What is your relationship to PWS?'),
             '#options'          => dw_campaigns_relationship_tag_list(),
             '#required'         => true
-    );
+        );
+    }
  
     $form['campaign-id'] = array(
             '#type'             => 'hidden',
@@ -1591,12 +1593,14 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
 
     }
 
-    $form['pws_relationship'] = array(
+    if(variable_get('dw_campaigns_walking_pws_relationship', 1) == 1) {
+        $form['pws_relationship'] = array(
             '#type'             => 'select',
             '#title'            => t('What is your relationship to PWS?'),
             '#options'          => dw_campaigns_relationship_tag_list(),
             '#required'         => true
-    );
+        );
+    }
 
     unset($more_form['donation-comments']);
     unset($more_form['privacy-fieldset']);

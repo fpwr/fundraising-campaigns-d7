@@ -276,7 +276,17 @@ function dw_campaigns_settings() {
         '#collapsed'        => TRUE,
         '#collapsible'      => TRUE,
     );
-   
+  
+    $form['walking_specific']['dw_campaigns_walking_pws_relationship'] = array(
+        '#title'            => 'Enable Prompt for "What is your relationship to PWS"',
+        '#type'             => 'select',
+        '#options'          => array(
+            '0' => t('Disabled'),
+            '1' => t('Enabled'),
+        ),
+        '#default_value'    => variable_get('dw_campaigns_walking_pws_relationship', 1)
+    );
+ 
     $form['walking_specific']['dw_campaigns_walking_adults_attending_prompt_enabled'] = array(
         '#title'            => 'Enable Prompt for "How many adults are attending the event"',
         '#type'             => 'select',

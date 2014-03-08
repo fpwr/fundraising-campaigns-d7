@@ -1377,7 +1377,7 @@ function dw_campaigns_create_event_participant($user, $event = NULL, $otherParam
         echo "failed to locate event - contact tech support";
         die;
     }
-    //print_r($event);die;
+
     // I have no idea what I'm doing in here..
     /*
     [contact_id] => 1308
