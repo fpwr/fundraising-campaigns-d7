@@ -3002,7 +3002,7 @@ function dw_campaigns_user_create_pcp_page_form($form, &$form_state, $campaignId
         '#title'            => 'Description',
         '#required'         => true,
         '#default_value'    => $intro_text,
-        '#format'           => 1,
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#attributes'       => array('class'=> array('intro_text'))
     );
 
@@ -6179,7 +6179,7 @@ function dw_campaigns_user_share_page_form($form, &$form_state, $campaignId) {
     $form['invitation-text'] = array(
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#title'            => t('Invitation Email Text'),
         '#default_value'    => $invitation_text
     );

@@ -28,8 +28,26 @@ function dw_campaigns_currency_config(){
 }
 
 function dw_campaigns_civicrm_config() {
+    global $user;
     
     $form = array();
+
+
+    $formats = filter_formats($user);
+
+    $options = array();
+    foreach ($formats as $format) {
+        $options[$format->format] = $format->name;
+    }
+
+    $form['civi_settings']['dw_campaigns_cfg_default_filter'] = array(
+        '#type' => 'select',
+        '#title' => t('Default Text format (should be filtered html)'),
+        '#options' => $options,
+        '#default_value' => variable_get('dw_campaigns_cfg_default_filter', array_shift($options)),
+        '#access' => count($formats) > 1,
+    );
+
     
     $form['civi_settings']['dw_campaigns_cfg_rest_url'] =  array(
         '#title'            => 'Civicrm REST Interface URL',
@@ -55,22 +73,6 @@ function dw_campaigns_civicrm_config() {
         '#default_value'    => variable_get('dw_campaigns_cfg_apikey', '')           
     );
     
-    $form['civi_settings']['dw_campaigns_cfg_loginname'] = array(
-        '#title'            => 'REST Interface Login Name',
-        '#type'             => 'textfield',
-        '#description'      => t('Civi Login Name'),
-        '#maxlength'        => 250,
-        '#default_value'    => variable_get('dw_campaigns_cfg_loginname', '')           
-    );
-            
-    $form['civi_settings']['dw_campaigns_cfg_loginpass'] = array(
-        '#title'            =>  'REST Interface Login Password',
-        '#type'             => 'textfield',
-        '#description'      => t('Civi Login Password'),
-        '#maxlength'        => 250,
-        '#default_value'    => variable_get('dw_campaigns_cfg_loginpass', '')           
-    );
-
     $form['civi_settings']['dw_campaigns_cfg_base_url'] =  array(
         '#title'            => 'Civicrm Public URL',
         '#type'             => 'textfield',
@@ -117,6 +119,14 @@ function dw_campaigns_civicrm_config() {
         '#description'      => t('Prefix to use when generating tags - eg: "OSS" would create "OSS fundraiser 2012"'),
         '#maxlength'        => 250,
         '#default_value'    => variable_get('dw_campaigns_cfg_ee_username', '')
+    );
+
+    $form['elasticemail_settings']['dw_campaigns_cfg_ee_apikey']  = array(
+        '#title'            => 'Elastic Email API Key',
+        '#type'             => 'textfield',
+        '#description'      => t('Elastic Email API Key - this is used to get information from EE'),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_cfg_ee_apikey', '')
     );
 
     $form['elasticemail_settings']['dw_campaigns_cfg_ee_apikey']  = array(
@@ -399,7 +409,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Event Host Request Email Response Body',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Body of auto reply email sent to Hostee (when host request is made)'),
 
         '#default_value'    => variable_get('dw_campaign_hoster_response_body', 'You will receive follow up communication soon.')
@@ -445,7 +455,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Host Panel Message',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Message shown on the host panel to all hosts - this is where you can include links or new information)'),
         '#default_value'    => variable_get('dw_campaign_host_panel_message', '')
     );
@@ -521,7 +531,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Email Body',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Body of Email sent upon account creation'),
         '#default_value'    => variable_get('dw_campaigns_signup_body', '')           
     );
@@ -560,7 +570,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Personal Campaign Intro Text',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Default Personal Campaign Intro Text (tokens available: fundraising_campaign, user, contact)'),
         '#default_value'    => variable_get('dw_campaigns_default_pcp_intro_text', '')                   
     );
@@ -578,7 +588,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Thank You Text',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Default System Generated Thank You Text'),
         '#default_value'    => variable_get('dw_campaigns_default_thankyou_text', '')           
     );
@@ -638,7 +648,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Receipt Text (donor)',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Default Receipt Text'),
         '#default_value'    => variable_get('dw_campaigns_default_receipt_text', '')           
     );
@@ -663,7 +673,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Receipt (Notification) Text (pcp owner)',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Default Receipt Text'),
         '#default_value'    => variable_get('dw_campaigns_default_receipt_text_pcp_owner', '')           
     );
@@ -681,7 +691,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Weekly Notification Text (pcp owner)',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Text'),
         '#default_value'    => variable_get('dw_campaigns_default_notification_weekly_text_pcp_owner', '')           
     );
@@ -698,7 +708,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Progress Notification Text (pcp owner)',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Text'),
         '#default_value'    => variable_get('dw_campaigns_default_notification_progress_text_pcp_owner', '')           
     );
@@ -706,7 +716,7 @@ function dw_campaigns_settings() {
     $form['notifications']['dw_campaigns_runner_signup_email'] = array(
         '#title'            => 'Runner Signup Email',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Email sent to runners confirming signup'),
         '#default_value'    => variable_get('dw_campaigns_runner_signup_email', '')           
     );
@@ -714,7 +724,7 @@ function dw_campaigns_settings() {
     $form['notifications']['dw_campaigns_canadian_receipt_email'] = array(
         '#title'            => 'Canadian (PDF) receipt Email',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Email sent to Canadians with the PDF attached'),
         '#default_value'    => variable_get('dw_campaigns_canadian_receipt_email', '')           
     );
@@ -825,7 +835,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Default Text for "sharing" email',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#default_value'    => variable_get('dw-campaigns-invitation-text', '')
     );
     
@@ -877,7 +887,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Thank You Text',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Default User Inititiated Thank You Text'),
         '#default_value'    => variable_get('dw_campaigns_user_thankyou_text', '')           
     );
@@ -914,7 +924,7 @@ function dw_campaigns_settings() {
         '#title'            => 'Admin Receipt Generation - Email Text',
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#description'      => t('Admin Receipt Text'),
         '#default_value'    => variable_get('dw_campaigns_admin_receipt_text', '')           
     );

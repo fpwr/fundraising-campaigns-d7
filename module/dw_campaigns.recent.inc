@@ -2704,7 +2704,7 @@ function dw_campaigns_thankyou_form($form, &$form_state, $target_id, $contributi
 
     $form['thank-you']['text'] = array(
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#title'            => t('Email Content'),
         '#required'         => TRUE,
         '#default_value'    => $thankyou_text
@@ -3226,7 +3226,7 @@ function dw_campaigns_host_contact_page_form($form, &$form_state, $host) {
     $form['message']        = array(
 /*
         '#type'             => 'text_format',
-        '#format'           => 1,
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
 */
         '#type'             => 'textarea',
         '#title'            => 'Message',
@@ -3497,7 +3497,7 @@ function dw_campaigns_user_host_contact_fundraisers_form($form, &$form_state, $r
 
     $form['email_text'] = array(
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#title'            => t('Email Content'),
         '#required'         => TRUE,
         '#default_value'    => '',
@@ -3964,7 +3964,7 @@ function dw_campaigns_admin_contact_hosts_form($form, &$form_state, $selected = 
 
     $form['email_text'] = array(
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#title'            => t('Email Content'),
         '#required'         => TRUE,
         '#default_value'    => $defaults->email_text

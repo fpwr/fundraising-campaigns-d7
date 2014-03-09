@@ -647,7 +647,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
     $form['contribution-heading']['intro_text'] = array(
         //'#type'             => 'textarea',
         '#type'             => 'text_format',
-        '#format'           => '1',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
         '#title'            => 'Description',
         '#required'         => true,
         '#default_value'    => $intro_text,
@@ -2384,7 +2384,7 @@ function dw_campaigns_walking_contact_block_form() {
         '#type'             => 'text_format',
         '#title'            => t('Message / Questions'),
         '#default_value'    => '',
-        '#format'           => 1
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
     );
 
     $form['captcha'] = array(
