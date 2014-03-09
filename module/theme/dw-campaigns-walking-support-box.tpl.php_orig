@@ -175,8 +175,7 @@ if(!empty($vid)) {
                 <span><?php echo t('Don\'t see your city in the list? !urlstart Click here to host a Walk !urlend in Your City', array('!urlstart' => '<a href="/dw/walking/host" class="">', '!urlend' => '</a>')); ?></span>
             </li>
             <li class="contest">
-                <!-- <a href="/content/oss-contest-rules"><?php echo t('Join Our May Awareness Campaign'); ?></a> <span class="content-words"><?php echo t('Find out how you can win an iPAD 2!'); ?></span> -->
-                <a href="<?php echo $contest_link; ?>"><?php //echo t('Win a Trip for 2 or an xBox 360 with Kinect<!--<br>PWS Parents:  Win a trip to our Conference!-->'); ?></a>
+                <a href="<?php echo $contest_link; ?>"></a>
             </li>
     </div>
 </div>

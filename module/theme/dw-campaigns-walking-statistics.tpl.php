@@ -53,8 +53,12 @@
     }
 
     if($goalTotal === 0) {
-        drupal_set_message(t('Unable to load "campaigns" goals'), 'error');
-        return;
+        if($res['total_campaigns'] == 0 || $res['total_pcps'] == 0) {
+            drupal_set_message(t('No campaigns or Personal Campaigns Found, please create some!'));
+        } else {
+            drupal_set_message(t('Unable to load "campaigns" goals'), 'error');
+            return;
+        }
     }
 
     if($goalTotal <= 0 || !is_numeric($goalTotal)) {

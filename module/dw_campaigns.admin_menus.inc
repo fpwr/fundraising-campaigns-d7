@@ -35,7 +35,7 @@ function dw_campaigns_civicrm_config() {
 
     $formats = filter_formats($user);
 
-    $options = array();
+    $options = array(null => '-- USE Default Filter Behavior --');
     foreach ($formats as $format) {
         $options[$format->format] = $format->name;
     }

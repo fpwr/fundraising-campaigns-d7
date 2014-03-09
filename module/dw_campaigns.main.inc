@@ -520,6 +520,10 @@ function _dw_campaigns_get_pcp_by_contact($contact_id, $return_first = FALSE) {
 
     $pcps       = new stdClass;
 
+    if(count($raw_pcps) == 0) {
+        return $pcps;
+    }
+
     foreach($raw_pcps as $pcp) {
         if($pcp->contact_id == $contact_id) {
             $one = clone $pcp;
@@ -620,6 +624,11 @@ function dw_campaigns_user_get_pcp_for_walking($user) {
 
     if(!isset($pcp_result[$user->uid])) {
         $campaigns  = dw_campaigns_get_active_campaigns(TRUE);
+
+        if(count($campaigns) == 0) {
+            return null;
+        }
+
         $campaign_values = array_keys($campaigns);
     
         $params = array();
@@ -652,7 +661,7 @@ function dw_campaigns_user_get_historical_pcps($user) {
     $campaigns       = dw_campaigns_get_active_campaigns(TRUE);
 
     if(is_null($campaigns) || count($campaigns) == 0) {
-        return $found[$user->uid];
+        return null;
     }
 
     $campaign_values = array_keys($campaigns);

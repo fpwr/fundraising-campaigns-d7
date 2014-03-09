@@ -231,7 +231,7 @@ file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($querySt
 
     if($cacheable && $dirty && strlen($data) > 0) {
 // FIXME - re-enable this
-        //file_put_contents($cache_file, $data);
+        file_put_contents($cache_file, $data);
     }
     
     $result = json_decode($data);
