@@ -11,7 +11,6 @@ function dw_campaigns_install() {
 * adds flickr integration fields to campaign
 **/
 function dw_campaigns_update_7001() {
-    dw_campaigns_set_block_default_pages();
     dw_campaigns_add_flickr_fields();   
     
 
@@ -35,7 +34,7 @@ function dw_campaigns_add_flickr_fields() {
             'bundle' => 'dw_campaigns_derby',
             'label' => 'Flicker Gallery Id',
             'description' => 'Id of Flicker Gallery',
-            'required' => TRUE,
+            'required' => false,
         );
 
         field_create_instance($instance);
@@ -59,7 +58,7 @@ function dw_campaigns_add_flickr_fields() {
             'bundle' => 'dw_campaigns_derby',
             'label' => 'Flicker Gallery Photo Set Id',
             'description' => 'Id of Flicker Gallery photo set to show',
-            'required' => TRUE,
+            'required' => false,
         );
 
         field_create_instance($instance);
