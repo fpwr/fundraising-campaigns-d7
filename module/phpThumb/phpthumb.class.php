@@ -1153,6 +1153,8 @@ class phpthumb {
 				$versionstring[1] = trim(phpthumb_functions::SafeExec($commandline));
 				if (eregi('^Version: [^0-9]*([ 0-9\\.\\:Q/]+) (http|file)\:', $versionstring[1], $matches)) {
 					$versionstring[0] = $matches[1];
+				} elseif (preg_match('/^Version: ImageMagick ([6-9][0-9\.-]+)/', $versionstring[1], $matches)) {
+					$versionstring[0] = $matches[1];
 				} else {
 					$versionstring[0] = false;
 					$this->DebugMessage('ImageMagick did not return recognized version string ('.$versionstring[1].')', __FILE__, __LINE__);
@@ -1172,7 +1174,7 @@ class phpthumb {
 				$commandline .= ' -help';
 				$IMhelp_lines = explode("\n", phpthumb_functions::SafeExec($commandline));
 				foreach ($IMhelp_lines as $line) {
-					if (ereg('^[\+\-]([a-z\-]+) ', trim($line), $matches)) {
+					if (preg_match('/^[\+\-]([a-z\-]+) /', trim($line), $matches)) {
 						$IMoptions[$matches[1]] = true;
 					}
 				}

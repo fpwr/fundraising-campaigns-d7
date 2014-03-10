@@ -381,7 +381,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
     $node->is_new   = true;
 
     // copy over values
-    $node->title = sprintf("One SMALL Step, %s %s", $values['location-city'], $year);
+    $node->title = sprintf("%s, %s %s", variable_get('dw_campaigns_dw_node_title_prefix', ''), $values['location-city'], $year);
     $node->language = LANGUAGE_NONE;
 
     $node->field_dw_campaign_location['und']['0']['value']  = $values['location-city'];
@@ -415,7 +415,7 @@ function dw_campaigns_host_event_create_form_submit(&$form, &$form_state) {
     $node_event = dw_campaigns_create_extended_event($node->nid);
 
     // copy over values
-    $node_event->title      = sprintf("One SMALL Step (extended), %s %s", $values['location-city'], $year);
+    $node_event->title      = sprintf("%s (extended), %s %s", variable_get('dw_campaigns_dw_node_title_prefix', ''), $values['location-city'], $year);
 
     $node_event->field_dw_eventdetails_prizes['und']['0']['value'] = isset($values['event-prizes']) ? $values['event-prizes'] : '';
     $node_event->body['und']['0']['value']                         = isset($values['event-details']) ? $values['event-details'] : '';

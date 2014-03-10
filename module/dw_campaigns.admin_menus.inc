@@ -175,6 +175,13 @@ function dw_campaigns_settings() {
         '#default_value'    => variable_get('dw_campaigns_organization_name_abbreviated', '')
     );
     
+    $form['mode_settings']['dw_campaigns_dw_node_title_prefix'] = array(
+        '#type'             => 'textfield',
+        '#title'            => t('Prefix for Event Content Types'),
+        '#description'      => t('This title is the prefix for an event, on the location page. Eg. TheseWords New York'),
+        '#default_value'    => variable_get('dw_campaigns_dw_node_title_prefix', '')
+    );
+    
     
     $homepage = variable_get('dw_campaigns_homepageurl', '');
     if(empty($homepage)) {
@@ -223,7 +230,7 @@ function dw_campaigns_settings() {
         '#title'            => t('Show fireworks effect when raised amount is higher than goal'),
         '#description'      => t('This is for all pages with a thermometer'),
         '#options'          => array('1' => 'Yes', '0' => 'No'),
-        '#value'            => variable_get('dw_campaigns_show_fireworks', '1')
+        '#default_value'            => variable_get('dw_campaigns_show_fireworks', '1')
     );
 
     $form['mode_settings']['dw_campaigns_allow_youtube'] = array(
@@ -231,7 +238,7 @@ function dw_campaigns_settings() {
         '#title'            => t('Allow Youtube videos on Personal Campaign Page'),
         '#description'      => t('Allows user to paste in a http://youtube.com/ link to display instead of an image'),
         '#options'          => array('1' => 'Yes', '0' => 'No'),
-        '#value'            => variable_get('dw_campaigns_allow_youtube', '1')
+        '#default_value'            => variable_get('dw_campaigns_allow_youtube', '1')
     );
 
     $form['mode_settings']['dw_campaign_auto_bcc']= array(

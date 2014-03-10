@@ -2982,8 +2982,8 @@ function dw_campaigns_user_create_pcp_page_form($form, &$form_state, $campaignId
         ','inline');
     }
 
-    $default_intro_text = $campaign->field_dw_pcp_intro_text['und']['0']['value'];
-
+    // if this field is never populated in the defaults it comes back as an empty array
+    $default_intro_text = isset($campaign->field_dw_pcp_intro_text['und']['0']['value']) ? $campaign->field_dw_pcp_intro_text['und']['0']['value'] : "";
 
     if(!empty($default_intro_text)) {
         $contactId      = _dw_campaigns_user_get_contact_id($user);
