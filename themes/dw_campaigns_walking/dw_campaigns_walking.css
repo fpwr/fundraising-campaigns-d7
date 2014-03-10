@@ -8,6 +8,11 @@
 
 }
 
+.form-item-donation-amount label:after{
+    /* this is validated in a strange way, so the asterisk doesn't show up, we'll override that here! */
+    content: '*';
+    color: red;
+}
 
 #donations-form-address-validation-notice{
     /*used to display a notice that the address entered is possibly invalid!*/

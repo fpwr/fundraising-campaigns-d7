@@ -1994,7 +1994,7 @@ if($i==50) {
     
 }
 
-function dw_campaigns_reports_event_registration($arg = NULL, $mode = 'SCREEN') {
+function dw_campaigns_reports_event_walker_registration($arg = NULL, $mode = 'SCREEN') {
     global $dw_campaign_module_path;
 
 
@@ -2208,7 +2208,88 @@ function dw_campaigns_reports_event_registration_form_submit(&$form, &$form_stat
 }
 
 
+function dw_campaigns_edit_tos(){
+    $originalForm = drupal_get_form('dw_campaigns_settings');
 
+    $originalForm['mode_settings']['#access'] = false;
+    $originalForm['derby_specific']['#access'] = false;
+    $originalForm['nav_bar']['#access'] = false;
+    $originalForm['signup_tokens_fieldset']['#access'] = false;
+    $originalForm['signup']['#access'] = false;
+    $originalForm['default_tokens_fieldset']['#access'] = false;
+    $originalForm['defaults']['#access'] = false;
+    $originalForm['notifications']['#access'] = false;
+    $originalForm['donation_settings_fieldset']['#access'] = false;
+    $originalForm['invitation_tokens_fieldset']['#access'] = false;
+    $originalForm['invitation_text_fieldset']['#access'] = false;
+    $originalForm['sharing_fieldset']['#access'] = false;
+    $originalForm['thankyou_fieldset']['#access'] = false;
+    $originalForm['host_to_fundraisers_fieldset']['#access'] = false;
+    $originalForm['admin_receipt_fieldset']['#access'] = false;
+    $originalForm['default_cc_fieldset']['#access'] = false;
+    $originalForm['host_request_services_fieldset']['#access'] = false;
+    $originalForm['livedocx_fieldset']['#access'] = false;
+    $originalForm['donors_forms']['#access'] = false;
+
+    //var_dump($originalForm['walking_specific']);exit;
+
+    $originalForm['walking_specific']['dw_campaigns_walking_distance_unit']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_host_submit_email']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_fundraising_goal_override']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_fundraising_goal_start_value']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_walking_event_help_text']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_walking_event_max']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaign_hoster_response_subject']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaign_hoster_response_body']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaign_host_contact_subject']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_pcp_create_host_notify']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_participation_type_blurb']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_host_event_accepted_email_subject']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaigns_host_event_accepted_email']['#access'] = false;
+    $originalForm['walking_specific']['dw_campaign_host_panel_message']['#access'] = false;
+
+    drupal_add_js('
+        window.addEventListener("load",function(){
+
+            var link = document.getElementById("edit-walking-specific").children[0].children[0].children[0]
+
+            eventFire(link,"click");
+
+        });
+
+        function eventFire(el, etype){
+            if (el.fireEvent) {
+                (el.fireEvent("on" + etype));
+            } else {
+                var evObj = document.createEvent("Events");
+                evObj.initEvent(etype, true, false);
+                el.dispatchEvent(evObj);
+            }
+        }','inline');
+
+    return $originalForm;
+
+    $form = array();
+
+    $form['walking_specific'] = array(
+        '#type'         => 'fieldset',
+        '#title'        => t('Walking Specific Settings'),
+        '#description'  => t('Configure Walking Settings'),
+        '#collapsed'        => TRUE,
+        '#collapsible'      => TRUE,
+    );    //var_dump( $form );exit;
+
+    $form['walking_specific']['dw_campaigns_walking_event_tos'] = $originalForm['walking_specific']['dw_campaigns_walking_event_tos'];
+    $form['#submit'] = $originalForm['#submit'];
+    $form['actions'] = $originalForm['actions'];
+    //var_dump( $form['#submit'] );exit;
+
+    //var_dump( $form['actions'] );exit;
+
+    //var_dump($form['walking_specific']['dw_campaigns_walking_event_tos']);exit;
+
+    return $form;
+}
 
 
 /**

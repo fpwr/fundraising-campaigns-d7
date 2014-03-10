@@ -89,6 +89,8 @@
 
 
 <div class="forms">
+
+    <!-- Event Details Settings -->
     <div class="hidmenu menu-event_fundraisers">
 
         <?php //Event Details Settings
@@ -97,6 +99,7 @@
 
     </div>
 
+    <!-- Fundraiser Management -->
     <div class="hidmenu menu-event_details">
         <!-- sub menu... This really needs to be cleaned up. I'll do it on a weekend after I'm caught up on my other work -->
         <div class="form_menu micro">
@@ -111,12 +114,13 @@
             </ul>
         </div>
 
-        <?php //Fundraiser Management
+        <?php
             echo drupal_render($manage_form);
         ?>
 
     </div>
 
+    <!-- Request Services -->
     <div class="hidmenu menu-event_gallery">
         <!-- sub menu... This really needs to be cleaned up. I'll do it on a weekend after I'm caught up on my other work -->
         <div class="form_menu micro">
@@ -139,7 +143,7 @@
 
     <div class="hidmenu menu-event_request">
 
-        <?php //Request Services
+        <?php
             $tshirts_and_services_node = explode('/', drupal_lookup_path("source", 'tshirts_and_services') );       //this is horrible!
             $RequestServicesNode = node_load( $tshirts_and_services_node );
 
@@ -148,28 +152,32 @@
 
     </div>
 
+
+    <!-- Reports -->
     <div class="hidmenu menu-event_reports">
         <ul>
             <li> <a href="/dw/user/host/<?php echo $event_id;?>/reports/registration/SCREEN">Event Registration Report (SCREEN)</a> </li>
             <li> <a href="/dw/user/host/<?php echo $event_id;?>/reports/registration/CSV">Event Registration Report (download CSV)</a> </li>
         </ul>
 
-        <?php //Reports
+        <?php
             echo drupal_render($reports_form);
         ?>
 
     </div>
 
+    <!-- Document Database -->
     <div class="hidmenu menu-event_documentdb">
         <p>
 
-            <?php //Document Database
+            <?php
                 echo $message;
             ?>
 
         </p>
     </div>
 
+    <!-- Active Donors -->
     <div class="hidmenu menu-event_donors_active">
         <!-- donors active sub menu -->
         <div class="form_menu micro">
@@ -201,7 +209,7 @@
                     <div class="td">postal</div>
                 </div>
 
-            <?php //Active Donors
+            <?php
                 $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
 
                 foreach( $pcps as $id => $pcp ){
@@ -228,7 +236,7 @@
         </p>
     </div>
 
-
+    <!-- Pending Donors -->
     <div class="hidmenu menu-event_donors_pending">
         <!-- donors pending sub menu -->
         <div class="form_menu micro">
@@ -262,7 +270,7 @@
                     <div class="td">postal</div>
                 </div>
 
-                <?php //Pending Donors
+                <?php
                     $pcps = _dw_campaigns_get_pcps_for_campaign( $event );
 
                     foreach( $pcps as $id => $pcp ){
@@ -295,6 +303,7 @@
         </p>
     </div>
 
+    <!-- Donors For This Event On Other Years -->
     <div class="hidmenu menu-event_donors_previous_years">
         <!-- donors pending sub menu -->
         <div class="form_menu micro">
@@ -317,7 +326,7 @@
 
         <p>
 
-        <?php //Donors For This Event On Other Years
+        <?php
             global $user;
 
             $campaigns  = array();
@@ -347,6 +356,7 @@
         </p>
     </div>
 
+    <!-- Event Participants -->
     <div class="hidmenu menu-event_participants">
         <p>
         <a href="/dw/event/<?= $event_id ?>/participants/csv">Download CSV</a>
@@ -361,7 +371,7 @@
                 <div class="td">postal</div>
             </div>
 
-            <?php //Event Participants
+            <?php
 
                 $participants = dw_campaign_get_event_participants_by_campaign($event_id);
 

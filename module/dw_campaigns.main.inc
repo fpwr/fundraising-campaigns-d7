@@ -422,7 +422,7 @@ function dw_campaigns_get_event_participants_count($campaignId, $pcpId, $contact
     return array($children, $adults);
 }
 
-function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0) {
+function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0, $gender = 'undefined') {
     global $dw_campaign_module_path;
 
     if($age == '' || is_null($age)) {
@@ -452,7 +452,19 @@ function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $childre
 
     $num_attending = $children + $adults;
 
-    db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age)", array(
+$fields = array(
+    ':campaignid'       => $campaignId,
+    ':pcpid'            => $pcpId,
+    ':participants'     => $num_attending,
+    ':participanttype'  => $participation_type,
+    ':contactid'        => $contactId,
+    ':children'         => $children,
+    ':adults'           => $adults,
+    ':age'              => $age,
+    ':gender'           => $gender
+);
+
+    $result = db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age, gender) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age, :gender)", array(
         ':campaignid'       => $campaignId, 
         ':pcpid'            => $pcpId, 
         ':participants'     => $num_attending, 
@@ -460,7 +472,8 @@ function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $childre
         ':contactid'        => $contactId,
         ':children'         => $children,
         ':adults'           => $adults,
-        ':age'              => $age
+        ':age'              => $age,
+        ':gender'           => $gender
     ));
 }
 

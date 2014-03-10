@@ -325,7 +325,7 @@ function dw_campaigns_fboauth_action_connect( $app_id, $access_token ){
 
 
 
-    // If the user has logged in before, load their account and login.
+    // If the user has logged in before, but is not currently logged in, load their account from their facebook id and log them in.
     if (!$user->uid && $uid && ($account = user_load($uid))) {
         fboauth_login_user($account);
 
@@ -350,7 +350,11 @@ function dw_campaigns_fboauth_action_connect( $app_id, $access_token ){
         }else {
             //create the user account, business as usual!
             dw_campaigns_create_oss_user_from_fbuser_object($fbuser);
-            fboauth_login_user(user_load(fboauth_uid_load($fbuser->id)));
+
+            $account_ = fboauth_uid_load( $fbuser->id );
+            $user_ = user_load( $account_ );
+
+            fboauth_login_user( $user_ );
         }
 
     }
@@ -698,6 +702,14 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             '#options'          => $ages,
             '#default_value'    => 30
         );
+
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'select',
+            '#title'            => t('What gender is the runner?'),
+            '#options'          => array('male' => 'male', 'female' => 'female'),
+            '#default_value'    => 'male'
+        );
+
     } else {
 
         $form['contribution-heading']['children'] = array(
@@ -714,9 +726,15 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
             '#default_value'    => $adults
 
         );
+
         $form['amount-fieldset']['age'] = array(
             '#type'             => 'hidden',
             '#value'            => 0
+        );
+
+        $form['amount-fieldset']['gender'] = array(
+            '#type'             => 'hidden',
+            '#value'            => 'undefined'
         );
     }
 
@@ -915,8 +933,6 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_validate(&$form, &$
  *
  */
 function dw_campaigns_create_oss_user_from_fbuser_object( $fbuser ){
-    global $user;
-
     //some assumptions, if the user selects the facebook connect button while not logged in, we try to log the user in using the drupal account that has been associated with the facebook account.
     //if there is no association, we try to associate the currently logged in user with the facebook connect link
     //if there is no current user, then we attempt creating a drupal user account using the information provided by the facebook graph import.
@@ -928,25 +944,20 @@ function dw_campaigns_create_oss_user_from_fbuser_object( $fbuser ){
 
     global $user;
 
-
     $params                     = array();
 
     $params['mail']             = $fbuser->{'email'};
+    $params['name']             = $fbuser->{'name'};
+    $params['pass']             = md5($params['mail'] . rand(1111111111, 9999999999) . microtime());
     $params['roles']            = array();
     $params['status']           = 1;
-    $params['name']             = $fbuser->{'username'};
-    //since it's a facebook connect login, we don't really need a password, but we really should fill it with something so other people can't gain access to the account if they happen to see this in the public repo.
-    $params['pass']             = md5($values['email'] . rand(1111111111, 9999999999) . microtime());
     $params['data']             = array('displayname' => $fbuser->{'name'});
 
-    user_save('', $params);
+    $user_ = user_save('', $params);
 
     $uid = user_authenticate($params['name'], $params['pass']);
-    $user = user_load($uid);
 
-    var_dump( $uid );exit;
-
-    $_SESSION['created_user'] = 1;
+    fboauth_save($user_->uid, $fbuser->id);
 
     //@todo: implement facebook user photos
     //upload photo if they gave one
@@ -957,27 +968,21 @@ function dw_campaigns_create_oss_user_from_fbuser_object( $fbuser ){
     //blegh.. transform the fbuser object into a values array so we can interface with other parts of this process...
 
     $values = array(
-        'participation_type'    => 'adult_pledge',     //Is this one necessary?  I don't like adding this arbitrarily! but I'm out of facebook accounts to test against.
+        //'participation_type'    => 'adult_pledge',     //Is this one necessary?  I don't like adding this arbitrarily! but I'm out of facebook accounts to test against.
         'displayname'           => $params['data']['displayname'],
         'username'              => $params['name'],
         'password'              => $params['pass'],
         'password2'             => $params['pass'],
         'first_name'            => $fbuser->{'first_name'},
-        'last_name'             => $fbuser->{'last_name'}
+        'last_name'             => $fbuser->{'last_name'},
+        'email'                 => $fbuser->{'mail'}
     );
 
-    $contact = _dw_campaigns_update_civicrm_contact($user, $values);
+    $contact = _dw_campaigns_update_civicrm_contact($user_, $values);
 
-    $params = array(
-        'contact_id'    => $contact->contact_id,
-        'returnFirst'   => 1
-    );
+    _dw_save_user_to_contact_glue($user_, $contact);
 
-    $contact        = _dw_civicrm_contact_get($params);
-
-    _dw_save_user_to_contact_glue($user, $contact);
-
-    return array('contact' => $contact, 'user' => $user);
+    return array('contact' => $contact, 'user' => $user_);
 
 }
 
@@ -1188,9 +1193,9 @@ function dw_campaigns_user_register_oss_create_pcp_page_form_submit(&$form, &$fo
     } 
 
     $values['num_attending'] = $values['children'] + $values['adults'];
- 
-    dw_campaigns_set_event_participants_count($campaign->nid, $pcp->id, $values['children'], $values['adults'], $values['age'], $values['participation_type']);
- 
+
+    dw_campaigns_set_event_participants_count($campaign->nid, $pcp->id, $values['children'], $values['adults'], $values['age'], 0, $values['participation_type'], $values['gender']);
+
     $event_data = new stdClass();
     $event_data->participants_old = $participants_old;
     $event_data->participants     = $values['num_attending'];

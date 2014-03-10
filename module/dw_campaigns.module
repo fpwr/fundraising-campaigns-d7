@@ -98,8 +98,6 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
-    //$items['admin/settings/dw_campaigns_currency_setup'] = component('Currency')->get_admin_form();
-
     $items['admin/settings/dw_campaigns_currency_setup'] = array(
         'title'                 => "Currency",
         'description'           => "Use this to configure the way you want to handle currency.",
@@ -221,28 +219,46 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
-    $items['admin/reports/dw_event_registration'] = array(
-        'title'                 => "DW Event Registration",
+    $items['admin/reports/dw_event_registration/walker'] = array(
+        'title'                 => "DW Event Walker Registration",
+        'description'           => "List of Walking Event Participants",
+        'page callback'         => 'dw_campaigns_reports_event_walker_registration',
+        'page arguments'        => array(4),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+    $items['admin/reports/dw_event_registration/walker/%'] = array(
+        'title'                 => "DW Event Walker Registration",
+        'description'           => "List of Running Event Participants",
+        'page callback'         => 'dw_campaigns_reports_event_walker_registration',
+        'page arguments'        => array(4),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
+    $items['admin/reports/dw_event_registration/runner'] = array(
+        'title'                 => "DW Event Runner Registration",
         'description'           => "List of Event Participants",
-        'page callback'         => 'dw_campaigns_reports_event_registration',
-        'page arguments'        => array(3),
+        'page callback'         => 'dw_campaigns_reports_event_runner_registration',
+        'page arguments'        => array(4),
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'file'                  => 'dw_campaigns.admin_menus.inc',
         'type'                  => MENU_NORMAL_ITEM
     );
 
 
-    $items['admin/reports/dw_event_registration/%'] = array(
-        'title'                 => "DW EventRegistrationSummary",
+    $items['admin/reports/dw_event_registration/runner/%'] = array(
+        'title'                 => "DW Event Runner Registration",
         'description'           => "List of Event Participants",
-        'page callback'         => 'dw_campaigns_reports_event_registration',
-        'page arguments'        => array(3),
+        'page callback'         => 'dw_campaigns_reports_event_runner_registration',
+        'page arguments'        => array(4),
         'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
         'file'                  => 'dw_campaigns.admin_menus.inc',
         'type'                  => MENU_NORMAL_ITEM
     );
-
-
 
 
 
@@ -1214,6 +1230,26 @@ function dw_campaigns_menu() {
         'access arguments'    => array(PERM_ACCESS_DW_CAMPAIGN),
         'type'                => MENU_CALLBACK
     );
+
+    $items['dw/campaigns/edit/tos'] = array(
+        'title'               => 'EditTOS',
+        'page callback'       => 'dw_campaigns_edit_tos',
+        'page arguments'      => array(),
+        'access arguments'    => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                => "dw_campaigns.admin_menus.inc",
+        'type'                => MENU_CALLBACK
+    );
+
+    $items['admin/settings/dw_campaigns_edit_tos'] = array(
+        'title'=>'Edit Default Waiver',
+        'description'=>'Edit the default walking waiver.',
+        'page callback'=>'drupal_goto',
+        'page arguments'=>array('dw/campaigns/edit/tos'),
+        'access arguments'=>array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'=>'dw_campaigns.admin_menus.inc',
+        'type'=>MENU_NORMAL_ITEM
+    );
+
     /*
     $items['finallyfull'] = array(
         'title'               => 'Finally Full',
