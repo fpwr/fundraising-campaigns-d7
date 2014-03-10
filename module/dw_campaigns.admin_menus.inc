@@ -1020,7 +1020,8 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         'dw_campaigns_user_thankyou_text',
         'dw_campaigns_runner_signup_email',
         'dw_campaigns_canadian_receipt_email',
-        'splashr_html'
+        'splashr_html',
+        'dw_campaigns_admin_receipt_text'
     );
 
     foreach($possibles as $key) {
