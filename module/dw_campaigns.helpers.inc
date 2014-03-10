@@ -453,7 +453,7 @@ echo $back[2]['function'] . '<br>';
 
 function _dw_civicrm_contributionsoft_create($params) {
     global $debug;
-    dw_campaigns_cache_dirty('contributionSoft-get_rowCount=999999');
+    dw_campaigns_cache_dirty('contributionSoft-');
 
     if(isset($params['pcp_id'])) {
         cache_clear_all($params['pcp_id'] . '_CONVERT', 'cache');
@@ -479,9 +479,9 @@ function _dw_civicrm_contributionsoft_create($params) {
 function _dw_civicrm_contributionpage_create($params) {
     if(isset($params['id'])){
         dw_campaigns_cache_dirty('contributionPage-get', "id=" . $params['id']);
-        dw_campaigns_cache_dirty('contributionPage-get_rowCount');
+        dw_campaigns_cache_dirty('contributionPage-');
     } else {
-        dw_campaigns_cache_dirty('contributionPage-get_rowCount');
+        dw_campaigns_cache_dirty('contributionPage-');
     }   
 
     if(isset($params['contribution_type_id'])) {
@@ -536,8 +536,8 @@ function _dw_civicrm_contribution_create($params) {
 
     cache_clear_all('dw_campaigns_campaigns_total', 'cache');
 
-    dw_campaigns_cache_dirty('contributionSoft-get_rowCount');
-    dw_campaigns_cache_dirty('contribution-get_rowCount');
+    dw_campaigns_cache_dirty('contributionSoft-');
+    dw_campaigns_cache_dirty('contribution-');
 
     if(isset($params['pcp_made_through_id'])) {
         dw_campaigns_cache_dirty('contributionSoft', 'pcp_id=' . $params['pcp_made_through_id']);
