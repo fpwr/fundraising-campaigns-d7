@@ -1768,7 +1768,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
     $params['postal_code']                      = $values['postal_code'];
     $params['country']                          = $country_iso_code;
     $params['contributionType_name']            = $contributionType->name;
-    $params['contributionType_accounting_code'] = $contributionType->accounting_code;
+    //$params['contributionType_accounting_code'] = $contributionType->accounting_code;
     $params['contributionPageID']               = $contributionPage->id;
     $params['subject']                          = '';
 

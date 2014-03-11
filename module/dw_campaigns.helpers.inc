@@ -709,6 +709,11 @@ function _dw_civicrm_pcp_search_owner($params) {
 }
 
 // these are now called "financial types" in v3 - they are mapping contribution_type_id into financial_type_id for us (as a compatibility for 4.3 -> 4.4)
+/* 
+   FIXME - we used to receive/send accounting_code for contribution type, this is now in civicrm_financial_account - 
+   I don't think we need to pass it around though since its tied to the type, we likely only sent it before because
+   we know it, and didnt know if it impacted anything -Ryan
+*/
 function _dw_civicrm_contributiontype_create($params) {
      $res = civicrm_query('/contributionType/create', $params, false, true, false, false);
     

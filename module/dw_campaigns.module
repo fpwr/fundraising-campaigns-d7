@@ -5302,7 +5302,7 @@ if(!$alt_billing) {
     $params['contribution_type_id']             = $contributionType->id;
     $params['contributionType_id']              = $contributionType->id;
     $params['contributionType_name']            = $contributionType->name;
-    $params['contributionType_accounting_code'] = $contributionType->accounting_code;
+    //$params['contributionType_accounting_code'] = $contributionType->accounting_code;
     $params['contributionPageID']               = $contributionPage->id;
     $params['subject']                          = '';
 
@@ -7024,7 +7024,7 @@ function dw_campaigns_user_donations_add_form_validate(&$form, &$form_state) {
     $params['country-5']                        = $country_iso_code;
 
     $params['contributionType_name']            = $contributionType->name;
-    $params['contributionType_accounting_code'] = $contributionType->accounting_code;
+    //$params['contributionType_accounting_code'] = $contributionType->accounting_code;
     $params['contributionPageID']               = $contributionPage->id;
 
     /* since we are using the REST API we need to pass it the fields we want to dedupe on */

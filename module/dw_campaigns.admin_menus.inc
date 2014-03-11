@@ -1892,7 +1892,7 @@ function dw_campaigns_offline_donation_post($row) {
     $params['country-5']                        = $country_iso_code;
 
     $params['contributionType_name']            = $contributionType->name;
-    $params['contributionType_accounting_code'] = $contributionType->accounting_code;
+    //$params['contributionType_accounting_code'] = $contributionType->accounting_code;
     $params['contributionPageID']               = $contributionPage->id;
 
     /* since we are using the REST API we need to pass it the fields we want to dedupe on */
@@ -2337,6 +2337,7 @@ function dw_campaigns_reports_event_emails($arg = '', $csvOutput = false) {
     $options                = array();
     $campaigns              = array();
 
+    $headers                = array();
     $rows                   = array();
 
     foreach($allcampaigns as $campaign) {
