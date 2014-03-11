@@ -601,7 +601,7 @@ function dw_campaigns_user_donations_add_form_new($form, &$form_state, $campaign
     $form['donation_amount'] = array(
         '#type'             => 'textfield',
         '#title'            => t('Donation Amount') . ' ' . $currency,
-        '#default_value'    => variable_get('default_contribution_amount', '100.00')
+        '#default_value'    => intval(variable_get('default_contribution_amount', '100'))
     );
 
 
@@ -3784,17 +3784,23 @@ function dw_campaigns_admin_generate_cdn_receipts() {
 
         variable_set('dw_campaigns_cron_generate_cdn_lock', 1);
         watchdog("generate cdn receipts", "started processing");
-        $results = db_query("select * from {dw_campaigns_contribution_receipts_CAD} where contribution_id != -1 and tax_receipt_sent = 0 order by rid");
+            
         $cnt     = 0;
 
-        foreach($results as $row) {
-            if($row->rid>3410) {
-                watchdog("generate cdn receipts", "creating #" . $row->contribution_id);
-   
-                dw_campaign_receipt_report_email($row->contribution_id, FALSE, TRUE);
-
-                $cnt++;
+        if(db_table_exists('dw_campaigns_contribution_receipts_cdn')) {
+            $results = db_query("select * from {dw_campaigns_contribution_receipts_CAD} where contribution_id != -1 and tax_receipt_sent = 0 order by rid");
+    
+            foreach($results as $row) {
+                if($row->rid>3410) {
+                    watchdog("generate cdn receipts", "creating #" . $row->contribution_id);
+       
+                    dw_campaign_receipt_report_email($row->contribution_id, FALSE, TRUE);
+    
+                    $cnt++;
+                }
             }
+        } else {
+            watchdog('generate cdn receipts', 'dw_campaigns_contribution_receipts_cdn does not exist, skipping generation');
         }
 
         variable_set('dw_campaigns_cron_generate_cdn_last_run', time());

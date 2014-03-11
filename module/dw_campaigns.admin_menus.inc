@@ -222,7 +222,7 @@ function dw_campaigns_settings() {
         '#type'             => 'textfield',
         '#title'            => t('Default Personal Campaign Goal'),
         '#description'      => t('This is the initial value for a new Personal Campaign Goal'),
-        '#default_value'    => variable_get('dw_campaign_default_pcp_goal', '100.00')
+        '#default_value'    => intval(variable_get('dw_campaign_default_pcp_goal', '100'))
     )
 ;
     $form['mode_settings']['dw_campaigns_show_fireworks'] = array(
@@ -749,7 +749,7 @@ function dw_campaigns_settings() {
         '#type'             => 'textfield',
         '#description'      => t('Default Contribution Amount'),
         '#maxlength'        => 250,
-        '#default_value'    => variable_get('default_contribution_amount', '100.00')         
+        '#default_value'    => intval(variable_get('default_contribution_amount', '100'))
     );
 
 /*

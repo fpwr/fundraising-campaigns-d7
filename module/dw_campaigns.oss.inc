@@ -608,7 +608,7 @@ function dw_campaigns_user_register_oss_create_pcp_page_form($form, &$form_state
     );    
 
 
-    $goal_amount = variable_get('dw_campaign_default_pcp_goal', '100.00');
+    $goal_amount = intval(variable_get('dw_campaign_default_pcp_goal', '100'));
 
     if(!is_null($pcp->goal_amount)) {
         $goal_amount = $pcp->goal_amount;
@@ -1489,7 +1489,7 @@ function dw_campaigns_user_register_oss_registration_payment_form($form, &$form_
 
     $form['amount-fieldset']['other_amount'] = array(
         '#type'             => 'textfield',
-        '#default_value'    => '0.00',
+        '#default_value'    => '0',
         '#title'            => 'Other Amount',
     ); 
 

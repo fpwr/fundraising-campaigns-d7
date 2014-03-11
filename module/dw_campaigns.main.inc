@@ -956,7 +956,8 @@ function dw_campaigns_get_contributions_for_pcp($pcp, $by_id = FALSE) {
     }
 
     if($by_id) {
-        return $by_id_contributions[$pcp_id];
+        // if a PCP has no donations this won't be populated - future us may wish this was an array though
+        return isset($by_id_contributions[$pcp_id]) ? $by_id_contributions[$pcp_id] : NULL;
     }
 
     return $contributions[$pcp_id];
@@ -1227,8 +1228,8 @@ function dw_campaigns_username_search_ajax($username = NULL, $echoResults = TRUE
     
     global $user;
 
-    $post_username  = !is_null($_POST['username']) ? $_POST['username'] : NULL;
-    $username       = !is_null($username) ? $username : $post_username;
+    $post_username  = isset($_POST['username']) ? $_POST['username'] : NULL;
+    $username       = isset($username) ? $username : $post_username;
     
     //they are logged in and they entered their own username which we want to allow
     if($user->uid > 0 && $user->name == $username) {
@@ -1273,7 +1274,7 @@ function dw_campaigns_ajax_position($pcp_id, $amount) {
     die;
 }
 
-function dw_campaigns_ajax_currencyformat($amount = '0.00', $currency = 'USD') {
+function dw_campaigns_ajax_currencyformat($amount = '0', $currency = 'USD') {
     echo dw_campaigns_force_decimal($amount, $currency);
     die;
 }

@@ -2941,7 +2941,7 @@ function dw_campaigns_user_create_pcp_page_form($form, &$form_state, $campaignId
     );
 
 
-    $goal_amount = variable_get('dw_campaign_default_pcp_goal', '100.00');
+    $goal_amount = intval(variable_get('dw_campaign_default_pcp_goal', '100'));
 
     if(!is_null($pcp->goal_amount)) {
         $goal_amount = $pcp->goal_amount;
@@ -4360,7 +4360,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
     $form['donor-information']['donation-amount'] = array(
         '#type'             => 'textfield',
         '#title'            => t('Amount') . ' ' . $currency,
-        '#default_value'    => variable_get('default_contribution_amount', '100.00')
+        '#default_value'    => intval(variable_get('default_contribution_amount', '100'))
     );
 
     $form['donor-information'] = array_merge($form['donor-information'], $address_form);
@@ -5749,8 +5749,9 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
 
     // this is a kludgy work around, I split the merge object creation so we can use this more places
 
-    //$from = sprintf("%s <%s>", $campaign->field_dw_receipt_from_name['und']['0']['value'], $campaign->field_dw_receipt_from_email['und']['0']['value']);
-    $from = '"'. addslashes(mime_header_encode($campaign->field_dw_receipt_from_name['und']['0']['value'])) .'" <'. $campaign->field_dw_receipt_from_email['und']['0']['value'] .'>';
+    $from_name = isset($campaign->field_dw_receipt_from_name['und']['0']['value']) ? $campaign->field_dw_receipt_from_name['und']['0']['value'] : null;
+    $from_email = isset($campaign->field_dw_receipt_from_email['und']['0']['value']) ? $campaign->field_dw_receipt_from_email['und']['0']['value'] : null;
+    $from = '"'. addslashes(mime_header_encode($from_name)) .'" <'. $from_email .'>';
 
     $mergeObjects['campaign_obj'] = $campaign;
 
@@ -6013,20 +6014,21 @@ function dw_campaigns_fundraising_tips_page(){
 
     $documentPath = 'sites/default/files/Fundraising_Guide.pdf';
 
+    if( user_access(PERM_ADMIN_DW_CAMPAIGN) ) {
+
+        $myForm = drupal_get_form( 'dw_campaigns_upload_fundraising_tips_pdf_form_form', $documentPath );
+        $myHtml = drupal_render( $myForm );
+    }
+
     if(!file_exists($documentPath)) {
-        return '<div class="no-fundraising-guide">Sorry, no fundraising guide is currently available</div>';
+        return '<div class="no-fundraising-guide">Sorry, no fundraising guide is currently available</div>' . $myHtml;
     }
 
     $html = '<a href="/' . $documentPath . '" download="Fundraising_Tips.pdf">Download To Your Computer</a>';
     //JFN - january 15 2014 1826 - [#feature "Select and upload a pdf to replace the currently linked document here.  but only if you're logged in as an admin"]
 
-    if( in_array('site admin', array_values($user->roles)) ) {
-        $myForm = drupal_get_form( 'dw_campaigns_upload_fundraising_tips_pdf_form_form', $documentPath );
-
-        $html = $html . drupal_render( $myForm );
-    }
-
     $html = $html .
+            $myHtml .
             '<br>'.
             '<iframe src="http://docs.google.com/gview?url=http://' . $_SERVER['HTTP_HOST'] . '/'.$documentPath.'&embedded=true" style="width:100%; height:800px;" frameborder="0"></iframe>';
 
@@ -6813,7 +6815,7 @@ function dw_campaigns_user_donations_add_form($form, &$form_state, $campaign, $p
     $form['donation-amount'] = array(
         '#type'             => 'textfield',
         '#title'            => t('Donation Amount') . ' ' . $currency,
-        '#default_value'    => variable_get('default_contribution_amount', '100.00')
+        '#default_value'    => intval(variable_get('default_contribution_amount', '100'))
     );
 
 
