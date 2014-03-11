@@ -129,9 +129,18 @@
                     <tr class="date">
                         <th><?php echo t('Date'); ?></th><td><?php echo $event_date;?> <?php echo $event_time; ?></td>
                     </tr>
+
+                    <?php
+                    if(isset($node->field_dw_event_location['und']['0']['value'])) {
+                    ?>
+
                     <tr class="location">
                         <th><?php echo t('Location'); ?></th><td><?php echo $node->field_dw_event_location['und']['0']['value']; ?></td>
                     </tr>
+
+                    <?php
+                    }
+                    ?>
 <!--
                     <tr class="address">
                         <th><?php echo t('Address'); ?></th><td>123 street  Beverly Hills, CA 90210</td>

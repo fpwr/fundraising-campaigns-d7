@@ -2337,6 +2337,8 @@ function dw_campaigns_reports_event_emails($arg = '', $csvOutput = false) {
     $options                = array();
     $campaigns              = array();
 
+    $rows                   = array();
+
     foreach($allcampaigns as $campaign) {
         $campaigns[$campaign->nid]  = $campaign;
         if(!isset($active[$campaign->nid])) {
