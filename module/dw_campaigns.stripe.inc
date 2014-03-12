@@ -1,7 +1,5 @@
 <?php
 
-
-
 function dw_campaigns_users_donate_st_page($username, $campaignPath, $account = null){
     $data = dw_campaigns_users_pcp_page($username, $campaignPath, true);
     extract($data);
@@ -21,8 +19,6 @@ function dw_campaigns_users_donate_st_page($username, $campaignPath, $account = 
     }
 
 }
-
-
 
 
 function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, $pcp, $include_donation_conf = TRUE) {
@@ -45,16 +41,31 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
     $form['payment-fieldset']['cvv']['#attributes'] = array('data-stripe' => 'cvv');
     $form['payment-fieldset']['exp-month']['#attributes'] = array('data-stripe' => 'exp-month');
 
-    //stripe doesn't seem to like option selectors.. will have to work this out with some fancy hidden psuedo form stuff perhaps
-    $form['payment-fieldset']['exp-year']['#type'] = 'textfield';
-    $form['payment-fieldset']['exp-year']['#attributes'] = array('data-stripe' => 'exp-year', 'size' => '4');
 
+    //stripe doesn't seem to like option selectors.. will have to work this out with some fancy hidden psuedo form stuff perhaps
+    //$form['payment-fieldset']['exp-year']['#type'] = 'textfield';
+    //$form['payment-fieldset']['exp-year']['#attributes'] = array('data-stripe' => 'exp-year', 'size' => '4');
+
+    $form['cleanExpYear'] = array(
+        '#type'             => 'hidden',
+        '#attributes'        => array(
+            'id'            => 'stripeFormattedExpYear',
+            'data-stripe'   => 'exp-year'
+        )
+    );
+
+    $form['stripeToken'] = array(
+        '#type'             => 'hidden',
+        '#attributes'       => array(
+            'id'            => 'hiddenStripeTokenElement',
+            'size'          => '4'
+        )
+    );
 
     $form['submit']      = array(
         '#type'             => 'submit',
         '#value'            => t('Submit'),
-        '#attributes'       => array('class'=> array('btn')),
-        '#submit'           => 'dw_campaigns_users_donate_st_page_form_submit'
+        '#attributes'       => array('class'=> array('btn'))
     );
 
     $values = isset($form_state['values']) ? $form_state['values'] : array();
@@ -74,33 +85,37 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
             }else{
                 var token = response.id;
 
-                //trying to append a field to the form, so that I can parse it on _submit callback
-                var stripeTokenElement = document.createElement("input");
-                    stripeTokenElement.type = "hidden";
-                    stripeTokenElement.name = "stripeToken";
+                //now that we have our token, throw it in the form, which will be submitted back to drupal for some nifty processing and stuff.
+                var stripeTokenElement = document.getElementById("hiddenStripeTokenElement");
                     stripeTokenElement.value = token;
 
-                //@Ryan this is where I stopped, before I realized that it was submitting to the wrong _submit callback
-                //donation_form.appendChild( stripeTokenElement );
-                //console.log( donation_form.append(stripeTokenElement) );
                 // and submit
                 donation_form.get(0).submit();
             }
 
         }
 
+//@TODO: drupal way to set this from an admin form
         Stripe.setPublishableKey("pk_test_enKr39D7BAZw6KQMoKpsJwcQ");
 
         jQuery(function($) {
             $("#dw-campaigns-users-donate-st-page-form").submit(function(event) {
-                //donation_form = $(this);
+                donation_form = $(this);
 
                 //@TODO display waiting dialog here and disable continued donation submissions
 
-                //Stripe.card.createToken(donation_form, stripeResponseHandler);
+                //stripe doesn\'t like our drop down selector for year, so lets move the selected value into a field that it does like.
+                var exp_year = document.getElementById("edit-exp-year");
+                var exp_year_value = exp_year.value;
+                var exp_year_text = exp_year[exp_year_value].innerHTML;
+
+                //console.log(
+                document.getElementById("stripeFormattedExpYear").value = exp_year_text;
+
+                Stripe.card.createToken(donation_form, stripeResponseHandler);
 
                 // Prevent the form from submitting with the default action
-                //return false;
+                return false;
             });
         });
 
@@ -109,9 +124,25 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
     return $form;
 }
 
-function dw_campaigns_users_donate_st_page_form_validate($form, &$form_state){}
+function dw_campaigns_users_donate_st_page_form_validate($form, &$form_state){
+
+}
 
 function dw_campaigns_users_donate_st_page_form_submit($form, &$form_state){
     //I'm trying to get my form to finally submit to here.
-    var_dump($form);exit;
+    $stripeToken = $form_state['values']['stripeToken'];
+
+    if( empty($stripeToken) ){
+        $errors['stripeToken'] = 'Stripe token was not set by the form, check your javascript!';
+    }
+
+
+
+    if( sizeof( $errors ) ){
+        var_dump( $errors );exit;
+    }
+
+    var_dump('du eet!');exit;
+
+
 }
