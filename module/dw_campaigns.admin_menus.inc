@@ -1297,6 +1297,111 @@ ORG - Organization values (From admin module)
     
 }
 
+/**
+ DW Campaigns Totals By Group
+ * admin/reports/dw_totals_by_group/
+ * admin/reports/dw_totals_by_group/{{group_id}}/{{mode}}
+ */
+
+function dw_campaigns_reports_totals_by_group( $group_id, $mode ) {
+    if( $group_id === '' ) $group_id = null;
+    if( $mode === '' ) $mode = null;
+
+    $form = drupal_get_form('dw_campaigns_reports_totals_by_group_form');
+
+    //if we don't have enough info, query the user for it by presenting a form.
+    if( is_null( $group_id ) || is_null( $mode ) ){
+        return drupal_render( $form );
+    }
+
+    //generate the report
+    $groups = dw_campaigns_get_group_names(FALSE);
+
+    $allCampaigns           = dw_campaigns_get_all_campaigns();
+
+    $group_totals = array();
+
+    //isolate each campaign and start calculating totals from each pcp on it, file the totals into the appropriate group array element.
+    foreach( $allCampaigns as $campaign_id => $campaign ){
+        $campaign_group_id      = $campaign->field_dw_grouping['und'][0]['value'];
+        $campaign_group_name    = $groups[ $campaign_group_id ];
+
+        $res                    = _dw_campaigns_get_pcps_for_campaign( $campaign );
+
+        foreach( $res as $pcp ){
+            $dummy          = new stdClass;
+            $dummy->id      = $pcp->id;
+            $totals         =  dw_campaigns_get_contribution_total_for_pcp( $dummy );
+
+            $group_totals[ $campaign_group_id ] += $totals['total'];
+
+        }
+
+    }
+
+
+    if( $mode === 'SCREEN' ){
+        //modify the form to contain the report.
+
+        $form['table'] = array(
+            '#type' => 'markup',
+            '#markup' => '<p>The total donations for all campaigns in the <b>'.$groups[$group_id].'</b> group: <u>$'.$group_totals[ $group_id ].'</u></p>'
+        );
+
+        //draw the form
+        return drupal_render( $form );
+    }else{
+        //@TODO output the report as a csv to the browser.
+
+    }
+
+}
+
+function dw_campaigns_reports_totals_by_group_form( ){
+    $form = array();
+
+    $options = dw_campaigns_get_group_names(true);
+
+    $form['groups'] = array(
+        '#type' => 'select',
+        '#title' => 'Select a group to generate a totals report.',
+        '#options' => $options
+    );
+
+    $form['mode'] = array(
+        '#type' => 'select',
+        '#title' => 'Select an output mode.',
+        '#options' => array(
+            'SCREEN' => 'screen',
+            'CSV'    => 'csv'
+        )
+    );
+
+    $form['submit']      = array(
+        '#type'             => 'submit',
+        '#value'            => t('Submit'),
+        '#attributes'       => array('class'=> array('btn'))
+    );
+
+    return $form;
+}
+
+function dw_campaigns_reports_totals_by_group_form_validate( $form, &$form_state ){ }
+
+function dw_campaigns_reports_totals_by_group_form_submit( $form, &$form_state ){
+    $values = $form_state['values'];
+
+    $group_id = $values['groups'];
+    $mode = $values['mode'];
+
+    drupal_goto('admin/reports/dw_totals_by_group/' . $group_id . '/' . $mode );
+    die;
+}
+
+//function dw_campaigns_reports_totals_by_group( $group_id, $mode ){
+
+//}
+
 
 /**
  DW Campaigns Emails
