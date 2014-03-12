@@ -1287,6 +1287,10 @@ function dw_campaigns_theme() {
             'template'  => 'theme/dw-campaigns-ajax-position',
             'variables' => array('pcp' => NULL, 'possible' => NULL)
         ),
+        'dw_campaigns_page_notfound' => array(
+            'template'  => 'theme/dw-campaigns-page-notfound',
+            'variables' => array()
+        ),
 // reports
         'dw_campaigns_receipt_report' => array(
             'template'  => 'theme/dw-campaigns-receipt-report',
@@ -6799,7 +6803,8 @@ function dw_campaigns_notfound() {
         die;
 
     } else {
-        return 'page not found';
+        $params = array('#theme' => 'dw_campaigns_page_notfound');
+        return drupal_render($params);
     }
     return;
 }
