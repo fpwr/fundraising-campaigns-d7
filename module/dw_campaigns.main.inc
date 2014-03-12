@@ -426,7 +426,6 @@ function dw_campaigns_get_event_participants_count($campaignId, $pcpId, $contact
     return array($children, $adults);
 }
 
-
 // NOTE - SCHEMA CHANGE: ALTER TABLE `dw_campaigns_event_participants` ADD `gender` ENUM( 'M', 'F' ) NULL DEFAULT NULL COMMENT 'Null / Male / Female';
 
 //function dw_campaigns_set_event_participants_count($campaignId, $pcpId, $children, $adults, $age = 0, $participation_type = 'adult_pledge', $contactId = 0) {
@@ -483,17 +482,20 @@ function dw_campaigns_set_event_participants_count($params) {
 
     $num_attending = $children + $adults;
 
-    db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age, gender) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age, :gender)", array(
-        ':campaignid'       => $campaignId, 
-        ':pcpid'            => $pcpId, 
-        ':participants'     => $num_attending, 
-        ':participanttype'  => $participation_type, 
+    $fields = array(
+        ':campaignid'       => $campaignId,
+        ':pcpid'            => $pcpId,
+        ':participants'     => $num_attending,
+        ':participanttype'  => $participation_type,
         ':contactid'        => $contactId,
         ':children'         => $children,
         ':adults'           => $adults,
         ':age'              => $age,
         ':gender'           => $gender
-    ));
+    );
+
+    db_query("insert into dw_campaigns_event_participants (campaign_id, pcp_id, participants, participant_type, contact_id, children, adults, age, gender) VALUES(:campaignid, :pcpid, :participants, :participanttype, :contactid, :children, :adults, :age, :gender)", $fields);
+
 }
 
 function dw_campaigns_get_contribution_page_from_id($id) {

@@ -1625,8 +1625,26 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
 
     $row = '';
 
-    foreach($res as $pcp) {
+    //create an array of pcps with a key of each element set as the host's last name
+    $list = array();
 
+    foreach($res as $pcp) {
+        $params = array(
+            'contact_id'    => $pcp->contact_id,
+            'returnFirst'   => true
+        );
+
+        $contact = _dw_civicrm_contact_get( $params );
+
+        $contact_last_name = $contact->last_name;
+
+        $list[ $contact_last_name ] = $pcp;
+
+    }
+
+    ksort( $list );
+
+    foreach($list as $pcp) {
         $drupal_id      = _dw_campaigns_contact_id_get_user($pcp->contact_id);
         $fake_user      = dw_campaigns_cache_simple_user_data($drupal_id);
         $url            = dw_campaigns_user_get_pcp_url($fake_user, $campaign);
@@ -1638,8 +1656,14 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
 
         $contact = _dw_civicrm_contact_get($params);
 
+        //We were asked to display this pcp title with the name first, followed by location, some pcp titles end with ' Page', so for completeness sake, we'll strip off that part if it exists on this title.
+        //also, our example showed us {{name}}, OSS, {{location}}, with OSS replacing the default of "One SMALL Step" so we'll shorten that string down as well, if it exists.
+        $pcp_title_display = str_replace(' Page', ' ', $contact->display_name.', '.$pcp->title );
+        $pcp_title_display = str_replace( 'One SMALL Step', 'OSS', $pcp_title_display );
+
+
         $values = array(
-            $pcp->title,
+            $pcp_title_display,
             "<a href=\"{$url}\">" . $contact->display_name . "</a>", 
             "<a href=\"/dw/user/host/{$event_id}/users/{$pcp->id}\">" . t('Manage Offline Donations') . "</a>"
         );

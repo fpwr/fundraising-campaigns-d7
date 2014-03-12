@@ -86,10 +86,40 @@ $(document).ready(function() {
     }
 
     $options    = '';
+
+    $locations_by_country = array();
+
     foreach($locations as $nid => $location) {
-       $options .= sprintf('<option value="%d" %s>%s</option>', $nid, ($nid==$selected)?'selected=selected':'', $location);
+        //$options .= sprintf('<option value="%d" %s>%s</option>', $nid, ($nid==$selected)?'selected=selected':'', $location);
+
+        $node = node_load( $nid );
+        $country = $node->field_dw_country_grouping['und'][0]['value'];
+
+        if( !isset($locations_by_country[ $country ]) ){
+            $locations_by_country[ $country ] = array();
+        }
+
+        $locations_by_country[ $country ][ $nid ] = $location;
     }
 
+    ksort( $locations_by_country );
+
+//move the 'other' category to the bottom...
+    $other_element = $locations_by_country['other'];
+    unset( $locations_by_country['other'] );
+    $locations_by_country['other'] = $other_element;
+
+    foreach( $locations_by_country as $country => $events ){
+        $options .= sprintf('<option disabled value="%d" %s>%s</option>', 0, '', '- '.strtoupper( $country ).' -' );
+
+        foreach( $events as $nid => $location ){
+            $options .= sprintf('<option value="%d" %s>%s</option>', $nid, ($nid==$selected)?'selected=selected':'', '&nbsp;&nbsp;&nbsp;'.$location);
+
+        }
+    }
+
+//var_dump( $locations_by_country );
+//exit;
 ?>
 <div id="fireContainer"></div>
 <div class="walking-header-left">
@@ -103,7 +133,7 @@ $(document).ready(function() {
     <?php
         if($user->uid>0) {
     ?>
-        <div class="signed-in">Signed in as <?php echo $user->name;?> 
+        <div class="signed-in">Signed in as <?php echo $user->name;?>
     <?php
             $res = dw_campaigns_get_user_pcp_details($user);
             if(!empty($res['url'])) {

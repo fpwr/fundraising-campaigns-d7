@@ -1086,7 +1086,7 @@ function _dw_campaigns_update_civicrm_contact($user, $values) {
     
     //if a user is passed, we're updating
     $contact = _dw_civicrm_contact_get_from_user($user);
-    
+
     if(isset($contact->contact_id) && !is_null($contact->contact_id)) {
         $params['contact_id']   = $contact->contact_id;
         dw_campaigns_cache_dirty('contact-get', "contact_id=" . $contact->contact_id);
