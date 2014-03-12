@@ -181,6 +181,15 @@ function dw_campaigns_menu() {
         'type'                  => MENU_NORMAL_ITEM
     );
 
+    $items['admin/reports/dw_totals_by_group'] = array(
+        'title'                 => 'DW Totals By Group',
+        'description'           => 'List totals raised by groups, select a group',
+        'page callback'         => 'dw_campaigns_reports_totals_by_group',
+        'page arguments'        => array(3,4), //group_id, mode (screen|csv)
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => 'dw_campaigns.admin_menus.inc',
+        'type'                  => MENU_NORMAL_ITEM
+    );
 
     $items['admin/reports/dw_event_summary'] = array(
         'title'                 => "DW Event Summary",
@@ -1133,6 +1142,30 @@ function dw_campaigns_menu() {
         'type'                => MENU_CALLBACK
     );
 
+    //Stripe integration testing
+    $items['dw/users/%/%/donate_st'] = array(
+        'title'               => 'Donate to Fundraiser',
+        'page callback'       => 'dw_campaigns_users_donate_st_page',
+        'page arguments'      => array(2, 3),
+        'access arguments'    => array(PERM_ACCESS_DW_CAMPAIGN),
+        'file'                => 'dw_campaigns.stripe.inc',
+        'type'                => MENU_CALLBACK
+    );
+
+    $items['dw/users/%/%/donate_st/%'] = array(
+        'title'               => 'Donate to Fundraiser',
+        'page callback'       => 'dw_campaigns_users_donate_st_page',
+        'page arguments'      => array(2, 3, 5),
+        'access arguments'    => array(PERM_ACCESS_DW_CAMPAIGN),
+        'file'                => 'dw_campaigns.stripe.inc',
+        'type'                => MENU_CALLBACK
+    );
+
+
+
+
+
+
     $items['dw/users/%/%/donated'] = array(
         'title'               => 'Thank you for donating',
         'page callback'       => 'dw_campaigns_users_donated_page',
@@ -1313,6 +1346,18 @@ function dw_campaigns_theme() {
             'template'  => 'theme/dw-campaigns-users-donate-co-redir-page',
             'variables' => array('data' => NULL)
         ),
+
+
+        'dw_campaigns_users_donate_st_page_theme' => array(
+            'template'  => 'theme/dw-campaigns-users-donate-st-page',
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL)
+        ),
+        'dw_campaigns_users_donate_st_redir_page_theme' => array(
+            'template'  => 'theme/dw-campaigns-users-donate-st-redir-page',
+            'variables' => array('data' => NULL)
+        ),
+
+
         'dw_campaigns_users_donated_page_theme' => array(
             'template'  => 'theme/dw-campaigns-users-donated-page',
             'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL)
