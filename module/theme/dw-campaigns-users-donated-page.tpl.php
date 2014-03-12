@@ -109,7 +109,7 @@
                         <a class="twitter_share" target="_blank" href="http://twitter.com/share?url=<?php echo $url; ?>&text=<?php echo $twitter_text; ?>"> <img src="http://twitter.com/images/goodies/tweetn.png"></a><p><?php echo t('Tweet about it!  Complete this Tweet and we will help you post it!'); ?></p>
                     </li>
 <!--
-                    <li class="addthis_toolbox addthis_default_style" addthis:url="http://<?php echo $_SERVER['HTTP_HOST'];?><?php echo dw_campaigns_get_campaign_path($campaign->nid, '/dw/users/' . $thisUser->name); ?>">
+                    <li class="addthis_toolbox addthis_default_style" addthis:url="<?php echo $url ?>">
                         <a class="addthis_button_email"></a><p><?php echo t('Send a link to our website to your friends.'); ?></p>
                     </li>
 -->

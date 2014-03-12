@@ -3063,7 +3063,7 @@ function dw_campaigns_donor_participation_form($form, &$form_state, $campaign, $
     }
 
     if(variable_get('dw_campaigns_walking_adults_attending_prompt_enabled', 1) == 0) {
-        $form['event-participants']['children'] = array(
+        $form['event-participants']['adults'] = array(
             '#type'             => 'hidden',
             '#value'            => 0
         );
