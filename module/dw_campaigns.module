@@ -98,6 +98,16 @@ function dw_campaigns_menu() {
         'type'                  => MENU_CALLBACK
     );
 
+    $items['admin/settings/dw_campaigns_stripe_setup'] = array(
+        'title'                 => "Stripe",
+        'description'           => "Use this to configure your stripe payment processor",
+        'page callback'         => "drupal_get_form",
+        'page arguments'        => array("dw_campaigns_stripe_config"),
+        'access arguments'      => array(PERM_ADMIN_DW_CAMPAIGN),
+        'file'                  => "dw_campaigns.admin_menus.inc",
+        'type'                  => MENU_NORMAL_ITEM
+    );
+
     $items['admin/settings/dw_campaigns_currency_setup'] = array(
         'title'                 => "Currency",
         'description'           => "Use this to configure the way you want to handle currency.",
