@@ -136,7 +136,7 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
     global $dw_settings;
     global $dw_campaign_module_path;
 
-  
+
     dw_campaigns_civicrm_rest_settings_load();
 
  

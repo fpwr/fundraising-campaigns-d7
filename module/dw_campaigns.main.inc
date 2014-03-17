@@ -2214,6 +2214,15 @@ function dw_campaigns_get_campaign_path($campaignId, $prefix = '/dw/campaign', $
     // this now makes us have a problem if a place is named node- - that's okay for now
     $path_alias = str_replace('node/', 'node-', $path_alias);
 
+    if( $suffix == 'donate' ){
+        $campaign = node_load($campaignId);
+        $ppId = $campaign->field_dw_processor['und'][0]['value'];
+
+        if( $ppId == '7' ){
+            $suffix = 'donate_st';
+        }
+    }
+
     // remove the content/ prefix
     $path_alias = str_replace('content/', '', $path_alias);
     $path = $prefix . '/' . $path_alias . '/' . $suffix;
