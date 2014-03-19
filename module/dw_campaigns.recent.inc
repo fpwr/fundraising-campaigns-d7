@@ -833,6 +833,7 @@ function dw_campaigns_create_offline_donation_table($table = 'dw_campaigns_offli
         );
 }
 
+// NOTE - SCHEMA CHANGE: ALTER TABLE `dw_campaigns_offline_donation` ADD `non_deductible` INT( 11 ) NOT NULL DEFAULT '0'
 function dw_campaigns_user_donations_add_form_new_submit(&$form, &$form_state) {
     global $user;
     global $dw_campaign_module_path;
