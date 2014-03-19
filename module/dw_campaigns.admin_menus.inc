@@ -1,6 +1,23 @@
 <?php
 
-//JFN todo - I really don't like the inconsistency here.  Consider consolidating related functionality into it's own set of include files, and possibly auto loading them at some point to clean up the routing system a bit-  That's going to be a considerable amount of work that no one will want to pay for, so consider it weekend practice when you get around to it.
+function dw_campaigns_stripe_config(){
+    $form = array();
+
+    $form['stripeApi'] = array(
+        '#title'        => 'Public Stripe Api Key',
+        '#type'         => 'textfield',
+        '#description'  => t('Your public stripe api key, find it at stripe.com under your account.'),
+        '#default_value'=> variable_get('stripe_public_api_key')
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('save'),
+        '#submit' => array('dw_campaigns_admin_save_stripe_api_key')
+    );
+
+    return $form;
+}
 
 function dw_campaigns_currency_config(){
     return array(
