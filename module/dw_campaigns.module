@@ -5493,7 +5493,6 @@ if(!$alt_billing) {
 
     $paymentProcessor       = _dw_campaigns_paymentprocessor_getpayment($paymentParams);
 
-$mode = 'test';
     if($mode === 'test') {
         /*
         Visa   4155100421445993
