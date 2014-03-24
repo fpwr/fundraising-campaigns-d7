@@ -641,6 +641,11 @@ function _dw_civicrm_pcp_create($params) {
             $params['pcp_block_id'] = $res->id; 
         }
     }
+
+    // change in v3 this field changed names
+    if(isset($params['contribution_page_id'])) {
+        $params['page_id'] = $params['contribution_page_id']; 
+    }
  
     $res = civicrm_query('/Pcp/create', $params, false, true, false, false); // change last to v3
 
