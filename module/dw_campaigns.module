@@ -7243,7 +7243,7 @@ function dw_campaigns_upload_fundraising_tips_pdf_form_form( $form, &$form_state
 
 }
 
-function dw_campaigns_upload_fundraising_tips_pdf_form_form_validate( $form, &$form_state){
+function dw_campaigns_upload_fundraising_tips_pdf_form_validate( $form, &$form_state){
     $file = file_save_upload('tmp_pdf', array());
 
     $file->filename = basename($form['document_path']['#value']);
