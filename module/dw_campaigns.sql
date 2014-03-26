@@ -183,6 +183,7 @@ CREATE TABLE IF NOT EXISTS `dw_campaigns_offline_donation` (
   `payment_check_number` char(20) NOT NULL default '',
   `receive_date` char(64) NOT NULL default '',
   `trxn_id` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `non_deductible` INT( 11 ) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`offline_id`),
   KEY `deleted` (`deleted`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3905 ;

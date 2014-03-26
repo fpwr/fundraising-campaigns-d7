@@ -210,27 +210,13 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
 
     }
 
-if(!$v3) {
-    echo "\n";
-    echo "<br>";
-    echo $baseUrl;
-    echo "&";
-    echo $queryString;
-    echo "\n";
-    echo "<br>";
-
-
-
-}
-
-file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($queryString) . "\n", FILE_APPEND);
+    file_put_contents("/tmp/trace_log", $baseUrl . '&' . html_entity_decode($queryString) . "\n", FILE_APPEND);
 
     if($debug) {
         echo $url . "\n<br>\n";
     }
 
     if($cacheable && $dirty && strlen($data) > 0) {
-// FIXME - re-enable this
         file_put_contents($cache_file, $data);
     }
     
@@ -290,7 +276,7 @@ function _dw_civicrm_tag_create($params) {
         $params['used_for'] = 'civicrm_contribution_page';
     }
 
-    $res = civicrm_query('/tag/create', $params, TRUE);
+    $res = civicrm_query('/tag/create', $params, FALSE, TRUE, FALSE, TRUE);
 
     $return = new stdClass;
 
@@ -306,7 +292,7 @@ function _dw_civicrm_tag_get($params) {
 
     $returnOne      = false;
 
-    $res = civicrm_query('/tag/get', $params, TRUE);
+    $res = civicrm_query('/tag/get', $params, TRUE, FALSE, FALSE, TRUE);
 
     $return = new stdClass;
     $return->tag_id = isset($res->id) ? (int)$res->id : NULL;
@@ -654,6 +640,11 @@ function _dw_civicrm_pcp_create($params) {
             $res = current($res); 
             $params['pcp_block_id'] = $res->id; 
         }
+    }
+
+    // change in v3 this field changed names
+    if(isset($params['contribution_page_id'])) {
+        $params['page_id'] = $params['contribution_page_id']; 
     }
  
     $res = civicrm_query('/Pcp/create', $params, false, true, false, false); // change last to v3

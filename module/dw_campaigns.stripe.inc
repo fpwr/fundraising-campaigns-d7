@@ -92,7 +92,7 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
         }
 
 //@TODO: drupal way to set this from an admin form
-        Stripe.setPublishableKey("pk_test_enKr39D7BAZw6KQMoKpsJwcQ");
+        Stripe.setPublishableKey("'. variable_get('stripe_public_api_key') .'");
 
         jQuery(function($) {
             $("#dw-campaigns-users-donate-st-page-form").submit(function(event) {

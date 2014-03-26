@@ -833,6 +833,7 @@ function dw_campaigns_create_offline_donation_table($table = 'dw_campaigns_offli
         );
 }
 
+// NOTE - SCHEMA CHANGE: ALTER TABLE `dw_campaigns_offline_donation` ADD `non_deductible` INT( 11 ) NOT NULL DEFAULT '0'
 function dw_campaigns_user_donations_add_form_new_submit(&$form, &$form_state) {
     global $user;
     global $dw_campaign_module_path;
@@ -3710,6 +3711,11 @@ function dw_campaigns_admin_grab_exchange_rate_data_submit($form, $form_state){
     variable_set( 'currency_service_provider_api_key', $form['currency_service_provider_api_key']['#value'] );
 
     return $form;
+}
+
+function dw_campaigns_admin_save_stripe_api_key($form,$form_state){
+    variable_set('stripe_public_api_key', $form['stripeApi']['#value']);
+    drupal_set_message('Stripe Configuration Saved.');
 }
 
 function dw_campaigns_admin_contact_hosts_process() {
