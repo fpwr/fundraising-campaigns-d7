@@ -3601,20 +3601,20 @@ function dw_campaigns_user_host_contact_fundraisers_form_submit($form, &$form_st
 
     $params              = $values;
 
-file_put_contents("/tmp/host_email_trace.txt", "from0: $from\n", FILE_APPEND);
 
     // Susan asked for this to be changed on 2012-05-23 to come from the host
     $from                = $user->mail;
 
-file_put_contents("/tmp/host_email_trace.txt", "from1: $from\n", FILE_APPEND);
-    // Revisited 2012-07-25 - now we use their alias if we can find it - destination == who its really to
-    $result     = db_query("select * from postfix.forwardings where destination = :destination", array(':destination' => $user->mail));
-    if($result->rowCount() > 0) {
-        $record = $result->fetchObject();
-file_put_contents("/tmp/host_email_trace.txt", "fell in (" . $user->mail . ")\n", FILE_APPEND);
-        $from   = $record->source;
+    try {
+        // Revisited 2012-07-25 - now we use their alias if we can find it - destination == who its really to
+        $result     = db_query("select * from postfix.forwardings where destination = :destination", array(':destination' => $user->mail));
+        if($result->rowCount() > 0) {
+            $record = $result->fetchObject();
+            $from   = $record->source;
+        }
+    } catch (PDOException $e) {
+        // do nothing
     }
-file_put_contents("/tmp/host_email_trace.txt", "from2: $from\n", FILE_APPEND);
 
     $params['from']      = $from;
     $params['user_from'] = $user->mail;
@@ -3622,7 +3622,6 @@ file_put_contents("/tmp/host_email_trace.txt", "from2: $from\n", FILE_APPEND);
 
     foreach($targets as $email) {
         $language       = language_default();
-file_put_contents("/tmp/host_email_trace.txt", "from3: $from\n", FILE_APPEND);
         drupal_mail('dw_campaigns_user_host_contact_fundraisers', 'contact-fundraisers', $email, $language, $params, $from);
 
         if($email != $default_cc) {
