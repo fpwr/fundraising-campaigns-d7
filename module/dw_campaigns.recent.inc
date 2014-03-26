@@ -4638,14 +4638,16 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'User Id',
         '#description'  => 'Your Flickr User Name',
-        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value']
+        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value'],
+        '#required'     => false
     );
 
     $form['flickr_photoset_id'] = array(
         '#type'         => 'textfield',
         '#title'        => 'Photoset Id',
         '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
-        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value']
+        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value'],
+        '#required'     => false
     );
 
     $form['flickr_help_link'] = array(

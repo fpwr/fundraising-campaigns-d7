@@ -7253,16 +7253,22 @@ function dw_campaigns_upload_fundraising_tips_pdf_form_form( $form, &$form_state
 }
 
 function dw_campaigns_upload_fundraising_tips_pdf_form_form_validate( $form, &$form_state){
+
     $file = file_save_upload('tmp_pdf', array());
 
+    $file->status |= FILE_STATUS_PERMANENT;
+
+    file_save($file);
+
     $file->filename = basename($form['document_path']['#value']);
+
+
 
     file_move($file, 'public://'.$file->filename, FILE_EXISTS_REPLACE);
 
 }
 
-function dw_campaigns_upload_fundraising_tips_pdf_form_submit( $form, &$form_state){
-
+function dw_campaigns_upload_fundraising_tips_pdf_form_form_submit( $form, &$form_state){
 }
 
 //JFN - january 16 2014 0035 - [#dev "offline-donations-form upload functionality"]
