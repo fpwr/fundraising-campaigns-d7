@@ -675,6 +675,7 @@ function _dw_civicrm_pcp_get($params) {
     // renumber the rows so they match the pcp_id
     foreach($res as $garbage => $pcp) {
         $key = $pcp->id;
+        $pcp->title = stripslashes($pcp->title); // FIXME - civi is addslashes() or somehow otherwise escaping ' an extra time
         $return->$key = $pcp;
     }
     
