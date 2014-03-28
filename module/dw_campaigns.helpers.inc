@@ -126,7 +126,6 @@ function dw_campaigns_clean_dirtied_cache() {
         }
 
         unlink($filename);       
-        sleep(6);
     }
 }
 
@@ -815,7 +814,14 @@ function _dw_civicrm_pseudoconstant_stateprovince() {
 
     $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
 
-    return (array)$res->values;
+
+    $states = array();
+
+    foreach($res->values as $key => $value) {
+        $states[$key] = $value;
+
+    }
+    return $states;
 }
 
 function _dw_civicrm_pseudoconstant_country() {
@@ -861,7 +867,14 @@ function _dw_civicrm_pseudoconstant_countryIsoCode() {
 
     $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
 
-    return (array)$res->values;
+    $countries = array();
+
+    foreach($res->values as $key => $value) {
+        $countries[$key] = $value;
+
+    }
+
+    return $countries;
 
 }
 
