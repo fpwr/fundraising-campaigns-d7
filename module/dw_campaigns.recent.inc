@@ -3265,6 +3265,13 @@ function dw_campaigns_host_contact_page_form($form, &$form_state, $host) {
         '#value'            => $host->nid
     );
 
+
+    $form['captcha'] = array(
+        '#type'             => 'captcha',
+        '#captcha_type'     => 'captcha/Math',
+        //'#captcha_type'     => 'captcha/recaptcha',
+    );
+
     $form['submit']         = array(
         '#type'             => 'submit',
         '#value'            => t('Send Email'),
@@ -4103,8 +4110,6 @@ function dw_campaigns_admin_contact_hosts_send_mails($values) {
     if(!isset($values['hosts'])) { 
         if(!isset($values['target_filter']) || is_null($values['target_filter']) || $values['target_filter'] == 'all') {
 //REMOVE
-echo "nope";
-die;
             $hosts = dw_campaigns_get_active_campaigns_host_list();
         } else {
             $hosts = dw_campaigns_get_active_campaigns_host_list_filtered($values['target_filter']);
