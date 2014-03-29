@@ -150,8 +150,9 @@
             } else {
                 $tshirts_and_services_node = explode('/', $shirt_node);       //this is horrible!
                 $RequestServicesNode = node_load( $tshirts_and_services_node[1] );
+                $RequestServicesBody = isset($RequestServicesNode->{'body'}['und'][0]['value']) ? $RequestServicesNode->{'body'}['und'][0]['value'] : "(No text defined)";
 
-                echo $RequestServicesNode->{'body'}['und'][0]['value'];
+                echo $RequestServicesBody;
             }
         ?>
 
