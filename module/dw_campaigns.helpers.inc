@@ -219,9 +219,8 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
     $result = json_decode($data);
 
     if($cacheable && $dirty && strlen($data) > 0) {
-
         // don't cache data if it doesn't look right
-        if( (substr($page, 0, 5) == '/Pcp/') || (isset($result->is_error) && $result->is_error == 0) ) {
+        if( (substr($page, 0, 4) == 'Pcp/') || (isset($result->is_error) && $result->is_error == 0) ) {
             file_put_contents($cache_file, $data);
         }
     }
