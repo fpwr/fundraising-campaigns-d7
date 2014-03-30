@@ -112,7 +112,7 @@
 
             $supporter->amount              = $supporter->donation_amount;
             $supporter->pcp_display_in_roll = $supporter->include_in_honor_roll;
-            $contact->state_province        = $states[$supporter->state];
+            $contact->state_province        = ($supporter->state == 'nostate') ? '' : $states[$supporter->state];
 
             if($supporter->pcp_display_in_roll == 1) {
                 //$supporter->pcp_roll_nickname   = ucfirst($supporter->first_name) . substr(ucfirst($supporter->last_name), 0, 1) . "."; 

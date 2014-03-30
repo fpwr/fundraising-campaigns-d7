@@ -1027,7 +1027,7 @@ function dw_campaigns_get_contribution_total_for_pcp($pcp, $convertNONUSD = FALS
     if(!isset($pcp_totals[$cache_key])) {
 
         $cache = cache_get($cache_key);
-
+// FIXME - we need to have a way to invalidate all these caches
         if(!$cache) {
             $softcontributions  = dw_campaigns_get_contributions_for_pcp($pcp);
      
@@ -1664,6 +1664,7 @@ function  _dw_campaigns_campaigns_total() {
     $total_pcps_withd = 0;
   
     $cache = cache_get('dw_campaigns_campaigns_total');
+// FIXME - we need to have a way to invalidate all these caches
     if(!$cache) {
     $campaigns  = dw_campaigns_get_active_campaigns();
     if(count($campaigns) > 0 ) {
@@ -2218,6 +2219,7 @@ function dw_campaigns_get_campaign_path($campaignId, $prefix = '/dw/campaign', $
         $campaign = node_load($campaignId);
         $ppId = $campaign->field_dw_processor['und'][0]['value'];
 
+        // CRITICAL FIXME - $ppID will not be consistent across installs!!!
         if( $ppId == '7' ){
             $suffix = 'donate_st';
         }
@@ -2562,6 +2564,10 @@ function dw_campaigns_convert_to_usd($currency, $in) {
     if(is_null($exchangeRates)) {
         drupal_set_message(t('You must set the exchange rates!'));
         return $in;
+    }
+
+    if($currency == 'MULTI') {
+        $currency = 'USD';
     }
 
     $rate = 1/$exchangeRates->{ $currency };
