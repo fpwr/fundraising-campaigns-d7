@@ -259,13 +259,15 @@ function dw_campaigns_create_contribution_page_for_campaign($node) {
     $params['pcpBlock'] = true;
     $params['returnFirst']  = 1;
 
-    $pcpBlock = _dw_civicrm_pcp_get($params);
-
+    // FIXME - we no longer handle returnFirst in the pcp_get - so we have to handle it here
+    $pcpBlock = current(_dw_civicrm_pcp_get($params));
+  
     // create or update the pcpBlock
     $params                          = array();
     if(isset($pcpBlock->id) && !is_null($pcpBlock->id) && !empty($pcpBlock->id)) {
         $params['id']                    = $pcpBlock->id;
     }
+
     $params['is_active']             = 1;
     $params['is_approval_needed']    = 1;
     $params['supporter_profile_id']  = 2;
