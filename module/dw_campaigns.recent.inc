@@ -1750,7 +1750,7 @@ function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id)
             $doc_root   = $_SERVER['DOCUMENT_ROOT'] . base_path();
 
             $relative   = variable_get('file_public_path', conf_path() . '/files/');
-            $imageSrc   = $relative . str_replace("public://", '', $temp);
+            $imageSrc   = $relative . '/' . str_replace("public://", '', $temp);
 
             if(file_exists($doc_root . $imageSrc)) {
                 $found  = TRUE;
@@ -1791,7 +1791,7 @@ function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id)
         );
 // FIXME - this entire form should be done differently
         $form['event_details']['field_dw_campaign_image_und_0']    = array(
-            '#type'             => 'managed_file',
+            '#type'             => 'file', // FIXME - make this a managed file - requires adding in a file_usage_add - https://drupal.org/node/979158
             '#title'            => t('Photo'),
             '#attributes'       => array(
                 'size'          => ''
