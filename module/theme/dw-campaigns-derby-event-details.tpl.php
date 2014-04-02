@@ -240,6 +240,22 @@ $(document).ready(function() {
 <?php
         }
 ?>
+
+
+            <?php
+                $flickr_user_id = $node->flickr_gallery_id['und'][0]['value'];//flickr_user_find_by_identifier( $host_flickrId );
+                $flickr_photoset_id = $node->flickr_gallery_photoset_id['und'][0]['value'];//user_load($user->uid)->field_flickrphotosetid['und'][0]['value'];
+
+                if( $flickr_user_id && $flickr_photoset_id ){
+                    echo('<tr><th>Event Gallery</th><td class="event-gallery-container">');
+
+                    $block = _flickr_block_photoset_random($flickr_user_id, 3, 's', 'all', $flickr_photoset_id);
+
+                    echo( $block );
+
+                    echo('</td></tr>');
+                }
+            ?>
     </table>
 </div>
 </div>

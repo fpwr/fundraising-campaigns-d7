@@ -4642,7 +4642,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'User Id',
         '#description'  => 'Your Flickr User Name',
-        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value'],
+        '#default_value'=> $event->flickr_gallery_id['und'][0]['value'],
         '#required'     => false
     );
 
@@ -4650,7 +4650,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'Photoset Id',
         '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
-        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value'],
+        '#default_value'=> $event->flickr_gallery_photoset_id['und'][0]['value'],
         '#required'     => false
     );
 
@@ -4680,8 +4680,8 @@ function flickr_event_gallery_form_submit($form, &$form_state){
 
     $event = node_load( $event_id );
 
-    $event->field_flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
-    $event->field_flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
+    $event->flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
+    $event->flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
 
     node_save( $event );
 
