@@ -76,7 +76,7 @@
         
         $position++;
         $location           = $campaign->field_dw_campaign_location['und']['0']['value']; // $campaign->title;
-        list($distance,)    = split('-', $id);
+        $distance           = substr($id, 0, strpos($id, '-'));
         $walkers            = count(get_object_vars($pcps));
         $amount             = dw_campaigns_get_contribution_total_for_campaign($campaign);
         $campaign_id        = $campaign->nid;

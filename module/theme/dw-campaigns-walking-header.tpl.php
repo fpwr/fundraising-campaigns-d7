@@ -103,11 +103,12 @@ $(document).ready(function() {
     }
 
     ksort( $locations_by_country );
-
 //move the 'other' category to the bottom...
-    $other_element = $locations_by_country['other'];
-    unset( $locations_by_country['other'] );
-    $locations_by_country['other'] = $other_element;
+    if(isset($locations_by_country['other'])) {
+        $other_element = $locations_by_country['other'];
+        unset( $locations_by_country['other'] );
+        $locations_by_country['other'] = $other_element;
+    }
 
     foreach( $locations_by_country as $country => $events ){
         $options .= sprintf('<option disabled value="%d" %s>%s</option>', 0, '', '- '.strtoupper( $country ).' -' );
