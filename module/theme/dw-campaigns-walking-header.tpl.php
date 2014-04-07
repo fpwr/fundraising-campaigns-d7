@@ -103,24 +103,74 @@ $(document).ready(function() {
     }
 
     ksort( $locations_by_country );
-//move the 'other' category to the bottom...
-    if(isset($locations_by_country['other'])) {
+
+
+    /*JFN - april 07 2014 1743 - [#hotfix
+        'By request of Susan, we are to resort the event listing combo box, and spell out the name of the event countries.
+           she wants the categories to look something like:
+            - United States -
+            - Canada -
+            - France -
+            - Other -
+
+            previously they were ksorted, and the 'other' element was dropped to the bottom. we're going to apply that pattern here.
+        ']*/
+
+    //us element to bottom of the list
+    if( $locations_by_country['us'] ){
+        $us_element = $locations_by_country['us'];
+        unset( $locations_by_country['us'] );
+        $locations_by_country['us'] = $us_element;
+    }
+
+    //ca element to bottom of the list
+    if( $locations_by_country['ca'] ){
+        $ca_element = $locations_by_country['ca'];
+        unset( $locations_by_country['ca'] );
+        $locations_by_country['ca'] = $ca_element;
+    }
+
+    if( $locations_by_country['france'] ){
+        $france_element = $locations_by_country['france'];
+        unset( $locations_by_country['france'] );
+        $locations_by_country['france'] = $france_element;
+    }
+
+    if( $locations_by_country['other'] ){
         $other_element = $locations_by_country['other'];
         unset( $locations_by_country['other'] );
         $locations_by_country['other'] = $other_element;
     }
 
+
+
     foreach( $locations_by_country as $country => $events ){
-        $options .= sprintf('<option disabled value="%d" %s>%s</option>', 0, '', '- '.strtoupper( $country ).' -' );
+        $optionText = $country; //default to the country abbreviation for regression
+        switch( $country ){
+            case 'us':
+                $optionText = 'United States';
+                break;
+
+            case 'ca':
+                $optionText = 'Canada';
+                break;
+
+            case 'france':
+                $optionText = 'France';
+                break;
+
+            case 'other':
+                $optionText = 'Other';
+                break;
+        }
+
+        $options .= sprintf('<option disabled value="%d" %s>%s</option>', 0, '', '- '.$optionText.' -' );
 
         foreach( $events as $nid => $location ){
             $options .= sprintf('<option value="%d" %s>%s</option>', $nid, ($nid==$selected)?'selected=selected':'', '&nbsp;&nbsp;&nbsp;'.$location);
 
         }
     }
-
-//var_dump( $locations_by_country );
-//exit;
 ?>
 <div id="fireContainer"></div>
 <div class="walking-header-left">
