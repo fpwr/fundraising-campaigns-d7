@@ -130,10 +130,10 @@ $(document).ready(function() {
         $locations_by_country['ca'] = $ca_element;
     }
 
-    if( $locations_by_country['france'] ){
-        $france_element = $locations_by_country['france'];
-        unset( $locations_by_country['france'] );
-        $locations_by_country['france'] = $france_element;
+    if( $locations_by_country['France'] ){
+        $france_element = $locations_by_country['France'];
+        unset( $locations_by_country['France'] );
+        $locations_by_country['France'] = $france_element;
     }
 
     if( $locations_by_country['other'] ){
@@ -155,7 +155,7 @@ $(document).ready(function() {
                 $optionText = 'Canada';
                 break;
 
-            case 'france':
+            case 'France':
                 $optionText = 'France';
                 break;
 
