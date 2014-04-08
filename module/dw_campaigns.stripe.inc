@@ -136,6 +136,13 @@ function dw_campaigns_users_donate_st_page_form_validate(&$form, &$form_state) {
         return;
     }
 
+    $stripeToken = $form_state['values']['stripeToken'];
+
+    if( empty($stripeToken) ){
+        form_set_error('', t('Stripe token was not set by the form, check your javascript!'));
+        return;
+    }
+
     $values = $form_state['values'];
 
     // we don't currently need this here
@@ -432,7 +439,7 @@ function dw_campaigns_users_donate_st_page_form_validate(&$form, &$form_state) {
 
     }
 
-    form_set_error('', "Unknown error, please contact support with code '33-9J'");
+    form_set_error('', "Unknown error, please contact support with code '33-9S'");
 
 }
 
