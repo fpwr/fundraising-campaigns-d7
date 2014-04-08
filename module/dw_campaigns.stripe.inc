@@ -34,7 +34,7 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
     $form['payment-fieldset']['card_number']['#attribues']['data-stripe'] = 'number';
 
     $form['payment-fieldset']['card_number']['#attributes'] = array('data-stripe' => 'number');
-    $form['payment-fieldset']['cvv']['#attributes'] = array('data-stripe' => 'cvv');
+    $form['payment-fieldset']['cvv']['#attributes'] = array('data-stripe' => 'cvc');
     $form['payment-fieldset']['exp-month']['#attributes'] = array('data-stripe' => 'exp-month');
 
 
@@ -69,6 +69,11 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
     $countryId  = isset($values['country2']) ? $values['country2'] : 1228;
     $stateId    = isset($values['state2']) ? $values['state2'] : '';
 
+    $stripe_public_api_key = variable_get('stripe_public_api_key', '');
+    if(strlen($stripe_public_api_key) < 9) {
+        drupal_set_message(t('Error - stripe processor setup not completed! Check drupal settings'), 'error');
+    }
+
 
     drupal_add_js('https://js.stripe.com/v2/','external');
     drupal_add_js('
@@ -92,7 +97,7 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
         }
 
 //@TODO: drupal way to set this from an admin form
-        Stripe.setPublishableKey("'. variable_get('stripe_public_api_key') .'");
+        Stripe.setPublishableKey("'. $stripe_public_api_key .'");
 
         jQuery(function($) {
             $("#dw-campaigns-users-donate-st-page-form").submit(function(event) {
