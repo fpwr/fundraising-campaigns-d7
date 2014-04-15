@@ -117,26 +117,33 @@ $(document).ready(function() {
         ']*/
 
     //us element to bottom of the list
-    if( $locations_by_country['us'] ){
+    if( isset($locations_by_country['us']) ){
         $us_element = $locations_by_country['us'];
         unset( $locations_by_country['us'] );
         $locations_by_country['us'] = $us_element;
     }
 
     //ca element to bottom of the list
-    if( $locations_by_country['ca'] ){
+    if( isset($locations_by_country['ca']) ){
         $ca_element = $locations_by_country['ca'];
         unset( $locations_by_country['ca'] );
         $locations_by_country['ca'] = $ca_element;
     }
 
-    if( $locations_by_country['France'] ){
+    if( isset($locations_by_country['France']) ){
         $france_element = $locations_by_country['France'];
         unset( $locations_by_country['France'] );
         $locations_by_country['France'] = $france_element;
     }
 
-    if( $locations_by_country['other'] ){
+    if( isset($locations_by_country['Belgium']) ){
+        $belgium_element = $locations_by_country['Belgium'];
+        unset( $locations_by_country['Belgium'] );
+        $locations_by_country['Belgium'] = $belgium_element;
+    }
+
+
+    if( isset($locations_by_country['other']) ){
         $other_element = $locations_by_country['other'];
         unset( $locations_by_country['other'] );
         $locations_by_country['other'] = $other_element;
