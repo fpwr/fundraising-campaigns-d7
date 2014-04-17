@@ -3970,7 +3970,7 @@ function dw_campaigns_campaign_page($campaignPath) {
     $campaignId    = dw_campaigns_campaign_get_id_from_url($campaignPath);
     $campaign       = node_load($campaignId);
 
-    if($campaign->nid == 0) {
+    if(!$campaign || $campaign->nid == 0) {
             drupal_goto("dw");
             // TODO - log bad hit
             return;
@@ -4856,7 +4856,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
                             document.getElementById("donations-form-address-validation-notice").innerHTML = "";
 
                         }else{
-                            document.getElementById("donations-form-address-validation-notice").innerHTML = "We could not validate your address! Please review it to ensure it is correct.";
+                            document.getElementById("donations-form-address-validation-notice").innerHTML = "' . t('We could not validate your address! Please review it to ensure it is correct.') . '";
 
                         }
                 }
@@ -5093,7 +5093,7 @@ function dw_campaigns_users_donate_page_form($form, &$form_state, $campaign, $pc
         '#title'            => t('Security Code'),
         '#required'         => true,
         '#size'             => 5,
-        '#suffix'           => '<div class="cvv-instructions"><img src="https://fpwr.org/sites/all/modules/civicrm/i/mini_cvv2.gif" /><span>Usually the last 3-4 digits in the signature area on the back of the card.</span></div>'
+        '#suffix'           => '<div class="cvv-instructions"><img src="https://fpwr.org/wp-content/plugins/civicrm_410/civicrm/i/mini_cvv2.gif" /><span>' . t('Usually the last 3-4 digits in the signature area on the back of the card.') . '</span></div>'
     );
 
     $months = array();
@@ -5308,6 +5308,7 @@ function dw_campaigns_users_donate_page_form_validate(&$form, &$form_state) {
     // turn country 'id' 1228 (united states) into 'US'
     $countries          = _dw_civicrm_pseudoconstant_countryIsoCode();
     $countryID          = $values['country'];
+
     $country_iso_code   = isset($countries[$countryID])?$countries[$countryID]:'';
 
     $billing_countryID  = $values['billing_country'];
@@ -5643,6 +5644,9 @@ d name or expiry date.',
                 case '10527':
                 case '10759':
                     form_set_error('card_number', t('Invalid Card Number'));
+                    break;
+                case '10713':
+                    form_set_error('country', t('Please Set Country'));
                     break;
                 case '10502':
                 case '10508':

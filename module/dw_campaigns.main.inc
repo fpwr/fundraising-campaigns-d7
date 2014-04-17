@@ -1928,7 +1928,11 @@ echo "<!-- HI: $contact_id => $drupal_id -->\n";
         $contact        = _dw_civicrm_contact_get($params);
         
         $campaign_location  = $campaign->field_dw_campaign_location['und']['0']['value'];
-        
+
+        // FIXME - this only seems to happen due to a merged contact on our older campaigns
+        if(!isset($fake_user->displayname)) {
+            $fake_user->displayname = '';
+        } 
         $rows[]		= array('name' => $fake_user->displayname, 'drupal_id' => $drupal_id, 'image' => $image, 'url' => $url, 'total' => $total, 'donations' => $donations, 'contact' => $contact, 'campaign_location' => $campaign_location, 'campaign_id' => $campaign_id);
     }
 

@@ -229,6 +229,10 @@ class phpthumb {
 	function setSourceFilename($sourceFilename) {
 		//$this->resetObject();
 		//$this->rawImageData   = null;
+                if(strstr($sourceFilename, "temporary://") !== FALSE) {
+                    $sourceFilename = str_replace('temporary://', '/tmp/', $sourceFilename);
+                }
+
 		$this->sourceFilename = $sourceFilename;
 		$this->src            = $sourceFilename;
 		if (is_null($this->config_output_format)) {
@@ -517,7 +521,7 @@ class phpthumb {
 
 	// public:
 	function RenderToFile($filename) {
-		if (eregi('^(f|ht)tps?\://', $filename)) {
+		if (preg_match('_^(f|ht)tps?\://_i', $filename)) {
 			$this->DebugMessage('RenderToFile() failed because $filename ('.$filename.') is a URL', __FILE__, __LINE__);
 			return false;
 		}
@@ -823,7 +827,7 @@ class phpthumb {
 		}
 		if ($this->iswindows && ((substr($this->sourceFilename, 0, 2) == '//') || (substr($this->sourceFilename, 0, 2) == '\\\\'))) {
 			// Windows \\share\filename.ext
-		} elseif (eregi('^(f|ht)tps?\://', $this->sourceFilename)) {
+		} elseif (preg_match('_^(f|ht)tps?\://_i', $this->sourceFilename)) {
 			// URL
 			if ($this->config_http_user_agent) {
 				ini_set('user_agent', $this->config_http_user_agent);
@@ -887,7 +891,7 @@ class phpthumb {
 		$AvailableImageOutputFormats = array_unique($AvailableImageOutputFormats);
 		$this->DebugMessage('$AvailableImageOutputFormats = array('.implode(';', $AvailableImageOutputFormats).')', __FILE__, __LINE__);
 
-		$this->f = ereg_replace('[^a-z]', '', strtolower($this->f));
+		$this->f = preg_replace('/[^a-z]/i', '', strtolower($this->f));
 		if (strtolower($this->config_output_format) == 'jpg') {
 			$this->config_output_format = 'jpeg';
 		}
@@ -977,7 +981,7 @@ class phpthumb {
 		}
 
 		//if (eregi('^(f|ht)tps?\://', $filename)) {
-		if (eregi('^[a-z0-9]+\:/{1,2}', $filename)) {
+		if (preg_match('_^[a-z0-9]+\:/{1,2}_i', $filename)) {
 			// eg: http://host/path/file.jpg (HTTP URL)
 			// eg: ftp://host/path/file.jpg  (FTP URL)
 			// eg: data1:/path/file.jpg      (Netware path)
@@ -1151,7 +1155,7 @@ class phpthumb {
 				$commandline .= ' --version';
 				$this->DebugMessage('ImageMagick version checked with "'.$commandline.'"', __FILE__, __LINE__);
 				$versionstring[1] = trim(phpthumb_functions::SafeExec($commandline));
-				if (eregi('^Version: [^0-9]*([ 0-9\\.\\:Q/]+) (http|file)\:', $versionstring[1], $matches)) {
+				if (preg_match('_^Version: [^0-9]*([ 0-9\\.\\:Q/]+) (http|file)\:_i', $versionstring[1], $matches)) {
 					$versionstring[0] = $matches[1];
 				} elseif (preg_match('/^Version: ImageMagick ([6-9][0-9\.-]+)/', $versionstring[1], $matches)) {
 					$versionstring[0] = $matches[1];
@@ -1313,7 +1317,7 @@ class phpthumb {
 					// some (older? around 2002) versions of IM won't accept "-resize 100x" but require "-resize 100x100"
 					$commandline_test = $this->ImageMagickCommandlineBase().' logo: -resize 1x "'.$IMtempfilename.'" 2>&1';
 					$IMresult_test = phpthumb_functions::SafeExec($commandline_test);
-					$IMuseExplicitImageOutputDimensions = eregi('image dimensions are zero', $IMresult_test);
+					$IMuseExplicitImageOutputDimensions = preg_match('/image dimensions are zero/i', $IMresult_test);
 					$this->DebugMessage('IMuseExplicitImageOutputDimensions = '.intval($IMuseExplicitImageOutputDimensions), __FILE__, __LINE__);
 					if ($fp_im_temp = @fopen($IMtempfilename, 'wb')) {
 						// erase temp image so ImageMagick logo doesn't get output if other processing fails
@@ -1342,7 +1346,7 @@ class phpthumb {
 					$this->DebugMessage('source dimensions set to '.$this->source_width.'x'.$this->source_height, __FILE__, __LINE__);
 					$this->SetOrientationDependantWidthHeight();
 
-					if (!eregi('('.implode('|', $this->AlphaCapableFormats).')', $outputFormat)) {
+					if (!preg_match('/('.implode('|', $this->AlphaCapableFormats).')/i', $outputFormat)) {
 						// not a transparency-capable format
 						$commandline .= ' -background "#'.($this->bg ? $this->bg : 'FFFFFF').'"';
 						if ($getimagesize[2] == 1) {
@@ -1360,7 +1364,7 @@ class phpthumb {
 							$borderThickness = 0;
 							if (!empty($this->fltr)) {
 								foreach ($this->fltr as $key => $value) {
-									if (ereg('^bord\|([0-9]+)', $value, $matches)) {
+									if (preg_match('/^bord\|([0-9]+)/', $value, $matches)) {
 										$borderThickness = $matches[1];
 										break;
 									}
@@ -1493,11 +1497,11 @@ class phpthumb {
 				if ($this->ra) {
 					$this->ra = intval($this->ra);
 					if ($this->ImageMagickSwitchAvailable('rotate')) {
-						if (!eregi('('.implode('|', $this->AlphaCapableFormats).')', $outputFormat) || phpthumb_functions::version_compare_replacement($this->ImageMagickVersion(), '6.3.7', '>=')) {
+						if (!preg_match('/('.implode('|', $this->AlphaCapableFormats).')/i', $outputFormat) || phpthumb_functions::version_compare_replacement($this->ImageMagickVersion(), '6.3.7', '>=')) {
 							$this->DebugMessage('Using ImageMagick rotate', __FILE__, __LINE__);
 							$commandline .= ' -rotate '.$this->ra;
 							if (($this->ra % 90) != 0) {
-								if (eregi('('.implode('|', $this->AlphaCapableFormats).')', $outputFormat)) {
+								if (preg_match('/('.implode('|', $this->AlphaCapableFormats).')/i', $outputFormat)) {
 									// alpha-capable format
 									$commandline .= ' -background rgba(255,255,255,0)';
 								} else {
@@ -1655,11 +1659,11 @@ class phpthumb {
 
 						case 'lvl':
 							@list($band, $method, $threshold) = explode('|', $parameter);
-							$band      = ($band ? ereg_replace('[^RGBA\\*]', '', strtoupper($band)) : '*');
+							$band      = ($band ? preg_replace('/[^RGBA\\*]/', '', strtoupper($band)) : '*');
 							$method    = ((strlen($method) > 0)    ? intval($method)                :   2);
 							$threshold = ((strlen($threshold) > 0) ? floatval($threshold)           : 0.1);
 
-							$band = ereg_replace('[^RGBA\\*]', '', strtoupper($band));
+							$band = preg_replace('/[^RGBA\\*]/', '', strtoupper($band));
 
 							if (($method > 1) && !$this->ImageMagickSwitchAvailable(array('channel', 'contrast-stretch'))) {
 								// Because ImageMagick processing happens before PHP-GD filters, and because some
@@ -1753,9 +1757,9 @@ class phpthumb {
 											$color = ($this->bc ? $this->bc : '000000');
 										}
 										$commandline .= ' -border '.$width.' -bordercolor "#'.$color.'"';
-										if (ereg(' \-crop ([0-9]+)x([0-9]+)\+0\+0 ', $commandline, $matches)) {
+										if (preg_match('/ \-crop ([0-9]+)x([0-9]+)\+0\+0 /', $commandline, $matches)) {
 											$commandline = str_replace(' -crop '.$matches[1].'x'.$matches[2].'+0+0 ', ' -crop '.($matches[1] - (2 * $width)).'x'.($matches[2] - (2 * $width)).'+0+0 ', $commandline);
-										} elseif (ereg(' \-'.$IMresizeParameter.' ([0-9]+)x([0-9]+) ', $commandline, $matches)) {
+										} elseif (preg_match('/ \-'.$IMresizeParameter.' ([0-9]+)x([0-9]+) /', $commandline, $matches)) {
 											$commandline = str_replace(' -'.$IMresizeParameter.' '.$matches[1].'x'.$matches[2].' ', ' -'.$IMresizeParameter.' '.($matches[1] - (2 * $width)).'x'.($matches[2] - (2 * $width)).' ', $commandline);
 										}
 										$successfullyProcessedFilters[] = $filterkey;
@@ -1828,7 +1832,7 @@ class phpthumb {
 					$this->useRawIMoutput = false;
 				}
 
-				if (eregi('jpe?g', $outputFormat) && $this->q) {
+				if (preg_match('/jpe?g/i', $outputFormat) && $this->q) {
 					if ($this->ImageMagickSwitchAvailable(array('quality', 'interlace'))) {
 						$commandline .= ' -quality '.$this->thumbnailQuality;
 						if ($this->config_output_interlace) {
@@ -2032,7 +2036,7 @@ class phpthumb {
 				$starpos = strpos($valid_domain, '*');
 				if ($starpos !== false) {
 					$valid_domain = substr($valid_domain, $starpos + 1);
-					if (eregi($valid_domain.'$', $hostname)) {
+					if (preg_match('/' . $valid_domain.'$/i', $hostname)) {
 						$domain_is_allowed[$hostname] = true;
 						break;
 					}
@@ -2071,7 +2075,7 @@ exit;
 			}
 		}
 
-		if ($allow && $this->config_nohotlink_enabled && eregi('^(f|ht)tps?\://', $this->src)) {
+		if ($allow && $this->config_nohotlink_enabled && preg_match('_^(f|ht)tps?\://_i', $this->src)) {
 			$parsed_url = phpthumb_functions::ParseURLbetter($this->src);
 			//if (!phpthumb_functions::CaseInsensitiveInArray(@$parsed_url['host'], $this->config_nohotlink_valid_domains)) {
 			if ($this->OffsiteDomainIsAllowed(@$parsed_url['host'], $this->config_nohotlink_valid_domains)) {
@@ -2334,7 +2338,7 @@ exit;
 
 					case 'lvl': // autoLevels
 						@list($band, $method, $threshold) = explode('|', $parameter);
-						$band      = ($band ? ereg_replace('[^RGBA\\*]', '', strtoupper($band)) : '*');
+						$band      = ($band ? preg_replace('/[^RGBA\\*]/i', '', strtoupper($band)) : '*');
 						$method    = ((strlen($method) > 0)    ? intval($method)                :   2);
 						$threshold = ((strlen($threshold) > 0) ? floatval($threshold)           : 0.1);
 
@@ -2513,7 +2517,7 @@ exit;
 						$alignment    = ($alignment            ? $alignment            : 'BR');
 						$opacity      = (strlen($opacity)      ? intval($opacity)      : 50);
 						$rotate_angle = (strlen($rotate_angle) ? intval($rotate_angle) : 0);
-						if (!eregi('^([0-9\\.\\-]*)x([0-9\\.\\-]*)$', $alignment, $matches)) {
+						if (!preg_match('/^([0-9\\.\\-]*)x([0-9\\.\\-]*)$/i', $alignment, $matches)) {
 							$margins = array('x', 'y');
 							foreach ($margins as $xy) {
 								$margin[$xy] = (strlen($margin[$xy]) ? $margin[$xy] : 5);
@@ -2921,7 +2925,7 @@ exit;
 	function ExtractEXIFgetImageSize() {
 		$this->DebugMessage('starting ExtractEXIFgetImageSize()', __FILE__, __LINE__);
 
-		if (eregi('^http:', $this->src) && !$this->sourceFilename && $this->rawImageData) {
+		if (preg_match('/^http:/i', $this->src) && !$this->sourceFilename && $this->rawImageData) {
 			!$this->SourceDataToTempFile();
 		}
 		if (is_null($this->getimagesizeinfo)) {

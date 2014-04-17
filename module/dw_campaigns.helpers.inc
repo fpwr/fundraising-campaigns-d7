@@ -834,7 +834,10 @@ function _dw_civicrm_pseudoconstant_country() {
 
     $res = civicrm_query('/constant/get', $params, TRUE, FALSE, FALSE, TRUE);
 
-    $return = (array)$res->values;
+    $return = array();
+    foreach($res->values as $key => $value) {
+        $return[$key] = $value;
+    }
 
     // scoot the US and Canada to the top
     $others = array();
@@ -888,7 +891,12 @@ function _dw_civicrm_pseudoconstant_statesProvinceForCountry($country = '1228') 
 
     $res = civicrm_query('/constant/get', $params,  TRUE, FALSE, FALSE, TRUE);    
 
-    return (array)$res->values;
+    $return = array();
+    foreach($res->values as $key => $value) {
+        $return[$key] = $value;
+    }
+
+    return $return;
 }
 
 function _dw_campaigns_pseudoconstant_paymentprocessor() {

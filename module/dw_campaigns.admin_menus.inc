@@ -1128,6 +1128,8 @@ function dw_campaigns_groups_admin_campaigns_form($form, &$form_state) {
     $results = db_select('node', 'n')->fields('n')->condition('type', 'dw_campaigns_derby', '=')->execute();
     $options    = dw_campaigns_get_group_names();
 
+    $counts = array();
+
     foreach($results as $node_reference) {
         $node = node_load($node_reference->nid);
         $key = 'dw_' . $node->nid;
@@ -1136,6 +1138,12 @@ function dw_campaigns_groups_admin_campaigns_form($form, &$form_state) {
         );
 
         $picked             = isset($node->field_dw_grouping['und']['0']['value']) ? $node->field_dw_grouping['und']['0']['value'] : 0;
+
+        if(!isset($counts[$picked])) {
+            $counts[$picked] = 1;
+        } else {
+            $counts[$picked] += 1;
+        }
 
         $pairs[$node->nid]  = $picked;
 
@@ -1155,6 +1163,15 @@ function dw_campaigns_groups_admin_campaigns_form($form, &$form_state) {
         '#attributes'       => array('class'=> array('btn'))
     );
 
+    $totals = '';
+    foreach($counts as $key => $value) {
+        $totals .= $options[$key] . ' - ' . $value . '<br>';
+    }
+
+    $form['totals'] = array(
+        '#type'             => 'markup',
+        '#markup'            => '<div class="totals">' . $totals . '</div>'
+    );   
     return $form;
 }
 
