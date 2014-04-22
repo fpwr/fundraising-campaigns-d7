@@ -1758,7 +1758,7 @@ function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id)
             $doc_root   = $_SERVER['DOCUMENT_ROOT'] . base_path();
 
             $relative   = variable_get('file_public_path', conf_path() . '/files/');
-            $imageSrc   = $relative . str_replace("public://", '', $temp);
+            $imageSrc   = $relative . '/' . str_replace("public://", '', $temp);
 
             if(file_exists($doc_root . $imageSrc)) {
                 $found  = TRUE;
@@ -1799,7 +1799,7 @@ function dw_campaigns_user_host_manage_page_form($form, &$form_state, $event_id)
         );
 // FIXME - this entire form should be done differently
         $form['event_details']['field_dw_campaign_image_und_0']    = array(
-            '#type'             => 'managed_file',
+            '#type'             => 'file', // FIXME - make this a managed file - requires adding in a file_usage_add - https://drupal.org/node/979158
             '#title'            => t('Photo'),
             '#attributes'       => array(
                 'size'          => ''
@@ -4650,7 +4650,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'User Id',
         '#description'  => 'Your Flickr User Name',
-        '#default_value'=> $event->field_flickr_gallery_id['und'][0]['value'],
+        '#default_value'=> $event->flickr_gallery_id['und'][0]['value'],
         '#required'     => false
     );
 
@@ -4658,7 +4658,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'Photoset Id',
         '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
-        '#default_value'=> $event->field_flickr_gallery_photoset_id['und'][0]['value'],
+        '#default_value'=> $event->flickr_gallery_photoset_id['und'][0]['value'],
         '#required'     => false
     );
 
@@ -4688,8 +4688,8 @@ function flickr_event_gallery_form_submit($form, &$form_state){
 
     $event = node_load( $event_id );
 
-    $event->field_flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
-    $event->field_flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
+    $event->flickr_gallery_id['und'][0]['value'] = $form_state['input']['flickr_user_name'];
+    $event->flickr_gallery_photoset_id['und'][0]['value'] = $form_state['input']['flickr_photoset_id'];
 
     node_save( $event );
 
