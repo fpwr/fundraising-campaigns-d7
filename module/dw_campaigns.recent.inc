@@ -1274,7 +1274,8 @@ function dw_campaigns_user_host_page() {
         $event = node_load( $row->nid );
 
         $event_title = $event->title;
-        $event_date = substr( $event->field_dw_date_range['und'][0]['value'], 0, 10 );
+        $date = isset($event->field_dw_date_range['und'][0]['value']) ? $event->field_dw_date_range['und'][0]['value'] : 'NoDateSet';
+        $event_date = substr( $date, 0, 10 );
 
         //array of campaign titles with added date
         $campaigns_sort_array[ $event_title . ' (' . $event_date . ')' ] = $event;
@@ -4452,11 +4453,11 @@ function dw_campaigns_tag_contact($tag_id = NULL, $contact_list = array()) {
 
 function dw_campaigns_relationship_tag_list() {
     $types = array(
-        '9'  => 'Parent of someone with PWS',
-        '11' => 'Sibling of someone with PWS',
-        '14' => 'Relative of someone with PWS',
-        '33' => 'Friend',
-        '34' => 'Other'
+        '9'  => t('Parent of someone with PWS'),
+        '11' => t('Sibling of someone with PWS'),
+        '14' => t('Relative of someone with PWS'),
+        '33' => t('Friend'),
+        '34' => t('Other')
     );
 
     return $types;
