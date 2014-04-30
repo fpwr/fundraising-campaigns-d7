@@ -1639,8 +1639,9 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
         $contact = _dw_civicrm_contact_get( $params );
 
         $contact_last_name = $contact->last_name;
+        $contact_first_name = $contact->first_name;
 
-        $list[ $contact_last_name ] = $pcp;
+        $list[ $contact_last_name . $contact_first_name ] = $pcp;
 
     }
 
