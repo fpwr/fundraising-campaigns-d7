@@ -225,7 +225,7 @@ function civicrm_query($page, $params = array(), $cacheable = FALSE, $post = FAL
         }
     }
 
-    if(isset($result->error_message)) {
+    if(isset($result->error_message) && $page != 'directPayment/dodirectpayment') {
         drupal_set_message(t("civi error_message - :message", array(':message' => $result->error_message)) );
     } 
 

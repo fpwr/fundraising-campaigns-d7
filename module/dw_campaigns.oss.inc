@@ -1913,7 +1913,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
         );
 
 
-        if($paymentProcessor->payment_processor_type == 'PayPal') {
+        if($paymentProcessor->class_name == 'Payment_PayPalImpl') {
             switch($error_code)
             {
                 case '10001':
@@ -1939,7 +1939,7 @@ function dw_campaigns_user_register_oss_registration_payment_form_validate(&$for
                     break;
             }
             return;
-	} elseif($paymentProcessor->payment_processor_type == 'IATS') {
+	} elseif($paymentProcessor->class_name == 'Payment_IATS') {
             $errmsg = isset($IATS_errors[$error_code]) ? $IATS_errors[$error_code] : '';
 
             switch($error_code) {

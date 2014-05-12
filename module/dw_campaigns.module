@@ -5525,6 +5525,7 @@ if(!$alt_billing) {
         $paymentProcessor->user_name    = 'ryansm_1280248291_biz_api1.jemeznet.com';
         $paymentProcessor->password     = '1280248301';
         $paymentProcessor->signature    = 'A9KqCy2x6U0txLZNrROYvr3t-N5QAh0OlVXIQQRviR7B53jI2ipzfQDT';
+        $paymentProcessor->class_name   = 'Payment_PayPalImpl';
     }
 
     $paymentProcessor->subject      = '';
@@ -5581,6 +5582,7 @@ if(!$alt_billing) {
     $paymentParams['postal_code']           = $values['billing_postal_code'];
 }
 
+
     $result = _dw_campaigns_payment_dodirectpayment($paymentParams);
 
     if((is_object($result)) && isset($result->trxn_id))
@@ -5633,7 +5635,7 @@ d name or expiry date.',
         );
 
 
-        if($paymentProcessor->payment_processor_type == 'PayPal') {
+        if($paymentProcessor->class_name == 'Payment_PayPalImpl') {
             switch($error_code)
             {
                 case '10001':
@@ -5684,7 +5686,7 @@ d name or expiry date.',
                     break;
             }
             return;
-	} elseif($paymentProcessor->payment_processor_type == 'IATS') {
+	} elseif($paymentProcessor->class_name == 'Payment_IATS') {
 
             $errmsg = isset($IATS_errors[$error_code]) ? $IATS_errors[$error_code] : '';
 
@@ -5750,10 +5752,8 @@ d name or expiry date.',
         }
     }
 
-    file_put_contents("/tmp/b____", serialize($result));
 
     form_set_error('', "Unknown error, please contact support with code '33-9J'");
-    file_put_contents("/tmp/a____", serialize($result));
 }
 
 function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {

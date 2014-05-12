@@ -365,13 +365,10 @@ function dw_campaigns_users_donate_st_page_form_validate(&$form, &$form_state) {
 //$mode = 'test';
     if($mode === 'test') {
 
-        //Visa   4155100421445993
-        //Exp Date:  7/2015
-
-        $paymentProcessor->url_api      = 'https://api.sandbox.paypal.com/';
-        $paymentProcessor->user_name    = 'ryansm_1280248291_biz_api1.jemeznet.com';
-        $paymentProcessor->password     = '1280248301';
-        $paymentProcessor->signature    = 'A9KqCy2x6U0txLZNrROYvr3t-N5QAh0OlVXIQQRviR7B53jI2ipzfQDT';
+        $paymentProcessor->url_api      = '';
+        $paymentProcessor->user_name    = '';
+        $paymentProcessor->password     = '';
+        $paymentProcessor->signature    = '';
     }
 */
     $paymentProcessor->subject      = '';
