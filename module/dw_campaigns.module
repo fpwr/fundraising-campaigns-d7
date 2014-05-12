@@ -1607,6 +1607,10 @@ function dw_campaigns_theme() {
             'template'  => 'theme/dw-campaigns-finallyfull-page',
             'variables' => array()
         ),
+        'dw_campaigns_pcp_campaign_page_link' => array(
+            'template'  => 'theme/dw-campaigns-pcp-campaign-page-link',
+            'variables' => array('thisUser' => NULL, 'campaign' => NULL, 'pcp' => NULL),
+        ),
 // used for advertising campaign
         'dw_campaigns_thermometer_only' => array(
             'template'  => 'theme/dw-campaigns-thermometer-only-page',
@@ -1652,7 +1656,7 @@ function dw_campaigns_block_info() {
     $blocks[41] = array('info' => t('DW Campaigns - Offline Mailing Address'),);
     $blocks[42] = array('info' => t('DW Campaigns - Walking PCP Thermometer (right column)'),);
     $blocks[43] = array('info' => t('DW Campaigns - Donate Button (right column)'),);
-
+    $blocks[44] = array('info' => t('DW Campaigns - Campaign Page Link for PCP Page'),);
     return $blocks;
 }
 
@@ -1844,6 +1848,14 @@ function dw_campaigns_block_view($delta) {
             $pcp                = dw_campaigns_get_selected_pcp();
             $block['subject']   = t('Large Donate button');
             $block['content']   = theme('dw_campaigns_pcp_donate_button', array('thisUser' => $owner_user, 'campaign' => $campaign, 'pcp' => $pcp));
+            break;
+
+        case 44:
+            $owner_user         = dw_campaigns_get_selected_user();
+            $campaign           = dw_campaigns_get_selected_campaign();
+            $pcp                = dw_campaigns_get_selected_pcp();
+            $block['subject']   = t('Campaign Page Link for PCP Page');
+            $block['content']   = theme('dw_campaigns_pcp_campaign_page_link', array('thisUser' => $owner_user, 'campaign' => $campaign, 'pcp' => $pcp));
             break;
     }
 
@@ -5569,7 +5581,6 @@ if(!$alt_billing) {
     $paymentParams['postal_code']           = $values['billing_postal_code'];
 }
 
-
     $result = _dw_campaigns_payment_dodirectpayment($paymentParams);
 
     if((is_object($result)) && isset($result->trxn_id))
@@ -5894,6 +5905,13 @@ function dw_campaigns_users_donate_page_form_submit(&$form, &$form_state) {
         if($contributionPage->currency == 'CAD') {
     //        dw_campaign_receipt_report_email($contribution->id);
         }
+
+        if($params['total_amount'] >= 1000) {
+            $big_donate_email = variable_get('dw_campaigns_cfg_big_donate_email', '');
+            if(!empty($big_donate_email)) {
+                drupal_mail('dw_campaigns_receipt', 'big-donate-warn',   $big_donate_email,   user_preferred_language($user), $mergeObjects, $from);
+            }
+        }
     }
 
     //JFN - january 20 2014 1208 - [#migration "dw_campaigns_donor_participation_form_submit to here"]
@@ -5957,6 +5975,18 @@ function dw_campaigns_receipt_mail($key, &$message, $params) {
             $message['subject'] = $subject;
 
             $body = variable_get('dw_campaigns_default_receipt_text_pcp_owner', 'Donation Received for your personal campaign');
+            dw_campaigns_do_merge($body, $params);
+            $message['body'][]  = $body;
+
+            break;
+
+        case 'big-donate-warn':
+            $subject            = variable_get('dw_campaigns_default_receipt_subject_big_donate', '');
+            dw_campaigns_do_merge($subject, $params);
+
+            $message['subject'] = $subject;
+
+            $body = variable_get('dw_campaigns_default_receipt_text_big_donate', 'Large Donation Received');
             dw_campaigns_do_merge($body, $params);
             $message['body'][]  = $body;
 

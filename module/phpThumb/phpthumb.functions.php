@@ -511,7 +511,7 @@ class phpthumb_functions {
 		static $cache_gd_version = array();
 		if (empty($cache_gd_version)) {
 			$gd_info = gd_info();
-			if (eregi('bundled \((.+)\)$', $gd_info['GD Version'], $matches)) {
+			if (preg_match('/bundled \((.+)\)$/i', $gd_info['GD Version'], $matches)) {
 				$cache_gd_version[1] = $gd_info['GD Version'];  // e.g. "bundled (2.0.15 compatible)"
 				$cache_gd_version[0] = (float) $matches[1];     // e.g. "2.0" (not "bundled (2.0.15 compatible)")
 			} else {

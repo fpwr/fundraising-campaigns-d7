@@ -98,7 +98,10 @@
                     <a href="<?php echo $info_for_donors;?>"><?php echo t('Info for Donors'); ?></a>
                 </li>
         <?php 
-        if(!empty($matching_gifts)) { 
+        global $language;
+        $isFrench = (isset($language->language) && $language->language == 'fr');
+
+        if(!empty($matching_gifts) && !$isFrench) { 
         ?>
                 <li>
                     <a href="<?php echo $matching_gifts;?>"><?php echo t('Matching Gifts'); ?></a>
@@ -123,7 +126,7 @@
                     <a href="<?php echo $about_url; ?>"><?php echo t('About Us'); ?></a>
                 </li>
                 <li>
-                    <a href="/inTheMedia">In the Media</a>
+                    <a href="/inTheMedia"><?php echo t('In the Media'); ?></a>
                 </li>
                 <!--<li>
                     <a href="/node/451"><?php echo t('OSS Funded Research'); ?></a>

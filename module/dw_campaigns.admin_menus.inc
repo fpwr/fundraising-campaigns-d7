@@ -701,6 +701,36 @@ function dw_campaigns_settings() {
         '#description'      => t('Default Receipt Text'),
         '#default_value'    => variable_get('dw_campaigns_default_receipt_text_pcp_owner', '')           
     );
+
+
+// big donate
+    $form['mode_settings']['dw_campaigns_cfg_big_donate_email']= array(
+        '#type'             => 'textfield',
+        '#title'            => t('BIG DONATE Alert Email'),
+        '#description'      => t('Who to contact if a large (>$1000) donation is made'),
+        '#default_value'    => variable_get('dw_campaigns_cfg_big_donate_email', '')
+    );
+
+    $form['notifications']['dw_campaigns_default_receipt_subject_big_donate'] = array(
+        '#title'            => 'Receipt (Notification) Email Subject BIG DONATE (>$1000)',
+        '#type'             => 'textfield',
+        '#description'      => t('Default Email Subject'),
+        '#maxlength'        => 250,
+        '#default_value'    => variable_get('dw_campaigns_default_receipt_subject_big_donate', '')           
+    );
+
+    $form['notifications']['dw_campaigns_default_receipt_text_big_donate'] = array(
+        '#title'            => 'Receipt (Notification) Text BID DONATE (>$1000)',
+        //'#type'             => 'textarea',
+        '#type'             => 'text_format',
+        '#format'           => variable_get('dw_campaigns_cfg_default_filter', null),
+        '#description'      => t('Default Receipt Text'),
+        '#default_value'    => variable_get('dw_campaigns_default_receipt_text_big_donate', '')           
+    );
+    
+
+
+
     
 
     $form['notifications']['dw_campaigns_default_notification_weekly_subject_pcp_owner'] = array(
@@ -1040,6 +1070,7 @@ function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
         'dw_campaigns_default_receipt_text_pcp_owner',
         'dw_campaigns_default_notification_weekly_text_pcp_owner',
         'dw_campaigns_default_notification_progress_text_pcp_owner',
+        'dw_campaigns_default_receipt_text_big_donate',
         'dw-campaigns-invitation-text',
         'dw_campaigns_user_thankyou_text',
         'dw_campaigns_runner_signup_email',

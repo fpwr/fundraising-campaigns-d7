@@ -1513,7 +1513,8 @@ td.position {
 	background-color:#e8f1f7;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
-        margin-top:60px;
+        /*margin-top:60px;*/
+        margin-top:18px;
 	padding:10px;
 	text-align:center;
 	color:#193c56;

@@ -287,18 +287,22 @@
                             $contribution_id = $supporter->contribution_id;
                             $contribution = dw_campaigns_get_contribution_by_id( $contribution_id );
 
-                            if( $contribution->contribution_status_id == 2 ){   //status 2 for pending
-                                echo('<div class="tr">');
+                            if(!$contribution) {
+                                watchdog('contribution lookup failure', "id = " . $contribution_id);
+                            } else {
 
-                                $pcp_contact = _dw_civicrm_contact_get(array(
-                                        'contact_id'  => $supporter->contact_id,
-                                        'returnFirst' => 1
-                                    ));
-
-                                echo( '<div class="td">' . $pcp_contact->display_name . '</div><div class="td">' . $pcp_contact->email . '</div><div class="td">' . $pcp_contact->street_address . '</div><div class="td">' . $pcp_contact->city . '</div><div class="td">' . $pcp_contact->state_province_name . '</div><div class="td">' . $pcp_contact->postal_code . '</div>');
-                                echo('</div>');
+                                if( $contribution->contribution_status_id == 2 ){   //status 2 for pending
+                                    echo('<div class="tr">');
+    
+                                    $pcp_contact = _dw_civicrm_contact_get(array(
+                                            'contact_id'  => $supporter->contact_id,
+                                            'returnFirst' => 1
+                                        ));
+    
+                                    echo( '<div class="td">' . $pcp_contact->display_name . '</div><div class="td">' . $pcp_contact->email . '</div><div class="td">' . $pcp_contact->street_address . '</div><div class="td">' . $pcp_contact->city . '</div><div class="td">' . $pcp_contact->state_province_name . '</div><div class="td">' . $pcp_contact->postal_code . '</div>');
+                                    echo('</div>');
+                                }
                             }
-
                         }
 
                     }
