@@ -1051,14 +1051,14 @@ function dw_campaigns_settings() {
 
 
 
-    $form['#submit'][] = 'dw_campaigns_system_settings_form_submit';
+    $form['#submit'][] = 'dw_campaigns_system_settings_fix_form_submit';
 
     return system_settings_form($form);
 
 }
 
 // all fields on the admin settings page which are the WYSIWYG need to be listed here
-function dw_campaigns_system_settings_form_submit(&$form, &$form_state) {
+function dw_campaigns_system_settings_fix_form_submit(&$form, &$form_state) {
     $values = $form_state['values'];
 
     $possibles = array(

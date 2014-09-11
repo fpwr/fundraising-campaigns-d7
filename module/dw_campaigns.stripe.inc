@@ -82,6 +82,7 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
         function stripeResponseHandler( status, response ){
             if( response.error ){
                 alert( response.error.message );
+                setTimeout("jQuery(\"#edit-submit\").attr(\"disabled\", false)", 500);
 
             }else{
                 var token = response.id;
@@ -103,6 +104,8 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
             $("#dw-campaigns-users-donate-st-page-form").submit(function(event) {
                 donation_form = $(this);
 
+                setTimeout("jQuery(\"#edit-submit\").attr(\"disabled\", true)", 500);
+
                 //@TODO display waiting dialog here and disable continued donation submissions
 
                 //stripe doesn\'t like our drop down selector for year, so lets move the selected value into a field that it does like.
@@ -112,7 +115,6 @@ function dw_campaigns_users_donate_st_page_form($form, &$form_state, $campaign, 
 
                 //console.log(
                 document.getElementById("stripeFormattedExpYear").value = exp_year_text;
-
                 Stripe.card.createToken(donation_form, stripeResponseHandler);
 
                 // Prevent the form from submitting with the default action

@@ -226,7 +226,7 @@ $(document).ready(function() {
 
             if(!is_null($pledge_document)) {
 ?>
-            <tr class="pledge"><th><?php echo t('Pledge');?></th><td><a href="<?php echo $pledge_document; ?>"><?php echo t('Pledge Form');?></td></tr>
+            <tr class="pledge"><th><?php echo t('Pledge');?></th><td><a href="<?php echo $pledge_document; ?>"><?php echo t('Pledge Form');?></a></td></tr>
 <?php
             }
         }
@@ -248,9 +248,8 @@ $(document).ready(function() {
                 $flickr_photoset_id = isset($node->flickr_gallery_photoset_id['und'][0]['value']) ? $node->flickr_gallery_photoset_id['und'][0]['value'] : false;
                 //user_load($user->uid)->field_flickrphotosetid['und'][0]['value'];
 
-                if( $flickr_user_id && $flickr_photoset_id ){
+                if( $flickr_user_id && $flickr_photoset_id && 2==1){
                     echo('<tr><th>Event Gallery</th><td class="event-gallery-container">');
-
                     $block = _flickr_block_photoset_random($flickr_user_id, 3, 's', 'all', $flickr_photoset_id);
 
                     echo( $block );

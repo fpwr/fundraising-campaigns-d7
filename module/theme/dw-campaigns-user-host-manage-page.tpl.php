@@ -223,6 +223,11 @@
                     $supporters = dw_campaigns_pcp_get_supporters($pcp);
 
                     foreach( $supporters as $supporter ){
+                        if($supporter->contribution_id == -1) {
+                            // do nothing if its an offline donation
+                            continue;
+                        }
+
                         echo('<div class="tr">');
                         $pcp_contact = _dw_civicrm_contact_get(array(
                                 'contact_id'  => $supporter->contact_id,
@@ -285,6 +290,11 @@
                         foreach( $supporters as $supporter ){
 
                             $contribution_id = $supporter->contribution_id;
+                            if($contribution_id == -1) {
+                                // offline donation - ignore it ?
+                                continue; 
+                            }
+
                             $contribution = dw_campaigns_get_contribution_by_id( $contribution_id );
 
                             if(!$contribution) {
