@@ -557,6 +557,12 @@ function dw_campaigns_user_donations_add_page_new($campaignId = NULL) {
         if(is_null($campaignId)) {
             $campaignId  = dw_campaigns_get_default_campaign();
         }
+
+        if($type != 'walking') {
+            $campaign = node_load($campaignId);
+
+            $pcp          = dw_campaigns_user_get_pcp_for_campaign($user, $campaign);
+        }
     }
     $campaign = node_load($campaignId);
 
@@ -1201,9 +1207,11 @@ function dw_campaigns_host_find_campaigns($host_user_id, $include_admin = TRUE) 
    
         $host_user = user_load($host_user_id);
 
+        $low_node = dw_campaigns_get_selected_type() == 'walking' ? 100 : 0;
+
 // TODO make this actually do proper role checks =) 
         if($include_admin && ($host_user_id == 1 || (isset($host_user->roles['4']) && $host_user->roles['4'] == 'site admin'))) {
-            $result = db_query("select nid from {node} where type='dw_campaigns_derby' and nid>100");
+            $result = db_query("select nid from {node} where type='dw_campaigns_derby' and nid > $low_node");
             
             foreach($result as $row) {
                 $matches[$row->nid] = $row->nid;

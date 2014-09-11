@@ -264,14 +264,12 @@ if($theme_type == 'walking') {
 
         $rows[] = $row;
     }
-if($enabled && $theme_type != 'derby') {
 ?>
 <div class="offline" style="text-align:right">
     <a href="<?php echo request_uri();?>/add?ajax=1" class="fb_tall">Add Offline Donation</a>
 </div>
 
 <?php
-}
 ?>
 <div class="donation_values">
 <div class="key">
