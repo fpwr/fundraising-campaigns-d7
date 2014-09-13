@@ -1649,7 +1649,7 @@ function dw_campaigns_user_host_fundraisers_form($form, &$form_state, $event_id)
         $contact_last_name = $contact->last_name;
         $contact_first_name = $contact->first_name;
 
-        $list[ $contact_last_name . $contact_first_name ] = $pcp;
+        $list[ $contact_last_name . $contact_first_name . $contact->id ] = $pcp;
 
     }
 
@@ -3797,6 +3797,9 @@ function dw_campaigns_admin_contact_hosts_process() {
                                 $targets[$secondary]    = $secondary;
                             }
 
+
+// filterhere
+
                             if(count($targets) > 0) {
                                 $row->hosts = $targets;
                                 $values = (array) $row;
@@ -4652,7 +4655,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'User Id',
         '#description'  => 'Your Flickr User Name',
-        '#default_value'=> $event->flickr_gallery_id['und'][0]['value'],
+        '#default_value'=> isset($event->flickr_gallery_id['und'][0]['value']) ? $event->flickr_gallery_id['und'][0]['value'] : null,
         '#required'     => false
     );
 
@@ -4660,7 +4663,7 @@ function flickr_event_gallery_form( $form, &$form_state, $event_id ){
         '#type'         => 'textfield',
         '#title'        => 'Photoset Id',
         '#description'  => 'The id number of the photoset you want to use for this event\'s gallery',
-        '#default_value'=> $event->flickr_gallery_photoset_id['und'][0]['value'],
+        '#default_value'=> isset($event->flickr_gallery_photoset_id['und'][0]['value']) ? $event->flickr_gallery_photoset_id['und'][0]['value'] : null,
         '#required'     => false
     );
 
